@@ -6,6 +6,12 @@
     android:orientation="vertical"
     tools:context="org.lightsys.crmapp.LoginActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/loginToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary" />
+
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
