@@ -7,6 +7,6 @@
         android:id="@+id/action_search"
         android:orderInCategory="101"
         android:title="@string/action_search_person"
-        android:icon="@android:drawable/ic_menu_add"
+        android:icon="@drawable/ic_add_white_24dp"
         app:showAsAction="always"/>
 </menu>

@@ -2,12 +2,12 @@
 <resources>
     <color name="colorWindowBackground">#ffffff</color>
 
-    <color name="colorPrimary">#ed1c24</color>
-    <color name="colorPrimaryDark">#cc0000</color>
-    <color name="colorPrimaryLight">#b3e5fc</color>
-    <color name="colorAccent">#ff5722</color>
-    <color name="colorPrimaryText">#ffffff</color>
-    <color name="colorSecondaryText">#ffffff</color>
+    <color name="colorPrimary">#4CAF50</color>
+    <color name="colorPrimaryDark">#388E3C</color>
+    <color name="colorPrimaryLight">#C8E6C9</color>
+    <color name="colorAccent">#536DFE</color>
+    <color name="colorPrimaryText">#FFFFFF</color>
+    <color name="colorSecondaryText">#DDDDDD</color>
     <color name="colorIcons">#ffffff</color>
-    <color name="colorDivider">#b6b6b6</color>
+    <color name="colorDivider">#B6B6B6</color>
 </resources>
