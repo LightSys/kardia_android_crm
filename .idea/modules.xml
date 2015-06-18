@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CRMApp.iml" filepath="$PROJECT_DIR$/CRMApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/crmapp.iml" filepath="$PROJECT_DIR$/crmapp.iml" />
     </modules>
   </component>
 </project>
