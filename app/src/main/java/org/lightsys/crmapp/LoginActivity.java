@@ -5,9 +5,12 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -33,6 +36,7 @@ public class LoginActivity extends ActionBarActivity {
     TextView connectedAccounts;
     Toolbar toolbar;
     ArrayList<Account> accounts;
+    Button button;
 
     // These will be set by the async task's callback function.
     private static Boolean isValidAccount = null;
@@ -54,8 +58,32 @@ public class LoginActivity extends ActionBarActivity {
         serverAddress = (EditText) findViewById(R.id.loginServer);
         connectedAccounts = (TextView) findViewById(R.id.loginConnectedAccounts);
         accountsListView = (ListView) findViewById(R.id.loginListView);
+        button = (Button) findViewById(R.id.loginSubmit);
 
         loadAccounts();
+
+        button.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addAccount(v);
+                finish();
+            }
+        });
+
+        serverAddress.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    addAccount(v);
+                    handled=true;
+                }
+                finish();
+                return handled;
+            }
+        });
+
+
 
 
     }

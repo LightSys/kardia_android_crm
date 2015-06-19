@@ -80,15 +80,16 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         String queryString = "SELECT * FROM " + LocalDatabaseContract.AccountTable.TABLE_NAME;
 
         SQLiteDatabase db = this.getReadableDatabase();
+
         Cursor c = db.rawQuery(queryString, null);
 
         // Note that this is storing and returning the password as plain text which is literally the worst thing.
         while(c.moveToNext()) {
             Account account = new Account();
             account.setId(c.getInt(0));
-            account.setAccountName(c.getString(1));
-            account.setAccountPassword(c.getString(2));
-            account.setServerName(c.getString(3));
+            account.setAccountName(c.getString(0));
+            account.setAccountPassword(c.getString(1));
+            account.setServerName(c.getString(2));
 
             accounts.add(account);
         }
@@ -147,16 +148,18 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         // available.
         public static final String SQL_CREATE_ACCOUNT_TABLE =
                 "CREATE TABLE " + AccountTable.TABLE_NAME + " (" +
+                AccountTable._ID + " INTEGER PRIMARY KEY, " +
                 AccountTable.COLUMN_ACCOUNT_NAME + TEXT_TYPE + COMMA_SEP +
                 AccountTable.COLUMN_ACCOUNT_PASSWORD + TEXT_TYPE + COMMA_SEP +
                 AccountTable.COLUMN_SERVER_ADDRESS + TEXT_TYPE +
                 ")";
 
         public static final String SQL_CREATE_TIMESTAMP_TABLE =
-                "CREATE TABLE" + TimestampTable.TABLE_NAME + " (" +
+                "CREATE TABLE " + TimestampTable.TABLE_NAME + " (" +
+                TimestampTable._ID + " INTEGER PRIMARY KEY, " +
                 TimestampTable.COLUMN_DATE + TEXT_TYPE + ")";
 
-        public static final String SQL_DELETE_ACCOUNT_TABLE = " DROP TABLE IF EXISTS" + AccountTable.TABLE_NAME;
+        public static final String SQL_DELETE_ACCOUNT_TABLE = " DROP TABLE IF EXISTS " + AccountTable.TABLE_NAME;
 
         public static abstract class AccountTable implements BaseColumns {
             public static final String TABLE_NAME = "accountTable";
