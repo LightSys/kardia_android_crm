@@ -18,6 +18,12 @@ public class Account {
         setServerName(serverName);
     }
 
+    public Account (String accountName, String accountPassword, String serverName) {
+        setAccountName(accountName);
+        setAccountPassword(accountPassword);
+        setServerName(serverName);
+    }
+
     public int getId() {
         return id;
     }
