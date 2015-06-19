@@ -143,7 +143,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
         }
 
         **/
-        
+
         // If not valid account, do not attempt pulling info
         if(!validAccount) {
             return;

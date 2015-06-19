@@ -25,6 +25,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(LocalDatabaseContract.SQL_CREATE_ACCOUNT_TABLE);
+        db.execSQL(LocalDatabaseContract.SQL_CREATE_TIMESTAMP_TABLE);
     }
 
     @Override
@@ -46,7 +47,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
      */
     public void addAccount(Account account){
         ContentValues values = new ContentValues();
-        values.put(LocalDatabaseContract.AccountTable.COLUMN_ACCOUNT_NAMECOLUMN_ACCOUNTNAME, account.getAccountName());
+        values.put(LocalDatabaseContract.AccountTable.COLUMN_ACCOUNT_NAME, account.getAccountName());
         values.put(LocalDatabaseContract.AccountTable.COLUMN_ACCOUNT_PASSWORD, account.getAccountPassword());
         values.put(LocalDatabaseContract.AccountTable.COLUMN_SERVER_ADDRESS, account.getServerName());
 
@@ -167,7 +168,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
         public static abstract class TimestampTable implements BaseColumns {
             public static final String TABLE_NAME = "timestampTable";
-            public static final String COLUMN_DATE = "date"
+            public static final String COLUMN_DATE = "date";
         }
     }
 }
