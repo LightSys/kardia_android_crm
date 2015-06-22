@@ -3,23 +3,37 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
+    android:gravity="center_horizontal"
+    >
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Username:"/>
+        android:text="Username: "
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:textColor="#000000"
+        android:textStyle="bold"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/loginListUsername"/>
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:id="@+id/loginListUsername"
+        android:textColor="#000000"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Server Address:"/>
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:layout_marginLeft="25dp"
+        android:text="Server Address: "
+        android:textColor="#000000"
+        android:textStyle="bold"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/loginListServerAddress"/>
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:id="@+id/loginListServerAddress"
+        android:textColor="#000000"/>
 
 </LinearLayout>

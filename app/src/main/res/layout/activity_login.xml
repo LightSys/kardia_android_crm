@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/loginLayout"
     tools:context="org.lightsys.crmapp.LoginActivity">
 
     <android.support.v7.widget.Toolbar
@@ -25,7 +26,8 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="0dp">
+        android:layout_marginTop="0dp"
+        android:id="@+id/accountNameTIL">
 
         <EditText
             android:id="@+id/loginUsername"
@@ -45,7 +47,8 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="0dp">
+        android:layout_marginTop="0dp"
+        android:id="@+id/accountPasswordTIL">
 
         <EditText
             android:id="@+id/loginPassword"
@@ -62,7 +65,8 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="0dp">
+        android:layout_marginTop="0dp"
+        android:id="@+id/serverAddressTIL">
         <EditText
             android:id="@+id/loginServer"
             android:hint="@string/serverName"

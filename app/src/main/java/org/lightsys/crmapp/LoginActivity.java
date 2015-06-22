@@ -2,6 +2,7 @@ package org.lightsys.crmapp;
 
 import android.database.Cursor;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -12,11 +13,14 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.lightsys.crmapp.data.Account;
+import org.lightsys.crmapp.data.DataConnection;
 import org.lightsys.crmapp.data.LocalDatabaseHelper;
 import org.w3c.dom.Text;
 
@@ -34,6 +38,7 @@ public class LoginActivity extends ActionBarActivity {
     ListView accountsListView;
     EditText accountName, accountPassword, serverAddress;
     TextView connectedAccounts;
+    View loginLayout;
     Toolbar toolbar;
     ArrayList<Account> accounts;
     Button button;
@@ -59,6 +64,7 @@ public class LoginActivity extends ActionBarActivity {
         connectedAccounts = (TextView) findViewById(R.id.loginConnectedAccounts);
         accountsListView = (ListView) findViewById(R.id.loginListView);
         button = (Button) findViewById(R.id.loginSubmit);
+        loginLayout = findViewById(R.id.loginLayout);
 
         loadAccounts();
 
@@ -66,7 +72,7 @@ public class LoginActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 addAccount(v);
-                finish();
+                //finish();
             }
         });
 
@@ -76,9 +82,9 @@ public class LoginActivity extends ActionBarActivity {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     addAccount(v);
-                    handled=true;
+                    handled = true;
                 }
-                finish();
+                //finish();
                 return handled;
             }
         });
@@ -137,17 +143,33 @@ public class LoginActivity extends ActionBarActivity {
             }
         }
         if (addAccountName.equals("")) {
-            Snackbar.make(v, "Please enter a username.", Snackbar.LENGTH_LONG).show();
+            ((TextInputLayout) findViewById(R.id.accountNameTIL)).setError("Enter a username.");
+            db.close();
             return;
         }
-        else if (addAccountPassword.equals("")) {
-            Snackbar.make(v, "Please enter a password.", Snackbar.LENGTH_LONG).show();
+        else {
+            ((TextInputLayout) findViewById(R.id.accountNameTIL)).setError(null);
         }
-        else if (addServerAddress.equals("")) {
-            Snackbar.make(v, "Please enter a server.", Snackbar.LENGTH_LONG).show();
+        if (addAccountPassword.equals("")) {
+            ((TextInputLayout) findViewById(R.id.accountPasswordTIL)).setError("Enter a password.");
+            db.close();
+            return;
+        }
+        else {
+            ((TextInputLayout) findViewById(R.id.accountPasswordTIL)).setError(null);
+        }
+        if (addServerAddress.equals("")) {
+            ((TextInputLayout) findViewById(R.id.serverAddressTIL)).setError("Enter a server address.");
+            db.close();
+            return;
+        }
+        else {
+            ((TextInputLayout) findViewById(R.id.serverAddressTIL)).setError(null);
         }
         Account newAccount = new Account(addAccountName, addAccountPassword, addServerAddress);
         //Add an async connection to check if the account is valid with the server.
+
+        (new DataConnection(this, newAccount)).execute("");
 
         while (isValidAccount == null) {
             continue;
@@ -157,7 +179,30 @@ public class LoginActivity extends ActionBarActivity {
             isValidAccount = null;
             errorType = null;
             db.close();
+        } else {
+            // Set error statement based on error provided by async task
+            String errorStatement;
+            if (errorType == ErrorType.ServerNotFound) {
+                errorStatement = "Server not found.";
+            } else if (errorType == ErrorType.InvalidLogin) {
+                errorStatement = "Username or Password is incorrect";
+            } else if (errorType == ErrorType.Unauthorized) {
+                errorStatement = "Something went wrong.";
+            } else {
+                errorStatement = "Unknown issue. \n 1) Check Internet connection" +
+                        "\n 2) Server may be down";
+            }
+            Snackbar.make(loginLayout, "Connection to server failed.", Snackbar.LENGTH_LONG).show();
+            Toast.makeText(LoginActivity.this, "Connecting account failed. \n -" + errorStatement,
+                    Toast.LENGTH_LONG).show();
+
+            // set async flags back to null for next account connection
+            isValidAccount = null;
+            errorType = null;
+            db.close();
+            return;
         }
+        finish();
     }
 
     public static void setErrorType(ErrorType pErrorType) {

@@ -67,7 +67,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
         try {
             // Attempt to pull information about the donor from the API
-            String test = GET("http://" + Host_Name + ":800/apps/kardia/api/donor/" + Donor_ID +
+            String test = GET("http://" + Host_Name + ":800/apps/kardia/api/crm/" +
                     "/?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic");
             // Unauthorized signals invalid ID
             // 404 not found signals incorrect username or password
@@ -123,10 +123,8 @@ public class DataConnection extends AsyncTask<String, Void, String> {
         // **Note that if not valid, sets errorType before setting validation
         //   As soon as validation is set, the activity will proceed and may not get errorType**
 
-      /**
-       * I torpedoed this code block for now, until I can figure out where it gets called from.
-       *
-        ArrayList<Account> databaseAccounts = db.getAccounts();
+
+      ArrayList<Account> databaseAccounts = db.getAccounts();
         if (!databaseAccounts.contains(account)) {
             validAccount = isValidAccount();
             if (dataContext.getClass() == LoginActivity.class) {
@@ -134,15 +132,14 @@ public class DataConnection extends AsyncTask<String, Void, String> {
                     LoginActivity.setErrorType(errorType);
                 }
                 LoginActivity.setIsValidAccount(validAccount);
-            } else if (dataContext.getClass() == EditAccountActivity.class) {
+            } else if (dataContext.getClass() == LoginActivity.class) {
                 if (!validAccount) {
-                    EditAccountActivity.setErrorType(errorType);
+                    LoginActivity.setErrorType(errorType);
                 }
-                EditAccountActivity.setValidation(validAccount);
+                LoginActivity.setIsValidAccount(validAccount);
             }
         }
 
-        **/
 
         // If not valid account, do not attempt pulling info
         if(!validAccount) {
@@ -158,8 +155,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
             db.updateTimeStamp("" + originalStamp, "" + currentStamp);
         }
         db.close();
-    }
-
+        }
 
 
     /**

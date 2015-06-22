@@ -87,9 +87,9 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         while(c.moveToNext()) {
             Account account = new Account();
             account.setId(c.getInt(0));
-            account.setAccountName(c.getString(0));
-            account.setAccountPassword(c.getString(1));
-            account.setServerName(c.getString(2));
+            account.setAccountName(c.getString(1));
+            account.setAccountPassword(c.getString(2));
+            account.setServerName(c.getString(3));
 
             accounts.add(account);
         }
