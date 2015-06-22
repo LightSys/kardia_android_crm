@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -80,8 +81,10 @@ public class LoginActivity extends ActionBarActivity {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    addAccount(v);
+
+                addAccount(v);
+
+                if (actionId == EditorInfo.IME_ACTION_GO) {
                     handled = true;
                 }
                 //finish();
@@ -123,7 +126,9 @@ public class LoginActivity extends ActionBarActivity {
                 new String[]{"accountName", "serverAddress"},
                 new int[]{R.id.loginListUsername, R.id.loginListServerAddress});
 
+
         accountsListView.setAdapter(simpleAdapter);
+
     }
 
     public void addAccount(View v) {
@@ -137,8 +142,10 @@ public class LoginActivity extends ActionBarActivity {
         for(Account account : accounts) {
             if(account.getAccountName().equals(addAccountName) && account.getServerName().equals(addServerAddress)
                     && account.getAccountPassword().equals(addAccountPassword)) {
-                Snackbar.make(v, "Account already stored.", Snackbar.LENGTH_LONG).show();
+                //Snackbar.make(v, "Account already stored.", Snackbar.LENGTH_LONG).show();
                 db.close();
+                //Probably should load data from the server here?
+                finish();
                 return;
             }
         }
@@ -183,18 +190,16 @@ public class LoginActivity extends ActionBarActivity {
             // Set error statement based on error provided by async task
             String errorStatement;
             if (errorType == ErrorType.ServerNotFound) {
-                errorStatement = "Server not found.";
+                errorStatement = "Server not found";
             } else if (errorType == ErrorType.InvalidLogin) {
-                errorStatement = "Username or Password is incorrect";
+                errorStatement = "Incorrect username/password";
             } else if (errorType == ErrorType.Unauthorized) {
-                errorStatement = "Something went wrong.";
+                errorStatement = "Unauthorized";
             } else {
                 errorStatement = "Unknown issue. \n 1) Check Internet connection" +
                         "\n 2) Server may be down";
             }
-            Snackbar.make(loginLayout, "Connection to server failed.", Snackbar.LENGTH_LONG).show();
-            Toast.makeText(LoginActivity.this, "Connecting account failed. \n -" + errorStatement,
-                    Toast.LENGTH_LONG).show();
+            Snackbar.make(loginLayout, "Connection to server failed: " + errorStatement, Snackbar.LENGTH_LONG).show();
 
             // set async flags back to null for next account connection
             isValidAccount = null;
