@@ -11,21 +11,14 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.lightsys.crmapp.LoginActivity;
-import org.lightsys.crmapp.data.LocalDatabaseHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
 
 /**
  * This class is used to pull json files (from the API URLs)
@@ -44,7 +37,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
     private String Host;
     private String Base_Host_Name;
     private String PORT = "800";
-    private String crmEndpoint;
+    private String apiEndpoint;
     private String apiQueryOptions;
     private int Donor_ID;
     private String Password;
@@ -52,7 +45,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
     private int Account_ID;
     private Context dataContext;
     private LocalDatabaseHelper db;
-    LoginActivity.ErrorType errorType = null;
+    ErrorType errorType = null;
     private PullType pullType;
 
     private static final String Tag = "DPS";
@@ -84,18 +77,18 @@ public class DataConnection extends AsyncTask<String, Void, String> {
      * Pulls all data attached to account
      */
     private void DataPull(){
+        db = new LocalDatabaseHelper(dataContext);
+        Base_Host_Name = account.getServerName();
+        Host = "http://" + Base_Host_Name + ":800";
+        apiQueryOptions = "?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+        Password = account.getAccountPassword();
+        AccountName = account.getAccountName();
+
         switch (pullType) {
             case ValidateAccount:
-                db = new LocalDatabaseHelper(dataContext);
-                Base_Host_Name = account.getServerName();
-                Host = "http://" + Base_Host_Name + ":800";
-                crmEndpoint = "/apps/kardia/api/crm/";
-                apiQueryOptions = "?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
-                Password = account.getAccountPassword();
-                AccountName = account.getAccountName();
+                apiEndpoint = "/apps/kardia/api/crm/";
                 //Account_ID = account.getId();
                 boolean validAccount = true;
-
 
                 // If account does not exist in the database, check to see if it is a valid account
                 // Set the validation field in the respective class that account is being tested in
@@ -133,9 +126,23 @@ public class DataConnection extends AsyncTask<String, Void, String> {
                     long currentStamp = Calendar.getInstance().getTimeInMillis();
                     db.updateTimeStamp("" + originalStamp, "" + currentStamp);
                 }
-                db.close();
+                break;
+
+            case GetPartnerId:
+                apiEndpoint = "apps/kardia/api/partner/Staff";
+
+                try {
+                    String query = Host + apiEndpoint + apiQueryOptions;
+                    String queryResponse = GET(query);
+                }
+                catch (Exception e) {
+                    errorType = ErrorType.ServerNotFound;
+                }
+
+
                 break;
         }
+        db.close();
 
     }
 
@@ -148,24 +155,24 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
         try {
             // Attempt to pull information about the donor from the API
-            String query = Host + crmEndpoint + apiQueryOptions;
+            String query = Host + apiEndpoint + apiQueryOptions;
             String test = GET(query);
             // Unauthorized signals invalid ID
             // 404 not found signals incorrect username or password
             // Empty or null signals an incorrect server name
             if (test.equals("")) {
-                errorType = LoginActivity.ErrorType.ServerNotFound;
+                errorType = ErrorType.ServerNotFound;
             } else if (test.contains("<H1>Unauthorized</H1>")) {
-                errorType = LoginActivity.ErrorType.Unauthorized;
+                errorType = ErrorType.Unauthorized;
             } else if (test.contains("404 Not Found")) {
-                errorType = LoginActivity.ErrorType.InvalidLogin;
+                errorType = ErrorType.InvalidLogin;
             } else {
                 isValid = true;
             }
         }
         catch (Exception e) {
             // GET function throws an Exception if server not found
-            errorType = LoginActivity.ErrorType.ServerNotFound;
+            errorType = ErrorType.ServerNotFound;
             return false;
         }
         return isValid;

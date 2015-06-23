@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import org.lightsys.crmapp.data.Account;
 import org.lightsys.crmapp.data.DataConnection;
+import org.lightsys.crmapp.data.ErrorType;
 import org.lightsys.crmapp.data.LocalDatabaseHelper;
 import org.lightsys.crmapp.data.PullType;
 import org.w3c.dom.Text;
@@ -33,9 +34,6 @@ import java.util.List;
 
 public class LoginActivity extends ActionBarActivity {
 
-    public enum ErrorType {
-        Unauthorized, ServerNotFound, InvalidLogin
-    }
 
 
     ListView accountsListView;
