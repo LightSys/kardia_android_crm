@@ -41,7 +41,9 @@ import java.util.Iterator;
 public class DataConnection extends AsyncTask<String, Void, String> {
 
     private Account account;
-    private String Host_Name;
+    private String Host;
+    private String Base_Host_Name;
+    private String PORT = "800";
     private String crmEndpoint;
     private String apiQueryOptions;
     private int Donor_ID;
@@ -81,7 +83,8 @@ public class DataConnection extends AsyncTask<String, Void, String> {
      */
     private void DataPull(){
         db = new LocalDatabaseHelper(dataContext);
-        Host_Name = "http://" + account.getServerName() + ":800";
+        Base_Host_Name = account.getServerName();
+        Host = "http://" + Base_Host_Name + ":800";
         crmEndpoint = "/apps/kardia/api/crm/";
         apiQueryOptions = "?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
         Password = account.getAccountPassword();
@@ -138,7 +141,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
         try {
             // Attempt to pull information about the donor from the API
-            String query = Host_Name + crmEndpoint + apiQueryOptions;
+            String query = Host + crmEndpoint + apiQueryOptions;
             String test = GET(query);
             // Unauthorized signals invalid ID
             // 404 not found signals incorrect username or password
@@ -177,7 +180,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
         try {
 
             CredentialsProvider credProvider = new BasicCredentialsProvider();
-            credProvider.setCredentials(new AuthScope(Host_Name, 800),
+            credProvider.setCredentials(new AuthScope(Base_Host_Name, 800),
                     new UsernamePasswordCredentials(AccountName, Password));
 
             DefaultHttpClient client = new DefaultHttpClient();
