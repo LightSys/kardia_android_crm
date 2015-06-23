@@ -58,38 +58,6 @@ public class DataConnection extends AsyncTask<String, Void, String> {
         account = a;
     }
 
-    /**
-     * @return if account was found to be valid
-     */
-    private boolean isValidAccount() {
-        boolean isValid = false;
-        // Account details already set in DataPull()
-
-        try {
-            // Attempt to pull information about the donor from the API
-            String test = GET("http://" + Host_Name + ":800/apps/kardia/api/crm/" +
-                    "/?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic");
-            // Unauthorized signals invalid ID
-            // 404 not found signals incorrect username or password
-            // Empty or null signals an incorrect server name
-            if (test.equals("")) {
-                errorType = LoginActivity.ErrorType.ServerNotFound;
-            } else if (test.contains("<H1>Unauthorized</H1>")) {
-                errorType = LoginActivity.ErrorType.Unauthorized;
-            } else if (test.contains("404 Not Found")) {
-                errorType = LoginActivity.ErrorType.InvalidLogin;
-            } else {
-                isValid = true;
-            }
-        }
-        catch (Exception e) {
-            // GET function throws an Exception if server not found
-            errorType = LoginActivity.ErrorType.ServerNotFound;
-            return false;
-        }
-        return isValid;
-    }
-
     @Override
     protected String doInBackground(String... params) {
         try{
@@ -124,7 +92,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
         //   As soon as validation is set, the activity will proceed and may not get errorType**
 
 
-      ArrayList<Account> databaseAccounts = db.getAccounts();
+        ArrayList<Account> databaseAccounts = db.getAccounts();
         if (!databaseAccounts.contains(account)) {
             validAccount = isValidAccount();
             if (dataContext.getClass() == LoginActivity.class) {
@@ -155,7 +123,40 @@ public class DataConnection extends AsyncTask<String, Void, String> {
             db.updateTimeStamp("" + originalStamp, "" + currentStamp);
         }
         db.close();
+    }
+
+    /**
+     * @return if account was found to be valid
+     */
+    private boolean isValidAccount() {
+        boolean isValid = false;
+        // Account details already set in DataPull()
+
+        try {
+            // Attempt to pull information about the donor from the API
+            String test = GET("http://" + Host_Name + ":800/apps/kardia/api/crm/" +
+                    "/?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic");
+            // Unauthorized signals invalid ID
+            // 404 not found signals incorrect username or password
+            // Empty or null signals an incorrect server name
+            if (test.equals("")) {
+                errorType = LoginActivity.ErrorType.ServerNotFound;
+            } else if (test.contains("<H1>Unauthorized</H1>")) {
+                errorType = LoginActivity.ErrorType.Unauthorized;
+            } else if (test.contains("404 Not Found")) {
+                errorType = LoginActivity.ErrorType.InvalidLogin;
+            } else {
+                isValid = true;
+            }
         }
+        catch (Exception e) {
+            // GET function throws an Exception if server not found
+            errorType = LoginActivity.ErrorType.ServerNotFound;
+            return false;
+        }
+        return isValid;
+    }
+
 
 
     /**

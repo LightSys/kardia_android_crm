@@ -15,6 +15,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.lightsys.crmapp.data.Account;
+import org.lightsys.crmapp.data.LocalDatabaseHelper;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -27,7 +31,7 @@ public class MainActivity extends ActionBarActivity {
 
     ViewPager viewPager;
     ViewPagerAdapter viewPagerAdapter;
-    CharSequence Titles[]={"Tab1", "Tab2"};
+    CharSequence Titles[]={"My Collaborators", "All Kardia"};
     int NumOfTabs = 2;
 
     @Override
@@ -39,8 +43,18 @@ public class MainActivity extends ActionBarActivity {
         setupToolbar();
         setupTablayout();
 
-        Intent login = new Intent(MainActivity.this, LoginActivity.class);
-        startActivity(login);
+        ArrayList<Account> accounts = new ArrayList<>();
+        LocalDatabaseHelper db = new LocalDatabaseHelper(this);
+        accounts = db.getAccounts();
+        db.close();
+
+        if (accounts.size() == 0) {
+            Intent login = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(login);
+        }
+
+
+
     }
 
     @Override
