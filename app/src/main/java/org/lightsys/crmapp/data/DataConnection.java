@@ -53,13 +53,15 @@ public class DataConnection extends AsyncTask<String, Void, String> {
     private Context dataContext;
     private LocalDatabaseHelper db;
     LoginActivity.ErrorType errorType = null;
+    private PullType pullType;
 
     private static final String Tag = "DPS";
 
-    public DataConnection(Context context, Account a) {
+    public DataConnection(Context context, Account a, PullType type) {
         super();
         dataContext = context;
         account = a;
+        pullType = type;
     }
 
     @Override
@@ -82,54 +84,59 @@ public class DataConnection extends AsyncTask<String, Void, String> {
      * Pulls all data attached to account
      */
     private void DataPull(){
-        db = new LocalDatabaseHelper(dataContext);
-        Base_Host_Name = account.getServerName();
-        Host = "http://" + Base_Host_Name + ":800";
-        crmEndpoint = "/apps/kardia/api/crm/";
-        apiQueryOptions = "?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
-        Password = account.getAccountPassword();
-        AccountName = account.getAccountName();
-        //Account_ID = account.getId();
-        boolean validAccount = true;
+        switch (pullType) {
+            case ValidateAccount:
+                db = new LocalDatabaseHelper(dataContext);
+                Base_Host_Name = account.getServerName();
+                Host = "http://" + Base_Host_Name + ":800";
+                crmEndpoint = "/apps/kardia/api/crm/";
+                apiQueryOptions = "?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+                Password = account.getAccountPassword();
+                AccountName = account.getAccountName();
+                //Account_ID = account.getId();
+                boolean validAccount = true;
 
 
-        // If account does not exist in the database, check to see if it is a valid account
-        // Set the validation field in the respective class that account is being tested in
-        // **Note that if not valid, sets errorType before setting validation
-        //   As soon as validation is set, the activity will proceed and may not get errorType**
+                // If account does not exist in the database, check to see if it is a valid account
+                // Set the validation field in the respective class that account is being tested in
+                // **Note that if not valid, sets errorType before setting validation
+                //   As soon as validation is set, the activity will proceed and may not get errorType**
 
 
-        ArrayList<Account> databaseAccounts = db.getAccounts();
-        if (!databaseAccounts.contains(account)) {
-            validAccount = isValidAccount();
-            if (dataContext.getClass() == LoginActivity.class) {
-                if (!validAccount) {
-                    LoginActivity.setErrorType(errorType);
+                ArrayList<Account> databaseAccounts = db.getAccounts();
+                if (!databaseAccounts.contains(account)) {
+                    validAccount = isValidAccount();
+                    if (dataContext.getClass() == LoginActivity.class) {
+                        if (!validAccount) {
+                            LoginActivity.setErrorType(errorType);
+                        }
+                        LoginActivity.setIsValidAccount(validAccount);
+                    } else if (dataContext.getClass() == LoginActivity.class) {
+                        if (!validAccount) {
+                            LoginActivity.setErrorType(errorType);
+                        }
+                        LoginActivity.setIsValidAccount(validAccount);
+                    }
                 }
-                LoginActivity.setIsValidAccount(validAccount);
-            } else if (dataContext.getClass() == LoginActivity.class) {
-                if (!validAccount) {
-                    LoginActivity.setErrorType(errorType);
+
+
+                // If not valid account, do not attempt pulling info
+                if(!validAccount) {
+                    return;
                 }
-                LoginActivity.setIsValidAccount(validAccount);
-            }
+
+                // If no timestamp found, add timestamp, otherwise update timestamp
+                long originalStamp = db.getTimeStamp();
+                if (originalStamp == -1) {
+                    db.addTimeStamp("" + Calendar.getInstance().getTimeInMillis());
+                } else {
+                    long currentStamp = Calendar.getInstance().getTimeInMillis();
+                    db.updateTimeStamp("" + originalStamp, "" + currentStamp);
+                }
+                db.close();
+                break;
         }
 
-
-        // If not valid account, do not attempt pulling info
-        if(!validAccount) {
-            return;
-        }
-
-        // If no timestamp found, add timestamp, otherwise update timestamp
-        long originalStamp = db.getTimeStamp();
-        if (originalStamp == -1) {
-            db.addTimeStamp("" + Calendar.getInstance().getTimeInMillis());
-        } else {
-            long currentStamp = Calendar.getInstance().getTimeInMillis();
-            db.updateTimeStamp("" + originalStamp, "" + currentStamp);
-        }
-        db.close();
     }
 
     /**

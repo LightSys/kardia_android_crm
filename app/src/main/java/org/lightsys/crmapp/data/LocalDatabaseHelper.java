@@ -29,15 +29,17 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        onUpgrade(db, oldVersion, newVersion);
+    }
+
+    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(LocalDatabaseContract.SQL_DELETE_ACCOUNT_TABLE);
         onCreate(db);
     }
 
-    @Override
-    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        onUpgrade(db, oldVersion, newVersion);
-    }
+
 
     /* ********************************* Add Queries ************************ */
 
@@ -137,6 +139,8 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
                 LocalDatabaseContract.TimestampTable.COLUMN_DATE + " = " + originalDate, null);
         db.close();
     }
+
+    /* ***************************Contracts **************************************** */
 
     public static final class LocalDatabaseContract {
         public static final String TEXT_TYPE = " TEXT";

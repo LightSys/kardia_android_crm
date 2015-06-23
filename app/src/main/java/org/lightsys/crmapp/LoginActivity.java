@@ -23,6 +23,7 @@ import android.widget.Toast;
 import org.lightsys.crmapp.data.Account;
 import org.lightsys.crmapp.data.DataConnection;
 import org.lightsys.crmapp.data.LocalDatabaseHelper;
+import org.lightsys.crmapp.data.PullType;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class LoginActivity extends ActionBarActivity {
     public enum ErrorType {
         Unauthorized, ServerNotFound, InvalidLogin
     }
+
 
     ListView accountsListView;
     EditText accountName, accountPassword, serverAddress;
@@ -176,7 +178,7 @@ public class LoginActivity extends ActionBarActivity {
         Account newAccount = new Account(addAccountName, addAccountPassword, addServerAddress);
         //Add an async connection to check if the account is valid with the server.
 
-        (new DataConnection(this, newAccount)).execute("");
+        (new DataConnection(this, newAccount, PullType.ValidateAccount)).execute("");
 
         while (isValidAccount == null) {
             continue;
