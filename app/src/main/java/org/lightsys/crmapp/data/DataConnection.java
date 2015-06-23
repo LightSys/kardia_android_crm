@@ -11,6 +11,8 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.lightsys.crmapp.LoginActivity;
 
 import java.io.BufferedReader;
@@ -131,13 +133,10 @@ public class DataConnection extends AsyncTask<String, Void, String> {
             case GetPartnerId:
                 apiEndpoint = "apps/kardia/api/partner/Staff";
 
-                try {
-                    String query = Host + apiEndpoint + apiQueryOptions;
-                    String queryResponse = GET(query);
+                if(isValidAccount()) {
+                    getPartnerId();
                 }
-                catch (Exception e) {
-                    errorType = ErrorType.ServerNotFound;
-                }
+
 
 
                 break;
@@ -176,6 +175,23 @@ public class DataConnection extends AsyncTask<String, Void, String> {
             return false;
         }
         return isValid;
+    }
+
+    private void getPartnerId() {
+        try {
+            String query = Host + apiEndpoint + apiQueryOptions;
+            String queryResponse = GET(query);
+
+            //Some amount of error handling on the response goes here.
+
+            JSONObject jsonData = null;
+            jsonData = new JSONObject(queryResponse);
+
+            JSONArray jsonArray = jsonData.names();
+        }
+        catch (Exception e) {
+            errorType = ErrorType.ServerNotFound;
+        }
     }
 
 
