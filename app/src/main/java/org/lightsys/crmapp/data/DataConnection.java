@@ -42,6 +42,8 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
     private Account account;
     private String Host_Name;
+    private String crmEndpoint;
+    private String apiQueryOptions;
     private int Donor_ID;
     private String Password;
     private String AccountName;
@@ -79,7 +81,9 @@ public class DataConnection extends AsyncTask<String, Void, String> {
      */
     private void DataPull(){
         db = new LocalDatabaseHelper(dataContext);
-        Host_Name = account.getServerName();
+        Host_Name = "http://" + account.getServerName() + ":800";
+        crmEndpoint = "/apps/kardia/api/crm/";
+        apiQueryOptions = "?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
         Password = account.getAccountPassword();
         AccountName = account.getAccountName();
         //Account_ID = account.getId();
@@ -134,8 +138,8 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
         try {
             // Attempt to pull information about the donor from the API
-            String test = GET("http://" + Host_Name + ":800/apps/kardia/api/crm/" +
-                    "/?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic");
+            String query = Host_Name + crmEndpoint + apiQueryOptions;
+            String test = GET(query);
             // Unauthorized signals invalid ID
             // 404 not found signals incorrect username or password
             // Empty or null signals an incorrect server name
