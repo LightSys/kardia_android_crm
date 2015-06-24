@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.lightsys.crmapp.data.Account;
+import org.lightsys.crmapp.data.DataConnection;
 import org.lightsys.crmapp.data.LocalDatabaseHelper;
 
 import java.util.ArrayList;
@@ -51,6 +52,10 @@ public class MainActivity extends ActionBarActivity {
         if (accounts.size() == 0) {
             Intent login = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(login);
+        } else {
+            for (Account account : accounts){
+                //(new DataConnection(this, account, ))
+            }
         }
 
 

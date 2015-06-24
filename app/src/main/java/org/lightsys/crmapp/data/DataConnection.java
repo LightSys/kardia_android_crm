@@ -41,7 +41,6 @@ public class DataConnection extends AsyncTask<String, Void, String> {
     private String PORT = "800";
     private String apiEndpoint;
     private String apiQueryOptions;
-    private int Donor_ID;
     private String Password;
     private String AccountName;
     private int Account_ID;
@@ -88,7 +87,6 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
         switch (pullType) {
             case ValidateAccount:
-                apiEndpoint = "/apps/kardia/api/crm/";
                 //Account_ID = account.getId();
                 boolean validAccount = true;
 
@@ -105,7 +103,12 @@ public class DataConnection extends AsyncTask<String, Void, String> {
                         if (!validAccount) {
                             LoginActivity.setErrorType(errorType);
                         }
-                        LoginActivity.setIsValidAccount(validAccount);
+                        else if (validAccount) {
+                            LoginActivity.returnPartnerId(getPartnerId());
+                            LoginActivity.setIsValidAccount(validAccount);
+                        }
+
+                    //This block is actual for an account edit activity.
                     } else if (dataContext.getClass() == LoginActivity.class) {
                         if (!validAccount) {
                             LoginActivity.setErrorType(errorType);
@@ -130,16 +133,6 @@ public class DataConnection extends AsyncTask<String, Void, String> {
                 }
                 break;
 
-            case GetPartnerId:
-                apiEndpoint = "apps/kardia/api/partner/Staff";
-
-                if(isValidAccount()) {
-                    getPartnerId();
-                }
-
-
-
-                break;
         }
         db.close();
 
@@ -150,11 +143,12 @@ public class DataConnection extends AsyncTask<String, Void, String> {
      */
     private boolean isValidAccount() {
         boolean isValid = false;
+        apiEndpoint = "/apps/kardia/api/crm/";
+        String query = Host + apiEndpoint + apiQueryOptions;
         // Account details already set in DataPull()
-
         try {
             // Attempt to pull information about the donor from the API
-            String query = Host + apiEndpoint + apiQueryOptions;
+
             String test = GET(query);
             // Unauthorized signals invalid ID
             // 404 not found signals incorrect username or password
@@ -177,9 +171,12 @@ public class DataConnection extends AsyncTask<String, Void, String> {
         return isValid;
     }
 
-    private void getPartnerId() {
+    private String getPartnerId() {
+        apiEndpoint = "/apps/kardia/api/partner/Staff";
+        String query = Host + apiEndpoint + apiQueryOptions;
+        String returnedPartnerId = "NaN";
+
         try {
-            String query = Host + apiEndpoint + apiQueryOptions;
             String queryResponse = GET(query);
 
             //Some amount of error handling on the response goes here.
@@ -188,10 +185,30 @@ public class DataConnection extends AsyncTask<String, Void, String> {
             jsonData = new JSONObject(queryResponse);
 
             JSONArray jsonArray = jsonData.names();
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                try {
+                    // @id signals a new object but contains no information
+                    if(!jsonArray.getString(i).equals("@id")) {
+                        String kardiaLogin =
+                                ((JSONObject) jsonData
+                                        .get(jsonArray.get(i).toString()))
+                                        .get("kardia_login").toString();
+                        if (kardiaLogin.equals(AccountName)) {
+                            returnedPartnerId = ((JSONObject) jsonData
+                                    .get(jsonArray.get(i).toString()))
+                                    .get("partner_id").toString();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
         catch (Exception e) {
             errorType = ErrorType.ServerNotFound;
         }
+        return returnedPartnerId;
     }
 
 

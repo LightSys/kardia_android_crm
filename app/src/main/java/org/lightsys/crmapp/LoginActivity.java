@@ -42,6 +42,7 @@ public class LoginActivity extends ActionBarActivity {
     View loginLayout;
     Toolbar toolbar;
     ArrayList<Account> accounts;
+    private static String PartnerId;
     Button button;
 
     // These will be set by the async task's callback function.
@@ -182,6 +183,7 @@ public class LoginActivity extends ActionBarActivity {
             continue;
         }
         if (isValidAccount) {
+            newAccount.setPartnerId(PartnerId);
             db.addAccount(newAccount);
             isValidAccount = null;
             errorType = null;
@@ -216,5 +218,9 @@ public class LoginActivity extends ActionBarActivity {
 
     public static void setIsValidAccount(boolean isValid) {
         isValidAccount = isValid;
+    }
+
+    public static void returnPartnerId(String partnerId) {
+        PartnerId = partnerId;
     }
 }

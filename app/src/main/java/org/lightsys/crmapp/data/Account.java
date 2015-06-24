@@ -8,6 +8,7 @@ public class Account {
     private String AccountName;
     private String AccountPassword;
     private String ServerName;
+    private String PartnerId;
 
     public Account(){}
 
@@ -54,6 +55,12 @@ public class Account {
 
     public void setServerName(String serverName) {
         this.ServerName = serverName;
+    }
+    public String getPartnerId() {
+        return this.PartnerId;
+    }
+    public void setPartnerId(String partnerId) {
+        this.PartnerId = partnerId;
     }
 
 }

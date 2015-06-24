@@ -52,6 +52,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         values.put(LocalDatabaseContract.AccountTable.COLUMN_ACCOUNT_NAME, account.getAccountName());
         values.put(LocalDatabaseContract.AccountTable.COLUMN_ACCOUNT_PASSWORD, account.getAccountPassword());
         values.put(LocalDatabaseContract.AccountTable.COLUMN_SERVER_ADDRESS, account.getServerName());
+        values.put(LocalDatabaseContract.AccountTable.COLUMN_PARTNER_ID, account.getPartnerId());
 
         SQLiteDatabase db = this.getWritableDatabase();
         db.insert(LocalDatabaseContract.AccountTable.TABLE_NAME, null, values);
@@ -155,7 +156,8 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
                 AccountTable._ID + " INTEGER PRIMARY KEY, " +
                 AccountTable.COLUMN_ACCOUNT_NAME + TEXT_TYPE + COMMA_SEP +
                 AccountTable.COLUMN_ACCOUNT_PASSWORD + TEXT_TYPE + COMMA_SEP +
-                AccountTable.COLUMN_SERVER_ADDRESS + TEXT_TYPE +
+                AccountTable.COLUMN_SERVER_ADDRESS + TEXT_TYPE + COMMA_SEP +
+                AccountTable.COLUMN_PARTNER_ID + TEXT_TYPE +
                 ")";
 
         public static final String SQL_CREATE_TIMESTAMP_TABLE =
@@ -171,6 +173,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
             public static final String COLUMN_ACCOUNT_NAME = "accountName";
             public static final String COLUMN_ACCOUNT_PASSWORD = "accountPassword";
             public static final String COLUMN_SERVER_ADDRESS = "serverAddress";
+            public static final String COLUMN_PARTNER_ID = "partnerId";
         }
 
         public static abstract class TimestampTable implements BaseColumns {
