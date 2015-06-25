@@ -185,6 +185,7 @@ public class LoginActivity extends ActionBarActivity {
         if (isValidAccount) {
             newAccount.setPartnerId(PartnerId);
             db.addAccount(newAccount);
+            MainActivity.setLoggedInAccount(newAccount);
             isValidAccount = null;
             errorType = null;
             db.close();

@@ -4,5 +4,5 @@ package org.lightsys.crmapp.data;
  * Created by Jake- on 6/23/2015.
  */
 public enum PullType {
-    ValidateAccount, GetPartnerId, GetPartners;
+    ValidateAccount, SearchPerson, GetProfileData, GetPartners;
 }

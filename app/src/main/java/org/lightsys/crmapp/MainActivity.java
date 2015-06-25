@@ -30,9 +30,11 @@ public class MainActivity extends ActionBarActivity {
     FloatingActionButton fab;
     TabLayout tabLayout;
 
+    private static Account loggedInAccount;
+
     ViewPager viewPager;
     ViewPagerAdapter viewPagerAdapter;
-    CharSequence Titles[]={"My Collaborators", "All Kardia"};
+    CharSequence Titles[]={"Search", "My People"};
     int NumOfTabs = 2;
 
     @Override
@@ -54,7 +56,7 @@ public class MainActivity extends ActionBarActivity {
             startActivity(login);
         } else {
             for (Account account : accounts){
-                //(new DataConnection(this, account, ))
+                this.setLoggedInAccount(account);
             }
         }
 
@@ -114,5 +116,12 @@ public class MainActivity extends ActionBarActivity {
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.setupWithViewPager(viewPager);
         //tabLayout.setTabTextColors(getResources().getColorStateList(R.color.selector));
+    }
+
+    public static void setLoggedInAccount(Account a) {
+        loggedInAccount = a;
+    }
+    public static Account getLoggedInAccount() {
+        return loggedInAccount;
     }
 }

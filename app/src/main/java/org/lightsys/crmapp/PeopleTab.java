@@ -7,14 +7,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.lightsys.crmapp.data.DataConnection;
+import org.lightsys.crmapp.data.PullType;
+
 /**
  * Created by Jake on 6/17/2015.
  */
-public class Tab2 extends Fragment {
+public class PeopleTab extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v =inflater.inflate(R.layout.tab_2,container,false);
+        View v =inflater.inflate(R.layout.people_tab,container,false);
+
+        (new DataConnection(getActivity(), MainActivity.getLoggedInAccount(), PullType.GetPartners)).execute("");
+
         return v;
     }
 }

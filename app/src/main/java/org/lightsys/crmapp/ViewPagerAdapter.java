@@ -33,8 +33,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         }
         else             // As we are having 2 tabs if the position is now 0 it must be 1 so we are returning second tab
         {
-            Tab2 tab2 = new Tab2();
-            return tab2;
+            PeopleTab peopleTab = new PeopleTab();
+            return peopleTab;
         }
 
 

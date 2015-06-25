@@ -133,6 +133,12 @@ public class DataConnection extends AsyncTask<String, Void, String> {
                 }
                 break;
 
+            case SearchPerson:
+                break;
+            case GetPartners:
+
+                break;
+
         }
         db.close();
 

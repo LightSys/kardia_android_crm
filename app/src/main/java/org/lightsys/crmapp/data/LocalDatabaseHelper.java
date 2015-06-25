@@ -22,10 +22,13 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    /* **************** Database Functions ************************** */
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(LocalDatabaseContract.SQL_CREATE_ACCOUNT_TABLE);
         db.execSQL(LocalDatabaseContract.SQL_CREATE_TIMESTAMP_TABLE);
+        db.execSQL(LocalDatabaseContract.SQL_CREATE_MY_PEOPLE_TABLE);
     }
 
     @Override
@@ -165,6 +168,19 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
                 TimestampTable._ID + " INTEGER PRIMARY KEY, " +
                 TimestampTable.COLUMN_DATE + TEXT_TYPE + ")";
 
+        public static final String SQL_CREATE_MY_PEOPLE_TABLE =
+                "CREATE TABLE " + MyPeopleTable.TABLE_NAME + " (" +
+                        MyPeopleTable._ID + " INTEGER PRIMARY KEY, " +
+                        MyPeopleTable.COLUMN_KARDIA_ID_REF + TEXT_TYPE + COMMA_SEP +
+                        MyPeopleTable.COLUMN_COLLABORATOR_ID + TEXT_TYPE + COMMA_SEP +
+                        MyPeopleTable.COLUMN_COLLABORATOR_NAME + TEXT_TYPE + COMMA_SEP +
+                        MyPeopleTable.COLUMN_COLLABORATOR_TYPE_ID + TEXT_TYPE + COMMA_SEP +
+                        MyPeopleTable.COLUMN_COLLABORATOR_TYPE + TEXT_TYPE + COMMA_SEP +
+                        MyPeopleTable.COLUMN_PARTNER_ID + TEXT_TYPE + COMMA_SEP +
+                        MyPeopleTable.COLUMN_PARTNER_NAME + TEXT_TYPE + COMMA_SEP +
+                        MyPeopleTable.COLUMN_PARTNER_REF + TEXT_TYPE +
+                        ")";
+
         public static final String SQL_DELETE_ACCOUNT_TABLE = " DROP TABLE IF EXISTS " + AccountTable.TABLE_NAME;
 
         public static abstract class AccountTable implements BaseColumns {
@@ -179,6 +195,34 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         public static abstract class TimestampTable implements BaseColumns {
             public static final String TABLE_NAME = "timestampTable";
             public static final String COLUMN_DATE = "date";
+        }
+
+        /**
+         * Note that columns in this table are named based on the JSON response from the API
+         * Also note that I'm storing all data returned for each "Collaboratee", including
+         * the collaborator name, id, and type. This might be useful, however it's currently
+         * superfluous as the app currently only supports a single user to be signed in
+         * (with some vestigal multi-account support from where I was referencing the donor app.
+         * If the account is store store large data sets (such as 10,000+ unique people) it would
+         * likely be a significant space savings to remove the extra data.
+         *
+         * Another thought would be to replace this table with a smaller table that only references
+         * the main Kardia table, or even to simply implement the "My People" functionality
+         * with logic that references the potential "all people" table. However, selecting from a
+         * large table could be slow so maybe it's best to keep a secondary table after all.
+         */
+        public static abstract class MyPeopleTable implements BaseColumns {
+            public static final String TABLE_NAME = "myPeopleTable";
+            public static final String COLUMN_KARDIA_ID_REF = "kardiaIdRef";
+            public static final String COLUMN_COLLABORATOR_ID = "collaboratorId";
+            public static final String COLUMN_COLLABORATOR_NAME = "collaboratorName";
+            public static final String COLUMN_COLLABORATOR_TYPE_ID = "collaboratorTypeId";
+            public static final String COLUMN_COLLABORATOR_TYPE = "collaboratorType";
+            public static final String COLUMN_PARTNER_ID = "partnerId";
+            public static final String COLUMN_PARTNER_NAME = "partnerName";
+            public static final String COLUMN_PARTNER_REF = "partnerRef";
+
+
         }
     }
 }
