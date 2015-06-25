@@ -62,6 +62,39 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void addCollaboratee(Collaboratee collaboratee) {
+        ContentValues values = new ContentValues();
+        values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_KARDIA_ID_REF, collaboratee.getKardiaIdRef());
+        values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_ID, collaboratee.getCollaboratorId());
+        values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_NAME, collaboratee.getCollaboratorName());
+        values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_TYPE_ID, collaboratee.getCollaboratorTypeId());
+        values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_TYPE, collaboratee.getCollaboratorType());
+        values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_ID, collaboratee.getPartnerId());
+        values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_NAME, collaboratee.getPartnerName());
+        values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_REF, collaboratee.getPartnerRef());
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.insert(LocalDatabaseContract.AccountTable.TABLE_NAME, null, values);
+        db.close();
+    }
+
+    public void addCollaboratees(ArrayList<Collaboratee> collaboratees) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        for (Collaboratee collaboratee: collaboratees) {
+            ContentValues values = new ContentValues();
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_KARDIA_ID_REF, collaboratee.getKardiaIdRef());
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_ID, collaboratee.getCollaboratorId());
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_NAME, collaboratee.getCollaboratorName());
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_TYPE_ID, collaboratee.getCollaboratorTypeId());
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_TYPE, collaboratee.getCollaboratorType());
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_ID, collaboratee.getPartnerId());
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_NAME, collaboratee.getPartnerName());
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_REF, collaboratee.getPartnerRef());
+            db.insert(LocalDatabaseContract.AccountTable.TABLE_NAME, null, values);
+        }
+        db.close();
+    }
+
     /**
      * Adds a timestamp to the database
      * @param date, date in standard millisecond form to be added
@@ -96,6 +129,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
             account.setAccountName(c.getString(1));
             account.setAccountPassword(c.getString(2));
             account.setServerName(c.getString(3));
+            account.setPartnerId(c.getString(4));
 
             accounts.add(account);
         }
@@ -221,8 +255,6 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
             public static final String COLUMN_PARTNER_ID = "partnerId";
             public static final String COLUMN_PARTNER_NAME = "partnerName";
             public static final String COLUMN_PARTNER_REF = "partnerRef";
-
-
         }
     }
 }

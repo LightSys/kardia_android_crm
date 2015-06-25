@@ -19,8 +19,6 @@ public class PeopleTab extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v =inflater.inflate(R.layout.people_tab,container,false);
 
-        (new DataConnection(getActivity(), MainActivity.getLoggedInAccount(), PullType.GetPartners)).execute("");
-
         return v;
     }
 }

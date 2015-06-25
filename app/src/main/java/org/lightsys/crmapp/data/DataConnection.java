@@ -1,5 +1,6 @@
 package org.lightsys.crmapp.data;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -14,11 +15,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.lightsys.crmapp.LoginActivity;
+import org.lightsys.crmapp.data.LocalDatabaseHelper.LocalDatabaseContract.MyPeopleTable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -43,6 +46,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
     private String apiQueryOptions;
     private String Password;
     private String AccountName;
+    private String AccountPartnerId;
     private int Account_ID;
     private Context dataContext;
     private LocalDatabaseHelper db;
@@ -84,6 +88,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
         apiQueryOptions = "?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
         Password = account.getAccountPassword();
         AccountName = account.getAccountName();
+        AccountPartnerId = account.getPartnerId();
 
         switch (pullType) {
             case ValidateAccount:
@@ -104,7 +109,8 @@ public class DataConnection extends AsyncTask<String, Void, String> {
                             LoginActivity.setErrorType(errorType);
                         }
                         else if (validAccount) {
-                            LoginActivity.returnPartnerId(getPartnerId());
+                            AccountPartnerId = getPartnerId();
+                            LoginActivity.returnPartnerId(AccountPartnerId);
                             LoginActivity.setIsValidAccount(validAccount);
                         }
 
@@ -136,7 +142,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
             case SearchPerson:
                 break;
             case GetPartners:
-
+                    getCollaboratees();
                 break;
 
         }
@@ -215,6 +221,38 @@ public class DataConnection extends AsyncTask<String, Void, String> {
             errorType = ErrorType.ServerNotFound;
         }
         return returnedPartnerId;
+    }
+
+    private void getCollaboratees() {
+        apiEndpoint = "/apps/kardia/api/crm/Partners/";
+        String query = Host + apiEndpoint + AccountPartnerId + "/Collaboratees" + apiQueryOptions;
+
+
+        try {
+            String queryResponse = GET(query);
+
+            // Some amount of error handling on the response goes here.
+
+            JSONObject jsonData = null;
+            jsonData = new JSONObject(queryResponse);
+            ArrayList<Collaboratee> collaboratees = new ArrayList<>(jsonData.length());
+
+            /**
+             * I inlined all of the JSON functions here to save space. Rather than create 10 Strings
+             * I just set the attributes directly. There's probably a better way to do this.
+             */
+
+            int curiousity = jsonData.length();
+
+            for (int i=0; i < jsonData.length(); i++) {
+                Collaboratee newCollaboratee = new Collaboratee();
+                newCollaboratee.setKardiaIdRef(((JSONObject) jsonData.get(Integer.toString(i))).get("@id").toString());
+                collaboratees.add(newCollaboratee);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

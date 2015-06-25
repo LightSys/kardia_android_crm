@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import org.lightsys.crmapp.data.Account;
 import org.lightsys.crmapp.data.DataConnection;
 import org.lightsys.crmapp.data.LocalDatabaseHelper;
+import org.lightsys.crmapp.data.PullType;
 
 import java.util.ArrayList;
 
@@ -57,8 +58,11 @@ public class MainActivity extends ActionBarActivity {
         } else {
             for (Account account : accounts){
                 this.setLoggedInAccount(account);
+                (new DataConnection(this, getLoggedInAccount(), PullType.GetPartners)).execute("");
             }
         }
+
+
 
 
 
