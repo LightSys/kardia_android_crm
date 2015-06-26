@@ -62,8 +62,11 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void addCollaboratee(Collaboratee collaboratee) {
+    public void addCollaboratee(GsonCollaboratee collaboratee) {
         ContentValues values = new ContentValues();
+        /**
+         * This section should be updated to use GsonCollaboratee
+         *
         values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_KARDIA_ID_REF, collaboratee.getKardiaIdRef());
         values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_ID, collaboratee.getCollaboratorId());
         values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_NAME, collaboratee.getCollaboratorName());
@@ -72,25 +75,25 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_ID, collaboratee.getPartnerId());
         values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_NAME, collaboratee.getPartnerName());
         values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_REF, collaboratee.getPartnerRef());
-
+        */
         SQLiteDatabase db = this.getWritableDatabase();
         db.insert(LocalDatabaseContract.AccountTable.TABLE_NAME, null, values);
         db.close();
     }
 
-    public void addCollaboratees(ArrayList<Collaboratee> collaboratees) {
+    public void addCollaboratees(ArrayList<GsonCollaboratee> collaboratees) {
         SQLiteDatabase db = this.getWritableDatabase();
-        for (Collaboratee collaboratee: collaboratees) {
+        for (GsonCollaboratee collaboratee : collaboratees) {
             ContentValues values = new ContentValues();
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_KARDIA_ID_REF, collaboratee.getKardiaIdRef());
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_ID, collaboratee.getCollaboratorId());
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_NAME, collaboratee.getCollaboratorName());
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_TYPE_ID, collaboratee.getCollaboratorTypeId());
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_TYPE, collaboratee.getCollaboratorType());
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_ID, collaboratee.getPartnerId());
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_NAME, collaboratee.getPartnerName());
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_REF, collaboratee.getPartnerRef());
-            db.insert(LocalDatabaseContract.AccountTable.TABLE_NAME, null, values);
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_KARDIA_ID_REF, collaboratee.id);
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_ID, collaboratee.collaboratorId);
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_NAME, collaboratee.collaboratorName);
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_TYPE_ID, collaboratee.collaboratorTypeId);
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_TYPE, collaboratee.collaboratorType);
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_ID, collaboratee.partnerId);
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_NAME, collaboratee.partnerName);
+            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_REF, collaboratee.partnerRef);
+            db.insert(LocalDatabaseContract.MyPeopleTable.TABLE_NAME, null, values);
         }
         db.close();
     }

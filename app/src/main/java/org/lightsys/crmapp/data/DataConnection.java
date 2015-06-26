@@ -1,9 +1,10 @@
 package org.lightsys.crmapp.data;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.google.gson.Gson;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -15,13 +16,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.lightsys.crmapp.LoginActivity;
-import org.lightsys.crmapp.data.LocalDatabaseHelper.LocalDatabaseContract.MyPeopleTable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -142,7 +141,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
             case SearchPerson:
                 break;
             case GetPartners:
-                    getCollaboratees();
+                    getCollaboratees(dataContext);
                 break;
 
         }
@@ -223,7 +222,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
         return returnedPartnerId;
     }
 
-    private void getCollaboratees() {
+    private void getCollaboratees(Context dataContext) {
         apiEndpoint = "/apps/kardia/api/crm/Partners/";
         String query = Host + apiEndpoint + AccountPartnerId + "/Collaboratees" + apiQueryOptions;
 
@@ -235,20 +234,24 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
             JSONObject jsonData = null;
             jsonData = new JSONObject(queryResponse);
-            ArrayList<Collaboratee> collaboratees = new ArrayList<>(jsonData.length());
 
-            /**
-             * I inlined all of the JSON functions here to save space. Rather than create 10 Strings
-             * I just set the attributes directly. There's probably a better way to do this.
-             */
+            JSONArray jsonArray = jsonData.names();
 
-            int curiousity = jsonData.length();
-
-            for (int i=0; i < jsonData.length(); i++) {
-                Collaboratee newCollaboratee = new Collaboratee();
-                newCollaboratee.setKardiaIdRef(((JSONObject) jsonData.get(Integer.toString(i))).get("@id").toString());
-                collaboratees.add(newCollaboratee);
+            ArrayList<String> tempList = new ArrayList<>(jsonArray.length());
+            for (int i=0; i < jsonArray.length(); i++) {
+                tempList.add(jsonArray.get(i).toString());
             }
+            tempList.remove("@id");
+
+            JSONArray trimmedArray = new JSONArray(tempList);
+
+            JSONArray finalArray = jsonData.toJSONArray(trimmedArray);
+
+            Gson gson = new Gson();
+            GsonCollaborateeList list = gson.fromJson("{ \"collaboratees\" : " + finalArray.toString() + "}", GsonCollaborateeList.class);
+
+            LocalDatabaseHelper db = new LocalDatabaseHelper(dataContext);
+            db.addCollaboratees(list.getCollaboratees());
 
         } catch (Exception e) {
             e.printStackTrace();

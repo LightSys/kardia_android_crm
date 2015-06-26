@@ -2,12 +2,19 @@ package org.lightsys.crmapp.data;
 
 import android.provider.Telephony;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by Jake- on 6/25/2015.
  */
 public class Collaboratee {
+
+    @SerializedName("@id")
     private String KardiaIdRef;
+
+    @SerializedName("collaborator_id")
     private String CollaboratorId;
+
     private String CollaboratorName;
     private String CollaboratorTypeId;
     private String CollaboratorType;
