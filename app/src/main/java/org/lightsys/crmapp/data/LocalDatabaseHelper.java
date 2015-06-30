@@ -82,18 +82,27 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void addCollaboratees(ArrayList<GsonCollaboratee> collaboratees) {
+        String dupeQuery = "SELECT * FROM myPeopleTable WHERE partnerId = ";
+
         SQLiteDatabase db = this.getWritableDatabase();
+
+
         for (GsonCollaboratee collaboratee : collaboratees) {
-            ContentValues values = new ContentValues();
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_KARDIA_ID_REF, collaboratee.id);
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_ID, collaboratee.collaboratorId);
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_NAME, collaboratee.collaboratorName);
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_TYPE_ID, collaboratee.collaboratorTypeId);
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_TYPE, collaboratee.collaboratorType);
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_ID, collaboratee.partnerId);
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_NAME, collaboratee.partnerName);
-            values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_REF, collaboratee.partnerRef);
-            db.insert(LocalDatabaseContract.MyPeopleTable.TABLE_NAME, null, values);
+            Cursor c = db.rawQuery(dupeQuery + collaboratee.partnerId + ";", null);
+            c.moveToFirst();
+
+            if (c.getCount() == 0) {
+                ContentValues values = new ContentValues();
+                values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_KARDIA_ID_REF, collaboratee.id);
+                values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_ID, collaboratee.collaboratorId);
+                values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_NAME, collaboratee.collaboratorName);
+                values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_TYPE_ID, collaboratee.collaboratorTypeId);
+                values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_COLLABORATOR_TYPE, collaboratee.collaboratorType);
+                values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_ID, collaboratee.partnerId);
+                values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_NAME, collaboratee.partnerName);
+                values.put(LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_REF, collaboratee.partnerRef);
+                db.insert(LocalDatabaseContract.MyPeopleTable.TABLE_NAME, null, values);
+            }
         }
         db.close();
     }
@@ -141,6 +150,16 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.close();
 
         return accounts;
+    }
+
+    public Cursor getCollaboratees() {
+        String queryString = "SELECT * FROM myPeopleTable;";
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor c = db.rawQuery(queryString, null);
+
+        return c;
     }
 
     /**
@@ -258,6 +277,10 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
             public static final String COLUMN_PARTNER_ID = "partnerId";
             public static final String COLUMN_PARTNER_NAME = "partnerName";
             public static final String COLUMN_PARTNER_REF = "partnerRef";
+        }
+
+        public static abstract class ProfileTable implements BaseColumns {
+            public static final String TABLE_NAME = "profileTable";
         }
     }
 }

@@ -1,6 +1,7 @@
 package org.lightsys.crmapp.data;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -16,6 +17,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.lightsys.crmapp.LoginActivity;
+import org.lightsys.crmapp.PeopleTab;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -143,11 +145,22 @@ public class DataConnection extends AsyncTask<String, Void, String> {
             case GetPartners:
                     getCollaboratees(dataContext);
                 break;
+            case GetProfileData:
 
+                break;
         }
         db.close();
 
     }
+
+    /* ************ This section queries the API to retrieve data and/or validate the account. **************** */
+    /**
+     * It's probably worthwhile to investigate Square's Retrofit library. It could potentially clean up a lot of the
+     * extra code here.
+     * Currently Google's Gson library is used to map the JSON results to Java objects. Because the API returns
+     * an object and not an array, some amount of data gymnastics are required to make the data into an array
+     * that will play nicely with Gson.
+     */
 
     /**
      * @return if account was found to be valid
@@ -249,13 +262,17 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
             Gson gson = new Gson();
             GsonCollaborateeList list = gson.fromJson("{ \"collaboratees\" : " + finalArray.toString() + "}", GsonCollaborateeList.class);
-
             LocalDatabaseHelper db = new LocalDatabaseHelper(dataContext);
             db.addCollaboratees(list.getCollaboratees());
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void getProfilePicture(Context dataContext){
+        apiEndpoint = "/apps/kardia/api/crm/Partners/";
+        String query = Host + apiEndpoint + AccountPartnerId + "/Collaboratees" + apiQueryOptions;
     }
 
 
