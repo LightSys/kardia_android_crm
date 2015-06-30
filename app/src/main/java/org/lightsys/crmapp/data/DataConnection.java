@@ -80,7 +80,8 @@ public class DataConnection extends AsyncTask<String, Void, String> {
     }
 
     /**
-     * Pulls all data attached to account
+     * Used to pull the requested data for the account. A switch statement is used to determine which
+     * data is needed.
      */
     private void DataPull(){
         db = new LocalDatabaseHelper(dataContext);
@@ -146,6 +147,23 @@ public class DataConnection extends AsyncTask<String, Void, String> {
                     getCollaboratees(dataContext);
                 break;
             case GetProfileData:
+                /** I'm going to hold off on starting this until I have a more solid answer on the API.
+                 * Currently, most of the information is stored in different API endpoints. It would require
+                 * at least 5 API calls to retrieve the neccessary information.
+                 *
+                 * The requested profile information is:
+                 *
+                 * 1. Name
+                 * 2. Profile Picture
+                 * 3. Contact Information
+                 * 3a. Email Address
+                 * 3b. Phone Number
+                 * 3c. Mailing Address
+                 * 4. Show the persons timeline.
+                 *
+                 * With the ability to send an email via intents, make a phone call via intents,
+                 * open Google maps on an address, and update the persons profile picture with android camera.
+                 */
 
                 break;
         }
@@ -195,6 +213,11 @@ public class DataConnection extends AsyncTask<String, Void, String> {
         return isValid;
     }
 
+    /**
+     * Retrieves the Partner ID of the account that is logged in.
+     * @return the partnerId of the logged in account.
+     */
+
     private String getPartnerId() {
         apiEndpoint = "/apps/kardia/api/partner/Staff";
         String query = Host + apiEndpoint + apiQueryOptions;
@@ -235,6 +258,11 @@ public class DataConnection extends AsyncTask<String, Void, String> {
         return returnedPartnerId;
     }
 
+    /**
+     * Retrieves the logged in accounts Collaboratees from the server.
+     * @param dataContext
+     */
+
     private void getCollaboratees(Context dataContext) {
         apiEndpoint = "/apps/kardia/api/crm/Partners/";
         String query = Host + apiEndpoint + AccountPartnerId + "/Collaboratees" + apiQueryOptions;
@@ -247,6 +275,12 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
             JSONObject jsonData = null;
             jsonData = new JSONObject(queryResponse);
+
+            /**
+             * The JSON logic gets messy here. The API returns a JSON object, however, Gson works
+             * best when the results are returned in an array. Therefore, some amount of work is required
+             * to get the results into a JSON array.
+             */
 
             JSONArray jsonArray = jsonData.names();
 
@@ -271,10 +305,25 @@ public class DataConnection extends AsyncTask<String, Void, String> {
     }
 
     private void getProfilePicture(Context dataContext){
+        // The API currently returns information about the picture from /ProfilePicture, retrieving
+        // the actual picture requires /ProfilePicture/{filename}. If the API is updated to support
+        // a single /Profile endpoint, it would be useful to return the picture directly there.
+
         apiEndpoint = "/apps/kardia/api/crm/Partners/";
-        String query = Host + apiEndpoint + AccountPartnerId + "/Collaboratees" + apiQueryOptions;
+        String query = Host + apiEndpoint + AccountPartnerId + "/ProfilePicture" + apiQueryOptions;
+
+        /**
+         * Logic for retrieving and storing the profile picture should go here. I have opted to wait
+         * to implement this feature due to possible API changes. The picture should be stored in Android's
+         * file system, with the image path being stored in the database. This should be more efficient and scalable
+         * than storing the image in the database, as well as allowing for the possibility of a LRU
+         * (Least Recently Used) swapping scheme to manage the storage space used by the app.
+         */
     }
 
+    private void getAddress(Context dataContext) {
+
+    }
 
 
     /**
