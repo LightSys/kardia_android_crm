@@ -1,20 +1,20 @@
 package org.lightsys.crmapp;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SearchView;
+import android.widget.TextView;
 
-import org.lightsys.crmapp.data.DataConnection;
 import org.lightsys.crmapp.data.LocalDatabaseHelper;
-import org.lightsys.crmapp.data.PullType;
+import org.lightsys.crmapp.profile_activity.ProfileActivity;
 
 /**
  * Created by Jake on 6/17/2015.
@@ -43,6 +43,16 @@ public class PeopleTab extends Fragment {
                 R.layout.people_tab_listitem,
                 c,
                 new String[] {LocalDatabaseHelper.LocalDatabaseContract.MyPeopleTable.COLUMN_PARTNER_NAME}, new int[] { R.id.myPeopleTabListItem}));
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long id) {
+                Intent profileActivity = new Intent(getActivity(), ProfileActivity.class);
+                profileActivity.putExtra("person", ((TextView) view.findViewById(R.id.myPeopleTabListItem)).getText());
+                profileActivity.putExtra("databaseId", id);
+                startActivity(profileActivity);
+            }
+        });
 
         return v;
     }
