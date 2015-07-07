@@ -66,11 +66,11 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void addAddresses(ArrayList<GsonAddress> addresses) {
-        String dupeQuery = "SELECT * FROM " + LocalDatabaseContract.AddressTable.TABLE_NAME + " WHERE partnerId = ";
+        String dupeQuery = "SELECT * FROM " + LocalDatabaseContract.AddressTable.TABLE_NAME + " WHERE kardiaId = ";
         SQLiteDatabase db = this.getWritableDatabase();
 
         for (GsonAddress address : addresses) {
-            Cursor c = db.rawQuery(dupeQuery + address.partnerId + ";", null);
+            Cursor c = db.rawQuery(dupeQuery + address.id + ";", null);
             c.moveToFirst();
 
             if (c.getCount() == 0) {
@@ -154,7 +154,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
                 values.put(LocalDatabaseContract.ContactInfoTable.COLUMN_PHONE_AREA, contact.phoneAreaCode);
                 values.put(LocalDatabaseContract.ContactInfoTable.COLUMN_CONTACT_DATA, contact.contactData);
 
-                        db.insert(LocalDatabaseContract.ContactInfoTable.TABLE_NAME, null, values);
+                db.insert(LocalDatabaseContract.ContactInfoTable.TABLE_NAME, null, values);
             }
         }
     }
