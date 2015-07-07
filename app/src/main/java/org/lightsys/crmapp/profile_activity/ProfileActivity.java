@@ -12,8 +12,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.lightsys.crmapp.MainActivity;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.ViewPagerAdapter;
+import org.lightsys.crmapp.data.DataConnection;
+import org.lightsys.crmapp.data.LocalDatabaseHelper;
+import org.lightsys.crmapp.data.PullType;
 
 
 public class ProfileActivity extends ActionBarActivity {
@@ -24,6 +28,8 @@ public class ProfileActivity extends ActionBarActivity {
     TabLayout tabLayout;
     ViewPager viewPager;
     ProfileViewPagerAdapter viewPagerAdapter;
+    String partnerId;
+
     CharSequence Titles[]={"Profile", "Contact Information", "Other"};
     int NumOfTabs = 3;
 
@@ -32,7 +38,13 @@ public class ProfileActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        Intent intent = getIntent();
+        long id = intent.getLongExtra("databaseId", -1);
+        LocalDatabaseHelper db = new LocalDatabaseHelper(this);
+        partnerId = db.getPartnerId(id);
 
+
+        (new DataConnection(this, MainActivity.getLoggedInAccount(), PullType.GetProfileData, partnerId)).execute("");
 
 
 

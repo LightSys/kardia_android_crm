@@ -3,6 +3,7 @@ package org.lightsys.crmapp.data;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -53,6 +54,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
     private LocalDatabaseHelper db;
     ErrorType errorType = null;
     private PullType pullType;
+    private String partnerId;
 
     private static final String Tag = "DPS";
 
@@ -61,6 +63,14 @@ public class DataConnection extends AsyncTask<String, Void, String> {
         dataContext = context;
         account = a;
         pullType = type;
+    }
+
+    public DataConnection(Context context, Account a, PullType type, String partnerId) {
+        super();
+        dataContext = context;
+        account = a;
+        pullType = type;
+        this.partnerId = partnerId;
     }
 
     @Override
@@ -153,17 +163,21 @@ public class DataConnection extends AsyncTask<String, Void, String> {
                  *
                  * The requested profile information is:
                  *
-                 * 1. Name
+                 * 1. Name          -- Done
                  * 2. Profile Picture
-                 * 3. Contact Information
-                 * 3a. Email Address
-                 * 3b. Phone Number
-                 * 3c. Mailing Address
+                 * 3. Contact Information -- Done
+                 * 3a. Email Address -- Done
+                 * 3b. Phone Number -- Done
+                 * 3c. Mailing Address -- Done
                  * 4. Show the persons timeline.
                  *
                  * With the ability to send an email via intents, make a phone call via intents,
                  * open Google maps on an address, and update the persons profile picture with android camera.
                  */
+
+                getAddress(dataContext);
+                getContactInfo(dataContext);
+
 
                 break;
         }
@@ -322,7 +336,77 @@ public class DataConnection extends AsyncTask<String, Void, String> {
     }
 
     private void getAddress(Context dataContext) {
+        apiEndpoint = "/apps/kardia/api/partner/Partners/";
+        String query = Host + apiEndpoint + partnerId + "/Addresses" + apiQueryOptions;
 
+        try {
+            String queryResponse = GET(query);
+
+            // Some amount of error handling on the response should be added here.
+
+            JSONObject jsonData = null;
+            jsonData = new JSONObject(queryResponse);
+
+            /**
+             * Again, we have the messy JSON logic.
+             */
+
+            JSONArray jsonArray = jsonData.names();
+
+            ArrayList<String> tempList = new ArrayList<>(jsonArray.length());
+            for (int i=0; i< jsonArray.length(); i++) {
+                tempList.add(jsonArray.get(i).toString());
+            }
+            tempList.remove("@id");
+
+            JSONArray trimmedArray = new JSONArray(tempList);
+            JSONArray finalArray = jsonData.toJSONArray(trimmedArray);
+
+            Gson gson = new Gson();
+            GsonAddressList list = gson.fromJson("{ \"addresses\" : " + finalArray.toString() + "}", GsonAddressList.class);
+
+            db.addAddresses(list.getAddresses());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getContactInfo(Context dataContext) {
+        apiEndpoint = "/apps/kardia/api/partner/Partners/";
+        String query = Host + apiEndpoint + partnerId + "/ContactInfo" + apiQueryOptions;
+
+        try {
+            String queryResponse = GET(query);
+
+            // Some amount of error handling on the response should be added here.
+
+            JSONObject jsonData = null;
+            jsonData = new JSONObject(queryResponse);
+
+            /**
+             * Again, we have the messy JSON logic.
+             */
+
+            JSONArray jsonArray = jsonData.names();
+
+            ArrayList<String> tempList = new ArrayList<>(jsonArray.length());
+            for (int i=0; i< jsonArray.length(); i++) {
+                tempList.add(jsonArray.get(i).toString());
+            }
+            tempList.remove("@id");
+
+            JSONArray trimmedArray = new JSONArray(tempList);
+            JSONArray finalArray = jsonData.toJSONArray(trimmedArray);
+
+            Gson gson = new Gson();
+            GsonContactList list = gson.fromJson("{ \"contacts\" : " + finalArray.toString() + "}", GsonContactList.class);
+
+            db.addContactInfos(list.getContactInfo());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

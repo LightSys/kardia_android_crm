@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -29,6 +30,8 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(LocalDatabaseContract.SQL_CREATE_ACCOUNT_TABLE);
         db.execSQL(LocalDatabaseContract.SQL_CREATE_TIMESTAMP_TABLE);
         db.execSQL(LocalDatabaseContract.SQL_CREATE_MY_PEOPLE_TABLE);
+        db.execSQL(LocalDatabaseContract.SQL_CREATE_ADDRESS_TABLE);
+        db.execSQL(LocalDatabaseContract.SQL_CREATE_CONTACT_INFO_TABLE);
     }
 
     @Override
@@ -60,6 +63,30 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.insert(LocalDatabaseContract.AccountTable.TABLE_NAME, null, values);
         db.close();
+    }
+
+    public void addAddresses(ArrayList<GsonAddress> addresses) {
+        String dupeQuery = "SELECT * FROM " + LocalDatabaseContract.AddressTable.TABLE_NAME + " WHERE partnerId = ";
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        for (GsonAddress address : addresses) {
+            Cursor c = db.rawQuery(dupeQuery + address.partnerId + ";", null);
+            c.moveToFirst();
+
+            if (c.getCount() == 0) {
+                ContentValues values = new ContentValues();
+                values.put(LocalDatabaseContract.AddressTable.COLUMN_PARTNER_ID, address.partnerId);
+                values.put(LocalDatabaseContract.ContactInfoTable.COLUMN_REF_ID, address.id);
+                values.put(LocalDatabaseContract.AddressTable.COLUMN_TYPE, address.locationType);
+                values.put(LocalDatabaseContract.AddressTable.COLUMN_ADDRESS, address.address);
+                values.put(LocalDatabaseContract.AddressTable.COLUMN_STREET_ADDRESS, address.addressOne);
+                values.put(LocalDatabaseContract.AddressTable.COLUMN_CITY, address.city);
+                values.put(LocalDatabaseContract.AddressTable.COLUMN_STATE, address.stateProvince);
+                values.put(LocalDatabaseContract.AddressTable.COLUMN_ZIP_CODE, address.postalCode);
+                values.put(LocalDatabaseContract.AddressTable.COLUMN_COUNTRY, address.countryCode);
+                db.insert(LocalDatabaseContract.AddressTable.TABLE_NAME, null, values);
+            }
+        }
     }
 
     public void addCollaboratee(GsonCollaboratee collaboratee) {
@@ -105,6 +132,31 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
             }
         }
         db.close();
+    }
+
+    public void addContactInfos(ArrayList<GsonContact> contactInfos) {
+        String dupeQuery = "SELECT * FROM " + LocalDatabaseContract.ContactInfoTable.TABLE_NAME + " WHERE kardiaId = ";
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        for (GsonContact contact : contactInfos) {
+            Cursor c = db.rawQuery(dupeQuery + contact.id + ";", null);
+            c.moveToFirst();
+
+            if (c.getCount() == 0) {
+                ContentValues values = new ContentValues();
+                values.put(LocalDatabaseContract.ContactInfoTable.COLUMN_REF_ID, contact.id);
+                values.put(LocalDatabaseContract.ContactInfoTable.COLUMN_PARTNER_ID, contact.partnerId);
+                values.put(LocalDatabaseContract.ContactInfoTable.COLUMN_CONTACT_ID, contact.contactId);
+                values.put(LocalDatabaseContract.ContactInfoTable.COLUMN_CONTACT, contact.contact);
+                values.put(LocalDatabaseContract.ContactInfoTable.COLUMN_CONTACT_TYPE, contact.contactType);
+                values.put(LocalDatabaseContract.ContactInfoTable.COLUMN_ADDRESS_ID, contact.addressId);
+                values.put(LocalDatabaseContract.ContactInfoTable.COLUMN_PHONE_COUNTRY, contact.phoneCountry);
+                values.put(LocalDatabaseContract.ContactInfoTable.COLUMN_PHONE_AREA, contact.phoneAreaCode);
+                values.put(LocalDatabaseContract.ContactInfoTable.COLUMN_CONTACT_DATA, contact.contactData);
+
+                        db.insert(LocalDatabaseContract.ContactInfoTable.TABLE_NAME, null, values);
+            }
+        }
     }
 
     /**
@@ -160,6 +212,20 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         Cursor c = db.rawQuery(queryString, null);
 
         return c;
+    }
+
+    public String getPartnerId(long id) {
+        String queryString = "SELECT partnerId FROM myPeopleTable WHERE " + LocalDatabaseContract.MyPeopleTable._ID + " == " + id;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor c = db.rawQuery(queryString, null);
+        c.moveToFirst();
+        String result = c.getString(0);
+
+        c.close();
+        db.close();
+        return result;
     }
 
     /**
@@ -237,6 +303,35 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
                         MyPeopleTable.COLUMN_PARTNER_REF + TEXT_TYPE +
                         ")";
 
+        public static final String SQL_CREATE_ADDRESS_TABLE =
+                "CREATE TABLE " + AddressTable.TABLE_NAME + " (" +
+                        AddressTable._ID + " INTEGER PRIMARY KEY, " +
+                        ContactInfoTable.COLUMN_REF_ID + TEXT_TYPE + COMMA_SEP +
+                        AddressTable.COLUMN_PARTNER_ID + TEXT_TYPE + COMMA_SEP +
+                        AddressTable.COLUMN_TYPE + TEXT_TYPE + COMMA_SEP +
+                        AddressTable.COLUMN_ADDRESS + TEXT_TYPE + COMMA_SEP +
+                        AddressTable.COLUMN_STREET_ADDRESS + TEXT_TYPE + COMMA_SEP +
+                        AddressTable.COLUMN_CITY + TEXT_TYPE + COMMA_SEP +
+                        AddressTable.COLUMN_STATE + TEXT_TYPE + COMMA_SEP +
+                        AddressTable.COLUMN_ZIP_CODE + TEXT_TYPE + COMMA_SEP +
+                        AddressTable.COLUMN_COUNTRY + TEXT_TYPE +
+                        ")";
+
+        public static final String SQL_CREATE_CONTACT_INFO_TABLE =
+                "CREATE TABLE " + ContactInfoTable.TABLE_NAME + " (" +
+                        ContactInfoTable._ID + " INTEGER PRIMARY KEY, " +
+                        ContactInfoTable.COLUMN_REF_ID + TEXT_TYPE + COMMA_SEP +
+                        ContactInfoTable.COLUMN_PARTNER_ID + TEXT_TYPE + COMMA_SEP +
+                        ContactInfoTable.COLUMN_CONTACT_ID + TEXT_TYPE + COMMA_SEP +
+                        ContactInfoTable.COLUMN_CONTACT + TEXT_TYPE + COMMA_SEP +
+                        ContactInfoTable.COLUMN_CONTACT_TYPE + TEXT_TYPE + COMMA_SEP +
+                        ContactInfoTable.COLUMN_ADDRESS_ID + TEXT_TYPE + COMMA_SEP +
+                        ContactInfoTable.COLUMN_PHONE_COUNTRY + TEXT_TYPE + COMMA_SEP +
+                        ContactInfoTable.COLUMN_PHONE_AREA + TEXT_TYPE + COMMA_SEP +
+                        ContactInfoTable.COLUMN_CONTACT_DATA + TEXT_TYPE +
+                        ")";
+
+
         public static final String SQL_DELETE_ACCOUNT_TABLE = " DROP TABLE IF EXISTS " + AccountTable.TABLE_NAME;
 
         public static abstract class AccountTable implements BaseColumns {
@@ -279,8 +374,32 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
             public static final String COLUMN_PARTNER_REF = "partnerRef";
         }
 
-        public static abstract class ProfileTable implements BaseColumns {
-            public static final String TABLE_NAME = "profileTable";
+        public static abstract class AddressTable implements BaseColumns {
+            public static final String TABLE_NAME = "addressTable";
+            public static final String COLUMN_REF_ID = "kardiaId";
+            public static final String COLUMN_PARTNER_ID = "partnerId";
+            public static final String COLUMN_TYPE = "type";
+            public static final String COLUMN_ADDRESS = "address";
+            public static final String COLUMN_STREET_ADDRESS = "streetAddress";
+            public static final String COLUMN_CITY = "city";
+            public static final String COLUMN_STATE = "state";
+            public static final String COLUMN_ZIP_CODE = "zipCode";
+            public static final String COLUMN_COUNTRY = "country";
+
         }
+
+        public static abstract class ContactInfoTable implements BaseColumns {
+            public static final String TABLE_NAME = "contactInfoTable";
+            public static final String COLUMN_REF_ID = "kardiaId";
+            public static final String COLUMN_PARTNER_ID = "partnerId";
+            public static final String COLUMN_CONTACT_ID = "contactId";
+            public static final String COLUMN_CONTACT = "contact";
+            public static final String COLUMN_CONTACT_TYPE = "contactType";
+            public static final String COLUMN_ADDRESS_ID = "addressId";
+            public static final String COLUMN_PHONE_COUNTRY = "phoneCountry";
+            public static final String COLUMN_PHONE_AREA = "areaCode";
+            public static final String COLUMN_CONTACT_DATA = "contactData";
+        }
+
     }
 }
