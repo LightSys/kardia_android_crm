@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
+import android.provider.Telephony;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -66,11 +67,13 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void addAddresses(ArrayList<GsonAddress> addresses) {
-        String dupeQuery = "SELECT * FROM " + LocalDatabaseContract.AddressTable.TABLE_NAME + " WHERE kardiaId = ";
+        String dupeQuery = "SELECT * FROM " + LocalDatabaseContract.AddressTable.TABLE_NAME + " WHERE " + LocalDatabaseContract.AddressTable.COLUMN_REF_ID + " == ";
         SQLiteDatabase db = this.getWritableDatabase();
 
         for (GsonAddress address : addresses) {
-            Cursor c = db.rawQuery(dupeQuery + address.id + ";", null);
+            String kardiaId = "\"" + address.id + "\"";
+
+            Cursor c = db.rawQuery(dupeQuery + kardiaId, null);
             c.moveToFirst();
 
             if (c.getCount() == 0) {
@@ -109,7 +112,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void addCollaboratees(ArrayList<GsonCollaboratee> collaboratees) {
-        String dupeQuery = "SELECT * FROM myPeopleTable WHERE partnerId = ";
+        String dupeQuery = "SELECT * FROM myPeopleTable WHERE partnerId == ";
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -139,7 +142,9 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         for (GsonContact contact : contactInfos) {
-            Cursor c = db.rawQuery(dupeQuery + contact.id + ";", null);
+            String kardiaId = "\"" + contact.id + "\"";
+
+            Cursor c = db.rawQuery(dupeQuery + kardiaId + ";", null);
             c.moveToFirst();
 
             if (c.getCount() == 0) {
@@ -175,7 +180,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     /* ***************************** Get Queries ************************************** */
 
     /**
-     * Returns all accounts from the AccountTable in the database. This function should be updated to use an async task.
+     * Returns all accounts from the AccountTable in the database. Thihe fs function should be updated to use an async task.
      * @return A cursor to all accounts in the accountTable.
      */
     public ArrayList<Account> getAccounts() {
@@ -194,7 +199,6 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
             account.setAccountPassword(c.getString(2));
             account.setServerName(c.getString(3));
             account.setPartnerId(c.getString(4));
-
             accounts.add(account);
         }
 
