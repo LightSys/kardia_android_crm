@@ -1,14 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/colorWindowBackground">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-    <ImageView
-        android:contentDescription="profilePicture"
+        <ImageView
+            android:contentDescription="profilePicture"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            />
+        <TextView
+            android:id="@+id/profileName"
+            android:textColor="#000000"
+            android:textSize="@dimen/abc_text_size_large_material"
+            android:text="Place Holder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        />
+        android:textColor="#000000"
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:text="Stuff goes here"/>
 
-</RelativeLayout>
+
+
+</LinearLayout>

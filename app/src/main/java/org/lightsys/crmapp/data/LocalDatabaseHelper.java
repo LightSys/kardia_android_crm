@@ -335,6 +335,17 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
                         ContactInfoTable.COLUMN_CONTACT_DATA + TEXT_TYPE +
                         ")";
 
+        public static final String SQL_CREATE_PROFILE_PHOTO_TABLE  =
+                "CREATE TABLE " + ProfilePictureTable.TABLE_NAME + " (" +
+                        ProfilePictureTable._ID + TEXT_TYPE + COMMA_SEP +
+                        ProfilePictureTable.COLUMN_PARTNER_ID + TEXT_TYPE + COMMA_SEP +
+                        ProfilePictureTable.COLUMN_REF_ID + TEXT_TYPE + COMMA_SEP +
+                        ProfilePictureTable.COLUMN_PHOTO_ID + TEXT_TYPE + COMMA_SEP +
+                        ProfilePictureTable.COLUMN_PHOTO_TYPE + TEXT_TYPE + COMMA_SEP +
+                        ProfilePictureTable.COLUMN_PHOTO_TITLE + TEXT_TYPE + COMMA_SEP +
+                        ProfilePictureTable.COLUMN_KARDIA_FILENAME + TEXT_TYPE + COMMA_SEP +
+                        ProfilePictureTable.COLUMN_ANDROID_PATH + TEXT_TYPE + COMMA_SEP +
+                        ")";
 
         public static final String SQL_DELETE_ACCOUNT_TABLE = " DROP TABLE IF EXISTS " + AccountTable.TABLE_NAME;
 
@@ -403,6 +414,18 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
             public static final String COLUMN_PHONE_COUNTRY = "phoneCountry";
             public static final String COLUMN_PHONE_AREA = "areaCode";
             public static final String COLUMN_CONTACT_DATA = "contactData";
+        }
+
+        public static abstract class ProfilePictureTable implements BaseColumns {
+            public static final String TABLE_NAME = "profilePictureTable";
+            public static final String COLUMN_REF_ID = "kardiaId";
+            public static final String COLUMN_PARTNER_ID = "partnerId";
+            public static final String COLUMN_PHOTO_ID = "photoId";
+            public static final String COLUMN_PHOTO_TYPE = "photoType";
+            public static final String COLUMN_PHOTO_TITLE = "photoTitle";
+            public static final String COLUMN_KARDIA_FILENAME = "kardiaFileName";
+            public static final String COLUMN_ANDROID_PATH = "androidPath";
+
         }
 
     }

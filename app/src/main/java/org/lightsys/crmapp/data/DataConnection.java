@@ -177,6 +177,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
                 getAddress(dataContext);
                 getContactInfo(dataContext);
+                getProfilePicture(dataContext);
 
 
                 break;
