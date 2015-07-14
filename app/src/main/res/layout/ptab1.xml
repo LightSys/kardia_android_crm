@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/ptabOneFragment"
     android:background="@color/colorWindowBackground">
 
     <LinearLayout
@@ -13,7 +14,10 @@
         <ImageView
             android:contentDescription="profilePicture"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/profilePictureImageView"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
             />
         <TextView
             android:id="@+id/profileName"

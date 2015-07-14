@@ -1,9 +1,7 @@
 package org.lightsys.crmapp.data;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.os.AsyncTask;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -18,7 +16,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.lightsys.crmapp.LoginActivity;
-import org.lightsys.crmapp.PeopleTab;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,7 +42,8 @@ public class DataConnection extends AsyncTask<String, Void, String> {
     private String Base_Host_Name;
     private String PORT = "800";
     private String apiEndpoint;
-    private String apiQueryOptions;
+    private String collectionQueryOptions;
+    private String elementQueryOptions;
     private String Password;
     private String AccountName;
     private String AccountPartnerId;
@@ -97,7 +95,8 @@ public class DataConnection extends AsyncTask<String, Void, String> {
         db = new LocalDatabaseHelper(dataContext);
         Base_Host_Name = account.getServerName();
         Host = "http://" + Base_Host_Name + ":800";
-        apiQueryOptions = "?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+        collectionQueryOptions = "?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+        elementQueryOptions = "?cx__mode=rest&cx__res_type=element&cx__res_format=attrs&cx__res_attrs=basic";
         Password = account.getAccountPassword();
         AccountName = account.getAccountName();
         AccountPartnerId = account.getPartnerId();
@@ -201,7 +200,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
     private boolean isValidAccount() {
         boolean isValid = false;
         apiEndpoint = "/apps/kardia/api/crm/";
-        String query = Host + apiEndpoint + apiQueryOptions;
+        String query = Host + apiEndpoint + collectionQueryOptions;
         // Account details already set in DataPull()
         try {
             // Attempt to pull information about the donor from the API
@@ -235,7 +234,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
     private String getPartnerId() {
         apiEndpoint = "/apps/kardia/api/partner/Staff";
-        String query = Host + apiEndpoint + apiQueryOptions;
+        String query = Host + apiEndpoint + collectionQueryOptions;
         String returnedPartnerId = "NaN";
 
         try {
@@ -280,7 +279,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
     private void getCollaboratees(Context dataContext) {
         apiEndpoint = "/apps/kardia/api/crm/Partners/";
-        String query = Host + apiEndpoint + AccountPartnerId + "/Collaboratees" + apiQueryOptions;
+        String query = Host + apiEndpoint + AccountPartnerId + "/Collaboratees" + collectionQueryOptions;
 
 
         try {
@@ -324,8 +323,22 @@ public class DataConnection extends AsyncTask<String, Void, String> {
         // the actual picture requires /ProfilePicture/{filename}. If the API is updated to support
         // a single /Profile endpoint, it would be useful to return the picture directly there.
 
+
         apiEndpoint = "/apps/kardia/api/crm/Partners/";
-        String query = Host + apiEndpoint + AccountPartnerId + "/ProfilePicture" + apiQueryOptions;
+        String query = Host + apiEndpoint + partnerId + "/ProfilePicture" + elementQueryOptions;
+
+        try {
+            String queryResponse = GET(query);
+
+            Gson gson = new Gson();
+            GsonProfilePicture profPic = gson.fromJson(queryResponse, GsonProfilePicture.class);
+
+            db.addProfilePicture(profPic, partnerId, Host + apiEndpoint + partnerId + "/ProfilePicture/");
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         /**
          * Logic for retrieving and storing the profile picture should go here. I have opted to wait
@@ -338,7 +351,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
     private void getAddress(Context dataContext) {
         apiEndpoint = "/apps/kardia/api/partner/Partners/";
-        String query = Host + apiEndpoint + partnerId + "/Addresses" + apiQueryOptions;
+        String query = Host + apiEndpoint + partnerId + "/Addresses" + collectionQueryOptions;
 
         try {
             String queryResponse = GET(query);
@@ -375,7 +388,7 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
     private void getContactInfo(Context dataContext) {
         apiEndpoint = "/apps/kardia/api/partner/Partners/";
-        String query = Host + apiEndpoint + partnerId + "/ContactInfo" + apiQueryOptions;
+        String query = Host + apiEndpoint + partnerId + "/ContactInfo" + collectionQueryOptions;
 
         try {
             String queryResponse = GET(query);

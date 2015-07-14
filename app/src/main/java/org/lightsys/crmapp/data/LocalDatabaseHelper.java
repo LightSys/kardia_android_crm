@@ -33,6 +33,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(LocalDatabaseContract.SQL_CREATE_MY_PEOPLE_TABLE);
         db.execSQL(LocalDatabaseContract.SQL_CREATE_ADDRESS_TABLE);
         db.execSQL(LocalDatabaseContract.SQL_CREATE_CONTACT_INFO_TABLE);
+        db.execSQL(LocalDatabaseContract.SQL_CREATE_PROFILE_PHOTO_TABLE);
     }
 
     @Override
@@ -162,6 +163,32 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
                 db.insert(LocalDatabaseContract.ContactInfoTable.TABLE_NAME, null, values);
             }
         }
+        db.close();
+    }
+
+    public void addProfilePicture(GsonProfilePicture picture, String partnerId, String fullUrl) {
+        String dupeQuery = "SELECT * FROM " + LocalDatabaseContract.ProfilePictureTable.TABLE_NAME + " WHERE kardiaId = ";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        String kardiaId = "\"" + picture.kardiaRef + "\"";
+
+        Cursor c = db.rawQuery(dupeQuery + kardiaId + ";", null);
+        c.moveToFirst();
+
+        if (c.getCount() == 0) {
+            ContentValues values = new ContentValues();
+            values.put(LocalDatabaseContract.ProfilePictureTable.COLUMN_REF_ID, picture.kardiaRef);
+            values.put(LocalDatabaseContract.ProfilePictureTable.COLUMN_PHOTO_ID, picture.photoId);
+            values.put(LocalDatabaseContract.ProfilePictureTable.COLUMN_PARTNER_ID, partnerId);
+            values.put(LocalDatabaseContract.ProfilePictureTable.COLUMN_KARDIA_FILENAME, picture.fileName);
+            values.put(LocalDatabaseContract.ProfilePictureTable.COLUMN_ANDROID_PATH, fullUrl + picture.fileName);
+            values.put(LocalDatabaseContract.ProfilePictureTable.COLUMN_PHOTO_TYPE, picture.photoType);
+            values.put(LocalDatabaseContract.ProfilePictureTable.COLUMN_PHOTO_TITLE, picture.photoTitle);
+
+            db.insert(LocalDatabaseContract.ProfilePictureTable.TABLE_NAME, null, values);
+        }
+        c.close();
+        db.close();
     }
 
     /**
@@ -229,6 +256,32 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
         c.close();
         db.close();
+        return result;
+    }
+
+    public String getProfilePictureURL(String id) {
+        String queryString = "SELECT " + LocalDatabaseContract.ProfilePictureTable.COLUMN_ANDROID_PATH +
+                " FROM " + LocalDatabaseContract.ProfilePictureTable.TABLE_NAME +
+                " WHERE " + LocalDatabaseContract.ProfilePictureTable.COLUMN_PARTNER_ID +
+                " == " + id;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(queryString, null);
+        String result = null;
+
+        try {
+            c.moveToFirst();
+
+            if (c.getCount() > 0) {
+                result = c.getString(0);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        c.close();
+        db.close();
+
         return result;
     }
 
@@ -344,7 +397,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
                         ProfilePictureTable.COLUMN_PHOTO_TYPE + TEXT_TYPE + COMMA_SEP +
                         ProfilePictureTable.COLUMN_PHOTO_TITLE + TEXT_TYPE + COMMA_SEP +
                         ProfilePictureTable.COLUMN_KARDIA_FILENAME + TEXT_TYPE + COMMA_SEP +
-                        ProfilePictureTable.COLUMN_ANDROID_PATH + TEXT_TYPE + COMMA_SEP +
+                        ProfilePictureTable.COLUMN_ANDROID_PATH + TEXT_TYPE +
                         ")";
 
         public static final String SQL_DELETE_ACCOUNT_TABLE = " DROP TABLE IF EXISTS " + AccountTable.TABLE_NAME;
@@ -425,7 +478,6 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
             public static final String COLUMN_PHOTO_TITLE = "photoTitle";
             public static final String COLUMN_KARDIA_FILENAME = "kardiaFileName";
             public static final String COLUMN_ANDROID_PATH = "androidPath";
-
         }
 
     }
