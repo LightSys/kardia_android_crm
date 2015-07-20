@@ -1,5 +1,7 @@
 package org.lightsys.crmapp.CleanRepository.LoggedInAccount;
 
+import com.google.gson.Gson;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -12,11 +14,15 @@ import org.json.JSONObject;
 import org.lightsys.crmapp.CleanModels.LoggedInUser;
 import org.lightsys.crmapp.CleanModels.UserIdentifier;
 import org.lightsys.crmapp.data.ErrorType;
+import org.lightsys.crmapp.data.GsonCollaboratee;
+import org.lightsys.crmapp.data.GsonCollaborateeList;
+import org.lightsys.crmapp.data.LocalDatabaseHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,7 +57,7 @@ public class RESTApiDataSource implements LoggedInAccountSource {
 
 
     @Override
-    public LoggedInUser authenticate(String username, String password, String serverAddress) {
+    public Boolean authenticate(String username, String password, String serverAddress) {
         apiEndpoint = "/apps/kardia/api/crm/";
         String query = Host + apiEndpoint + collectionQueryOptions;
 
@@ -74,8 +80,7 @@ public class RESTApiDataSource implements LoggedInAccountSource {
             } else if (test.contains("404 Not Found")) {
                 errorType = ErrorType.InvalidLogin;
             } else {
-                loggedInUser = new LoggedInUser(username, password, serverAddress);
-                loggedInUser.setPartnerId(getPartnerId(username));
+                return VALID;
             }
         }
         catch (Exception e) {
@@ -130,7 +135,50 @@ public class RESTApiDataSource implements LoggedInAccountSource {
     }
 
     @Override
-    public List<UserIdentifier> getCollaboratees() {
+    public ArrayList<UserIdentifier> getCollaboratees(String partnerId) {
+        apiEndpoint = "/apps/kardia/api/crm/Partners/";
+        String query = Host + apiEndpoint + partnerId + "/Collaboratees" + collectionQueryOptions;
+
+
+        try {
+            String queryResponse = GET(query);
+
+            // Some amount of error handling on the response goes here.
+
+            JSONObject jsonData = null;
+            jsonData = new JSONObject(queryResponse);
+
+            /**
+             * The JSON logic gets messy here. The API returns a JSON object, however, Gson works
+             * best when the results are returned in an array. Therefore, some amount of work is required
+             * to get the results into a JSON array.
+             */
+
+            JSONArray jsonArray = jsonData.names();
+
+            ArrayList<String> tempList = new ArrayList<>(jsonArray.length());
+            for (int i=0; i < jsonArray.length(); i++) {
+                tempList.add(jsonArray.get(i).toString());
+            }
+            tempList.remove("@id");
+
+            JSONArray trimmedArray = new JSONArray(tempList);
+
+            JSONArray finalArray = jsonData.toJSONArray(trimmedArray);
+
+            Gson gson = new Gson();
+            GsonCollaborateeList list = gson.fromJson("{ \"collaboratees\" : " + finalArray.toString() + "}", GsonCollaborateeList.class);
+
+            ArrayList<UserIdentifier> userIdentifiers = new ArrayList<>(list.getCollaboratees().size());
+
+            for (GsonCollaboratee collaboratee : list.getCollaboratees()) {
+                userIdentifiers.add(new UserIdentifier(collaboratee.getPartnerName(), collaboratee.getPartnerId()));
+            }
+            return userIdentifiers;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
 

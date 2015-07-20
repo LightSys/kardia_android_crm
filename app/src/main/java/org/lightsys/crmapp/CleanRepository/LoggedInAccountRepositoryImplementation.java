@@ -21,17 +21,20 @@ public class LoggedInAccountRepositoryImplementation implements LoggedInAccountR
 
     @Override
     public void authenticate(String username, String password, String serverAddress) {
-
+       final LoggedInAccountSource source = this.loggedInAccountSourceFactory.create();
+        source.authenticate(username, password, serverAddress);
     }
 
     @Override
-    public String getPartnerId() {
-        return null;
+    public String getPartnerId(String username) {
+        final LoggedInAccountSource source = this.loggedInAccountSourceFactory.create();
+        return source.getPartnerId(username);
     }
 
     @Override
-    public List<UserIdentifier> getCollaboratees() {
-        return null;
+    public List<UserIdentifier> getCollaboratees(String partnerId) {
+        final LoggedInAccountSource source = this.loggedInAccountSourceFactory.create();
+        return source.getCollaboratees(partnerId);
     }
 
 

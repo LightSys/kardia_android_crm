@@ -11,7 +11,7 @@ public interface LoggedInAccountRepository {
 
     void authenticate(String username, String password, String serverAddress);
 
-    String getPartnerId();
+    String getPartnerId(String username);
 
-    List<UserIdentifier> getCollaboratees();
+    List<UserIdentifier> getCollaboratees(String partnerId);
 }
