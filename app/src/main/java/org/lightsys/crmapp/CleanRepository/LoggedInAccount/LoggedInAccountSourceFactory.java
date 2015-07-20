@@ -29,18 +29,28 @@ public class LoggedInAccountSourceFactory {
         this.context = context;
     }
 
+    /**
+     * This function returns either a SQLite data source or a REST datasource.
+     * @return
+     */
+
     public LoggedInAccountSource create() {
         LoggedInAccountSource loggedInAccountSource;
 
-        // This shouldn't be if true, it should
+        // This shouldn't be if true, it should have logic for which datasource to create.
         if (true) {
-            loggedInAccountSource = new SQLiteDataSource();
+            loggedInAccountSource = new SQLiteDataSource(context);
         } else {
             loggedInAccountSource = createRESTApiDataSource();
         }
 
         return loggedInAccountSource;
     }
+
+    /**
+     * This function is used to force an online data source.
+     * @return
+     */
 
     private LoggedInAccountSource createRESTApiDataSource() {
         return null;

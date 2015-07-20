@@ -10,7 +10,10 @@ public class LoggedInUser {
     private String password;
     private String serverAddress;
     private String partnerId;
-    private List<Collaboratee> collaborateeList;
+    private List<UserIdentifier> collaborateeList;
+
+    public LoggedInUser() {
+    }
 
     public String getUsername() {
         return username;
@@ -44,11 +47,11 @@ public class LoggedInUser {
         this.partnerId = partnerId;
     }
 
-    public List<Collaboratee> getCollaborateeList() {
+    public List<UserIdentifier> getCollaborateeList() {
         return collaborateeList;
     }
 
-    public void setCollaborateeList(List<Collaboratee> collaborateeList) {
+    public void setCollaborateeList(List<UserIdentifier> collaborateeList) {
         this.collaborateeList = collaborateeList;
     }
 
