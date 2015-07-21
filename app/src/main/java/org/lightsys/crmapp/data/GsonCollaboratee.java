@@ -55,6 +55,13 @@ public class GsonCollaboratee {
     @SerializedName("outer_type")
     String outerType;
 
+    public String getPartnerName() {
+        return partnerName;
+    }
+
+    public String getPartnerId() {
+        return partnerId;
+    }
 
     class CustomDate {
         int year;
