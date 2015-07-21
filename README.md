@@ -4,12 +4,7 @@ A Kardia CRM app for Android
 # 1. Read the CRM Mobile App PDF in the Clean Architecture branch.
 This file contains the design specifications for the app as given by Greg.
 
-# 2. Branches
-Currently the repo has two branches. The first branch, master, contains all of the original work I did on the app. The code is messy, and the logic/control flow is confusing. That being said, it does effectively access the API and store that data into an SQLite database, and displays most of it.
-
-The second branch is CleanArhchitecture. In this branch I have begun redesigning the app around the idea of using a Clean Architecture approach. This branch would be the best place to start (and the rest of the readme will refer to this design rather than the original spaghetti code in master branch.
-
-# 3. Clean Architecture
+# 2. Clean Architecture
 
 The app is designed around the concept of "clean architecture". See:
 
