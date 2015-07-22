@@ -1,4 +1,4 @@
-package org.lightsys.crmapp.clean_presentation.view.activity;
+package org.lightsys.crmapp.clean_presentation;
 
 import android.app.Activity;
 

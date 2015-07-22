@@ -2,6 +2,9 @@ package org.lightsys.crmapp.clean_data.repository.LoggedInAccount;
 
 import android.content.Context;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * Created by Jake on 7/16/2015.
  * Factory that creates implementations of {@link LoggedInAccountSource}
@@ -12,7 +15,8 @@ import android.content.Context;
  * The LoggedInAccountSource Implementations should handle persisting the data
  * between each other.
  */
-public class LoggedInAccountSourceFactory {
+@Singleton
+public class LIA_SourceFactory {
 
     private final Context context;
     // private final UserCache userCache
@@ -20,12 +24,12 @@ public class LoggedInAccountSourceFactory {
     // offline persistence layer, DiskUserDataStore. Not sure yet how that
     // works for me.
 
-    public LoggedInAccountSourceFactory(Context context) {
+    @Inject
+    public LIA_SourceFactory(Context context) {
 
         if (context == null) {
             throw new IllegalArgumentException("Constructor parameters cannot be null");
         }
-
         this.context = context;
     }
 
