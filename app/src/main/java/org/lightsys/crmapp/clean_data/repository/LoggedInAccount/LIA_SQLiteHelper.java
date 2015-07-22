@@ -1,4 +1,4 @@
-package org.lightsys.crmapp.CleanRepository.LoggedInAccount;
+package org.lightsys.crmapp.clean_data.repository.LoggedInAccount;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,11 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
-import org.lightsys.crmapp.CleanModels.Collaboratee;
-import org.lightsys.crmapp.CleanModels.LoggedInUser;
-import org.lightsys.crmapp.CleanModels.UserIdentifier;
+import org.lightsys.crmapp.clean_domain.LoggedInUser;
+import org.lightsys.crmapp.clean_domain.UserIdentifier;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**

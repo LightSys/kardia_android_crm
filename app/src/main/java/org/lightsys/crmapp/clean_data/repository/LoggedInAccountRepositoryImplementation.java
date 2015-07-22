@@ -1,9 +1,9 @@
-package org.lightsys.crmapp.CleanRepository;
+package org.lightsys.crmapp.clean_data.repository;
 
-import org.lightsys.crmapp.CleanModels.Repository.LoggedInAccountRepository;
-import org.lightsys.crmapp.CleanModels.UserIdentifier;
-import org.lightsys.crmapp.CleanRepository.LoggedInAccount.LoggedInAccountSource;
-import org.lightsys.crmapp.CleanRepository.LoggedInAccount.LoggedInAccountSourceFactory;
+import org.lightsys.crmapp.clean_domain.repository.LoggedInAccountRepository;
+import org.lightsys.crmapp.clean_domain.UserIdentifier;
+import org.lightsys.crmapp.clean_data.repository.LoggedInAccount.LoggedInAccountSource;
+import org.lightsys.crmapp.clean_data.repository.LoggedInAccount.LoggedInAccountSourceFactory;
 
 import java.util.List;
 

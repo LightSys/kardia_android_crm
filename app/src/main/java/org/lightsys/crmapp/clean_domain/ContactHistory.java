@@ -1,4 +1,4 @@
-package org.lightsys.crmapp.CleanModels;
+package org.lightsys.crmapp.clean_domain;
 
 import java.util.List;
 

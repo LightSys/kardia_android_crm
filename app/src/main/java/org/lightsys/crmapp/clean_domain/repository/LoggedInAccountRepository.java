@@ -1,6 +1,6 @@
-package org.lightsys.crmapp.CleanModels.Repository;
+package org.lightsys.crmapp.clean_domain.repository;
 
-import org.lightsys.crmapp.CleanModels.UserIdentifier;
+import org.lightsys.crmapp.clean_domain.UserIdentifier;
 
 import java.util.List;
 

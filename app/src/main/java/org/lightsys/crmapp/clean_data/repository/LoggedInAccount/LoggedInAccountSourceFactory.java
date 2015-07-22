@@ -1,4 +1,4 @@
-package org.lightsys.crmapp.CleanRepository.LoggedInAccount;
+package org.lightsys.crmapp.clean_data.repository.LoggedInAccount;
 
 import android.content.Context;
 

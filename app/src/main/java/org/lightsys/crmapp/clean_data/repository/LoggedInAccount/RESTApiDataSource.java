@@ -1,4 +1,4 @@
-package org.lightsys.crmapp.CleanRepository.LoggedInAccount;
+package org.lightsys.crmapp.clean_data.repository.LoggedInAccount;
 
 import com.google.gson.Gson;
 
@@ -11,19 +11,17 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.lightsys.crmapp.CleanModels.LoggedInUser;
-import org.lightsys.crmapp.CleanModels.UserIdentifier;
+import org.lightsys.crmapp.clean_domain.LoggedInUser;
+import org.lightsys.crmapp.clean_domain.UserIdentifier;
 import org.lightsys.crmapp.data.ErrorType;
 import org.lightsys.crmapp.data.GsonCollaboratee;
 import org.lightsys.crmapp.data.GsonCollaborateeList;
-import org.lightsys.crmapp.data.LocalDatabaseHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Jake on 7/16/2015.

@@ -1,13 +1,11 @@
-package org.lightsys.crmapp.CleanRepository.LoggedInAccount;
+package org.lightsys.crmapp.clean_data.repository.LoggedInAccount;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteOpenHelper;
 
-import org.lightsys.crmapp.CleanModels.LoggedInUser;
-import org.lightsys.crmapp.CleanModels.UserIdentifier;
+import org.lightsys.crmapp.clean_domain.LoggedInUser;
+import org.lightsys.crmapp.clean_domain.UserIdentifier;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Jake on 7/16/2015.
