@@ -15,3 +15,5 @@ https://vimeo.com/43612849
 The idea of clean architecture is to decouple the business logic and important parts of the app from the specific frameworks and implementation details.
 
 Additionally, I am using the Repository pattern for data persistence, and intend to use the MVP pattern for the Android UI. A dependency injector such as Dagger would also be useful.
+
+This is a useful resource and reference for Dagger, Clean Architecture, etc: https://github.com/android10/Android-CleanArchitecture
