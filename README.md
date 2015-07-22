@@ -17,3 +17,11 @@ The idea of clean architecture is to decouple the business logic and important p
 Additionally, I am using the Repository pattern for data persistence, and intend to use the MVP pattern for the Android UI. A dependency injector such as Dagger would also be useful.
 
 This is a useful resource and reference for Dagger, Clean Architecture, etc: https://github.com/android10/Android-CleanArchitecture
+
+# 3. RxJava
+
+I'm planning on using RxJava to handle moving blocking events off the UI thread. The above example also uses RxJava. See also:
+
+https://www.youtube.com/watch?v=k3D0cWyNno4
+
+https://t.co/GYG99BzW77
