@@ -25,3 +25,7 @@ I'm planning on using RxJava to handle moving blocking events off the UI thread.
 https://www.youtube.com/watch?v=k3D0cWyNno4
 
 https://t.co/GYG99BzW77
+
+# 4. Read and use the wiki
+
+I've put important information on the Wiki pages for this repository. Most of the planning behind the models and architecture of the application is recorded there.
