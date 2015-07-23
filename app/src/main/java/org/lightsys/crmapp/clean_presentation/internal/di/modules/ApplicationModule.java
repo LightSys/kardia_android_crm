@@ -4,7 +4,7 @@ import android.content.Context;
 
 import org.lightsys.crmapp.clean_data.repository.LIA_RepositoryImpl;
 import org.lightsys.crmapp.clean_domain.repository.LoggedInAccountRepository;
-import org.lightsys.crmapp.clean_presentation.view.activity.AndroidApplication;
+import org.lightsys.crmapp.clean_presentation.AndroidApplication;
 
 import javax.inject.Singleton;
 

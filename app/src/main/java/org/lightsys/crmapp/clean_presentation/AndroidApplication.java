@@ -1,8 +1,9 @@
-package org.lightsys.crmapp.clean_presentation.view.activity;
+package org.lightsys.crmapp.clean_presentation;
 
 import android.app.Application;
 
 import org.lightsys.crmapp.clean_presentation.internal.di.components.ApplicationComponent;
+import org.lightsys.crmapp.clean_presentation.internal.di.components.DaggerApplicationComponent;
 import org.lightsys.crmapp.clean_presentation.internal.di.modules.ApplicationModule;
 
 /**
