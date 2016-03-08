@@ -86,13 +86,12 @@ public class MainActivity extends ActionBarActivity {
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
-                Toast.makeText(getApplication(), "submitted", Toast.LENGTH_SHORT).show();
+                // TODO: code for onQuerySubmit
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String s) {
-                Toast.makeText(getApplication(), "changed", Toast.LENGTH_SHORT).show();
                 return false;
             }
         });
