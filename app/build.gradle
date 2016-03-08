@@ -31,5 +31,4 @@ dependencies {
     provided 'org.glassfish:javax.annotation:10.0-b28'
     compile 'com.google.code.gson:gson:2.3.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
-
 }
