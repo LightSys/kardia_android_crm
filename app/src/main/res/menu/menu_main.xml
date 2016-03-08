@@ -7,6 +7,10 @@
         android:id="@+id/action_search"
         android:orderInCategory="101"
         android:title="@string/action_search_person"
-        android:icon="@drawable/ic_add_white_24dp"
+        android:icon="@drawable/ic_search_white_24dp"
         app:showAsAction="always"/>
 </menu>
+
+<!--
+android:src="@drawable/abc_ic_search_api_mtrl_alpha"
+-->

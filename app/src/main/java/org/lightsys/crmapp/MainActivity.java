@@ -45,7 +45,7 @@ public class MainActivity extends ActionBarActivity {
 
         setupNavigationView();
         setupToolbar();
-        setupTablayout();
+        //setupTablayout();
 
         ArrayList<Account> accounts = new ArrayList<>();
         LocalDatabaseHelper db = new LocalDatabaseHelper(this);
@@ -61,11 +61,6 @@ public class MainActivity extends ActionBarActivity {
                 (new DataConnection(this, getLoggedInAccount(), PullType.GetPartners)).execute("");
             }
         }
-
-
-
-
-
     }
 
     @Override
@@ -109,6 +104,7 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
+    /*
     private void setupTablayout(){
 
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), Titles,NumOfTabs);
@@ -121,6 +117,7 @@ public class MainActivity extends ActionBarActivity {
         tabLayout.setupWithViewPager(viewPager);
         //tabLayout.setTabTextColors(getResources().getColorStateList(R.color.selector));
     }
+    */
 
     public static void setLoggedInAccount(Account a) {
         loggedInAccount = a;
