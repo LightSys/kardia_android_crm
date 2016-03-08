@@ -26,17 +26,10 @@ import java.util.ArrayList;
 public class MainActivity extends ActionBarActivity {
 
     DrawerLayout drawerLayout;
-    CollapsingToolbarLayout collapsingToolbarLayout;
     Toolbar toolbar;
     FloatingActionButton fab;
-    TabLayout tabLayout;
 
     private static Account loggedInAccount;
-
-    ViewPager viewPager;
-    ViewPagerAdapter viewPagerAdapter;
-    CharSequence Titles[]={"Search", "My People"};
-    int NumOfTabs = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
