@@ -45,7 +45,6 @@ public class MainActivity extends ActionBarActivity {
 
         setupNavigationView();
         setupToolbar();
-        //setupTablayout();
 
         ArrayList<Account> accounts = new ArrayList<>();
         LocalDatabaseHelper db = new LocalDatabaseHelper(this);
@@ -77,9 +76,11 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id) {
-            case android.R.id.home:
+            case R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
                 return true;
+            //case R.id.action_search:
+                //return true;
         }
 
         //noinspection SimplifiableIfStatement
@@ -101,23 +102,7 @@ public class MainActivity extends ActionBarActivity {
 
     private void setupNavigationView(){
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
     }
-
-    /*
-    private void setupTablayout(){
-
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), Titles,NumOfTabs);
-        viewPager = (ViewPager) findViewById(R.id.pager);
-        viewPager.setAdapter(viewPagerAdapter);
-
-
-        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-        tabLayout.setupWithViewPager(viewPager);
-        //tabLayout.setTabTextColors(getResources().getColorStateList(R.color.selector));
-    }
-    */
 
     public static void setLoggedInAccount(Account a) {
         loggedInAccount = a;
