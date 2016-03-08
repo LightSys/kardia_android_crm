@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id) {
-            case R.id.home:
+            case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
                 return true;
             //case R.id.action_search:
