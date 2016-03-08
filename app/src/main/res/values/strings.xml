@@ -9,4 +9,5 @@
     <string name="password">Password</string>
     <string name="serverName">Server name or address</string>
     <string name="title_activity_profile">ProfileActivity</string>
+    <string name="search_hint">Search</string>
 </resources>
