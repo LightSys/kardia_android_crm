@@ -45,8 +45,9 @@ public class MainActivity extends AppCompatActivity {
         db.close();
 
         if (accounts.size() == 0) {
-            Intent login = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(login);
+            //Intent login = new Intent(MainActivity.this, LoginActivity.class);
+            //startActivity(login);
+            //finish();
         } else {
             for (Account account : accounts){
                 this.setLoggedInAccount(account);
