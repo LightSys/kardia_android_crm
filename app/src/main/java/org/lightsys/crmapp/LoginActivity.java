@@ -145,38 +145,39 @@ public class LoginActivity extends ActionBarActivity {
                 return;
             }
         }
+
         if (addAccountName.equals("")) {
             ((TextInputLayout) findViewById(R.id.accountNameTIL)).setError("Enter a username.");
             db.close();
             return;
-        }
-        else {
+        } else {
             ((TextInputLayout) findViewById(R.id.accountNameTIL)).setError(null);
         }
         if (addAccountPassword.equals("")) {
             ((TextInputLayout) findViewById(R.id.accountPasswordTIL)).setError("Enter a password.");
             db.close();
             return;
-        }
-        else {
+        } else {
             ((TextInputLayout) findViewById(R.id.accountPasswordTIL)).setError(null);
         }
         if (addServerAddress.equals("")) {
             ((TextInputLayout) findViewById(R.id.serverAddressTIL)).setError("Enter a server address.");
             db.close();
             return;
-        }
-        else {
+        } else {
             ((TextInputLayout) findViewById(R.id.serverAddressTIL)).setError(null);
         }
         Account newAccount = new Account(addAccountName, addAccountPassword, addServerAddress);
+        
         //Add an async connection to check if the account is valid with the server.
-
         (new DataConnection(this, newAccount, PullType.ValidateAccount)).execute("");
 
+        // waiting to hear back from DataConnection
         while (isValidAccount == null) {
             continue;
         }
+
+        // after done
         if (isValidAccount) {
             newAccount.setPartnerId(PartnerId);
             db.addAccount(newAccount);
@@ -199,6 +200,9 @@ public class LoginActivity extends ActionBarActivity {
                         "\n 2) Server may be down";
             }
             Snackbar.make(loginLayout, "Connection to server failed: " + errorStatement, Snackbar.LENGTH_LONG).show();
+            accountName.setText("");
+            accountPassword.setText("");
+            serverAddress.setText("");
 
             // set async flags back to null for next account connection
             isValidAccount = null;

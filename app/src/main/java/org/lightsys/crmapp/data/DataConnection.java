@@ -114,10 +114,12 @@ public class DataConnection extends AsyncTask<String, Void, String> {
 
                 ArrayList<Account> databaseAccounts = db.getAccounts();
                 if (!databaseAccounts.contains(account)) {
+                    // if account is not in the database, check the API endpoint
                     validAccount = isValidAccount();
                     if (dataContext.getClass() == LoginActivity.class) {
                         if (!validAccount) {
                             LoginActivity.setErrorType(errorType);
+                            LoginActivity.setIsValidAccount(false);
                         }
                         else if (validAccount) {
                             AccountPartnerId = getPartnerId();
