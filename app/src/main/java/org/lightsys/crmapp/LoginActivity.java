@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
@@ -44,6 +45,7 @@ public class LoginActivity extends ActionBarActivity {
     ArrayList<Account> accounts;
     private static String PartnerId;
     Button button;
+    TextInputLayout userNameWrapper, passwordWrapper, serverWrapper;
 
     // These will be set by the async task's callback function.
     private static Boolean isValidAccount = null;
@@ -66,6 +68,41 @@ public class LoginActivity extends ActionBarActivity {
         accountsListView = (ListView) findViewById(R.id.loginListView);
         button = (Button) findViewById(R.id.loginSubmit);
         loginLayout = findViewById(R.id.loginLayout);
+        userNameWrapper = (TextInputLayout) findViewById(R.id.accountNameTIL);
+        passwordWrapper = (TextInputLayout) findViewById(R.id.accountPasswordTIL);
+        serverWrapper = (TextInputLayout) findViewById(R.id.serverAddressTIL);
+
+        // EditText hint workaround
+        accountPassword.setHint("Password");
+        serverAddress.setHint("Server name or address");
+
+        accountName.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                accountName.setHint("");
+                accountPassword.setHint("Password");
+                serverAddress.setHint("Server name or address");
+                return false;
+            }
+        });
+        accountPassword.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                accountPassword.setHint("");
+                accountName.setHint("Username");
+                serverAddress.setHint("Server name or address");
+                return false;
+            }
+        });
+        serverAddress.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                serverAddress.setHint("");
+                accountPassword.setHint("Password");
+                accountName.setHint("Username");
+                return false;
+            }
+        });
 
         loadAccounts();
 
@@ -168,7 +205,7 @@ public class LoginActivity extends ActionBarActivity {
             ((TextInputLayout) findViewById(R.id.serverAddressTIL)).setError(null);
         }
         Account newAccount = new Account(addAccountName, addAccountPassword, addServerAddress);
-        
+
         //Add an async connection to check if the account is valid with the server.
         (new DataConnection(this, newAccount, PullType.ValidateAccount)).execute("");
 

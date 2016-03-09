@@ -35,9 +35,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:imeOptions="actionNext"
-            android:textColorHint="#000000"
             android:textColor="#000000"
+            android:textColorHint="@color/grey"
             android:inputType="text"
+            android:ellipsize="start"
             android:layout_gravity="center_horizontal">
             <requestFocus/>
         </EditText>
@@ -57,8 +58,9 @@
             android:inputType="textPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColorHint="#000000"
-            android:textColor="#000000"/>
+            android:textColor="#000000"
+            android:textColorHint="@color/grey"
+            android:ellipsize="start"/>
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
@@ -74,8 +76,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
-            android:textColorHint="#000000"
-            android:textColor="#000000"/>
+            android:textColor="#000000"
+            android:textColorHint="@color/grey"
+            android:ellipsize="start"/>
     </android.support.design.widget.TextInputLayout>
 
     <Button
