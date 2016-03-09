@@ -1,22 +1,18 @@
 package org.lightsys.crmapp;
 
 import android.content.Intent;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.View;
 
 import org.lightsys.crmapp.data.Account;
 import org.lightsys.crmapp.data.DataConnection;
@@ -26,20 +22,13 @@ import org.lightsys.crmapp.data.PullType;
 import java.util.ArrayList;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
-    CollapsingToolbarLayout collapsingToolbarLayout;
     Toolbar toolbar;
     FloatingActionButton fab;
-    TabLayout tabLayout;
 
     private static Account loggedInAccount;
-
-    ViewPager viewPager;
-    ViewPagerAdapter viewPagerAdapter;
-    CharSequence Titles[]={"Search", "My People"};
-    int NumOfTabs = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +37,7 @@ public class MainActivity extends ActionBarActivity {
 
         setupNavigationView();
         setupToolbar();
-        setupTablayout();
+        setupFAB();
 
         ArrayList<Account> accounts = new ArrayList<>();
         LocalDatabaseHelper db = new LocalDatabaseHelper(this);
@@ -64,19 +53,7 @@ public class MainActivity extends ActionBarActivity {
                 (new DataConnection(this, getLoggedInAccount(), PullType.GetPartners)).execute("");
             }
         }
-
-
-
-
-
     }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -86,7 +63,10 @@ public class MainActivity extends ActionBarActivity {
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
-                // TODO: code for onQuerySubmit
+                // TODO execute query and repopulate
+                Snackbar.make(findViewById(R.id.coordinatorlayout),
+                        "TODO execute query and repopulate",
+                        Snackbar.LENGTH_LONG).show();
                 return false;
             }
 
@@ -108,6 +88,8 @@ public class MainActivity extends ActionBarActivity {
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
                 return true;
+            //case R.id.action_search:
+                //return true;
         }
 
         //noinspection SimplifiableIfStatement
@@ -123,26 +105,24 @@ public class MainActivity extends ActionBarActivity {
         setSupportActionBar(toolbar);
 
         final ActionBar ab = getSupportActionBar();
-        ab.setHomeAsUpIndicator(R.drawable.ic_menu);
+        ab.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
         ab.setDisplayHomeAsUpEnabled(true);
     }
 
     private void setupNavigationView(){
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
     }
 
-    private void setupTablayout(){
-
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), Titles,NumOfTabs);
-        viewPager = (ViewPager) findViewById(R.id.pager);
-        viewPager.setAdapter(viewPagerAdapter);
-
-
-        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-        tabLayout.setupWithViewPager(viewPager);
-        //tabLayout.setTabTextColors(getResources().getColorStateList(R.color.selector));
+    private void setupFAB() {
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Snackbar.make(findViewById(R.id.coordinatorlayout),
+                        "TODO launch NewProfileActivity",
+                        Snackbar.LENGTH_LONG).show();
+            }
+        });
     }
 
     public static void setLoggedInAccount(Account a) {

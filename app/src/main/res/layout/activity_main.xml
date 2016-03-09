@@ -7,23 +7,46 @@
     android:layout_width="match_parent">
 
     <android.support.design.widget.CoordinatorLayout
-
+        android:id="@+id/coordinatorlayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <fragment
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/fragment_profiles"
+                android:name="org.lightsys.crmapp.MainFragment"
+                tools:layout="@android:layout/list_content" />
+
+        </FrameLayout>
+        
         <android.support.design.widget.AppBarLayout
             android:id="@+id/mainAppbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true">
 
+            <!--
             <android.support.v7.widget.Toolbar
                 android:id="@+id/mainToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/colorPrimary"
                 app:layout_scrollFlags="scroll|enterAlways"/>
+            -->
 
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/mainToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/colorPrimary" />
+
+            <!--
             <android.support.design.widget.TabLayout
                 android:id="@+id/tabLayout"
                 android:scrollbars="horizontal"
@@ -36,6 +59,7 @@
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"
                 android:layout_weight="1" />
+            -->
 
         </android.support.design.widget.AppBarLayout>
 
@@ -47,6 +71,7 @@
             android:layout_marginBottom="20dp"
             android:layout_marginRight="20dp"
             android:layout_gravity="bottom|right"
+            android:clickable="true"
             app:fabSize="normal" />
 
     </android.support.design.widget.CoordinatorLayout>

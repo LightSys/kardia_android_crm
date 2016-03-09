@@ -3,16 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
 
-    <!--<item-->
-        <!--android:id="@+id/action_search"-->
-        <!--android:orderInCategory="101"-->
-        <!--android:title="@string/action_search_person"-->
-        <!--android:icon="@drawable/ic_add_white_24dp"-->
-        <!--app:showAsAction="always"/>-->
-    <item
-        android:id="@+id/action_search"
-        android:icon="@android:drawable/ic_menu_search"
-        app:showAsAction="ifRoom"
+    <item android:id="@+id/action_search"
+        android:title="@string/action_search_person"
         app:actionViewClass="android.support.v7.widget.SearchView"
-        android:title="Search"/>
+        app:showAsAction="ifRoom" />
+
 </menu>
