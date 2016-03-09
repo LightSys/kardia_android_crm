@@ -58,7 +58,6 @@ public class LoginActivity extends ActionBarActivity {
         setSupportActionBar(toolbar);
         // This should be centered, it seems that will require creating a custom view using XML.
         getSupportActionBar().setTitle("Kardia CRM");
-        getSupportActionBar().setSubtitle("Login");
 
         accountName = (EditText) findViewById(R.id.loginUsername);
         accountPassword = (EditText) findViewById(R.id.loginPassword);
