@@ -91,10 +91,6 @@ public class LoginActivity extends ActionBarActivity {
                 return handled;
             }
         });
-
-
-
-
     }
 
     public void loadAccounts() {
@@ -211,6 +207,16 @@ public class LoginActivity extends ActionBarActivity {
             return;
         }
         finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        // if you want to bypass the login, uncomment the line below, and comment finishAffinity
+        // super.onBackPressed();
+
+        // prevent bypass login by quitting program on backpressed
+        // this only works on API 16, if API is lower, the back button will do nothing
+        this.finishAffinity();
     }
 
     public static void setErrorType(ErrorType pErrorType) {
