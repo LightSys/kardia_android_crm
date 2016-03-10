@@ -4,15 +4,4 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
 
-    <group android:checkableBehavior="all">
-        <item
-            android:id="@+id/navigation_item_1"
-            android:icon="@drawable/abc_btn_rating_star_off_mtrl_alpha"
-            android:title="Navigation 1" />
-
-        <item
-            android:id="@+id/navigation_item_2"
-            android:title="Navigation 2" />
-    </group>
-
 </menu>

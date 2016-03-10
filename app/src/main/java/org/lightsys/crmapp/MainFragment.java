@@ -1,6 +1,7 @@
 package org.lightsys.crmapp;
 
 import android.app.Fragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -8,21 +9,37 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import org.lightsys.crmapp.data.KardiaFetcher;
+import org.lightsys.crmapp.data.Partner;
+import org.lightsys.crmapp.data.User;
+import org.lightsys.crmapp.data.UserLab;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by cubemaster on 3/7/16.
  */
 public class MainFragment extends Fragment {
     private RecyclerView mRecyclerView;
-    private ProfileAdapter mAdapter;
+    private List<Partner> mProfiles = new ArrayList<>();
+    private User mUser;
 
     public MainFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mUser = UserLab.get(getActivity()).getUser();
+        if(mUser.getUsername() != null) {
+            new GetCollaborateesTask().execute();
+        }
     }
 
     @Override
@@ -41,19 +58,20 @@ public class MainFragment extends Fragment {
         mRecyclerView = (android.support.v7.widget.RecyclerView) rootView.findViewById(R.id.recyclerview_profiles);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        updateUI();
+        setupAdapter();
 
         return rootView;
+    }
+
+    private void setupAdapter() {
+        if(isAdded()) {
+            mRecyclerView.setAdapter(new ProfileAdapter(mProfiles));
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-    }
-
-    private void updateUI() {
-        mAdapter = new ProfileAdapter();
-        mRecyclerView.setAdapter(mAdapter);
     }
 
     private class ProfileHolder extends RecyclerView.ViewHolder {
@@ -64,10 +82,22 @@ public class MainFragment extends Fragment {
 
             mLinearLayout = (LinearLayout) view;
         }
+
+        public void bindProfile(Partner partner) {
+            Picasso.with(getActivity())
+                    .load(partner.getProfilePictureFilename())
+                    .placeholder(R.drawable.persona)
+                    .into(((ImageView)mLinearLayout.findViewById(R.id.profile_photo)));
+            ((TextView)mLinearLayout.findViewById(R.id.profile_name)).setText(partner.getPartnerName());
+        }
     }
 
     private class ProfileAdapter extends RecyclerView.Adapter<ProfileHolder> {
-        String[] mProfiles = new String[]{"Josh","Nathan","David","Benjamin","Anna","Josh","Nathan","David","Benjamin","Anna"};
+        private List<Partner> mCollaboratees;
+
+        public ProfileAdapter(List<Partner> collaboratees) {
+            mCollaboratees = collaboratees;
+        }
 
         @Override
         public ProfileHolder onCreateViewHolder(ViewGroup container, int viewType) {
@@ -78,13 +108,27 @@ public class MainFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(ProfileHolder holder, int position) {
-            ((TextView)holder.mLinearLayout.findViewById(R.id.profile_name)).setText(mProfiles[position]);
+        public void onBindViewHolder(ProfileHolder profileHolder, int position) {
+            Partner collaboratee = mCollaboratees.get(position);
+            profileHolder.bindProfile(collaboratee);
         }
 
         @Override
         public int getItemCount() {
-            return mProfiles.length;
+            return mCollaboratees.size();
+        }
+    }
+
+    private class GetCollaborateesTask extends AsyncTask<Void, Void, List<Partner>> {
+        @Override
+        protected List<Partner> doInBackground(Void... params) {
+            return new KardiaFetcher().getCollaboratees(mUser);
+        }
+
+        @Override
+        protected void onPostExecute(List<Partner> collaboratees) {
+            mProfiles = collaboratees;
+            setupAdapter();
         }
     }
 }

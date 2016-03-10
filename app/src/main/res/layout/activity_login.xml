@@ -22,64 +22,68 @@
         android:gravity="center"
         android:padding="10dp"/>
 
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="200dp"
+    <EditText
+        android:id="@+id/loginUsername"
+        android:hint="@string/username"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:imeOptions="actionNext"
+        android:textColor="#000000"
+        android:textColorHint="@color/grey"
+        android:inputType="text"
+        android:ellipsize="start"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="0dp"
-        android:id="@+id/accountNameTIL">
+        android:layout_marginLeft="64dp"
+        android:layout_marginRight="64dp">
+        <requestFocus/>
+    </EditText>
 
-        <EditText
-            android:id="@+id/loginUsername"
-            android:hint="@string/username"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:imeOptions="actionNext"
-            android:textColor="#000000"
-            android:textColorHint="@color/grey"
-            android:inputType="text"
-            android:ellipsize="start"
-            android:layout_gravity="center_horizontal">
-            <requestFocus/>
-        </EditText>
-    </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="200dp"
+    <TextView
+        android:id="@+id/loginUsernameError"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="0dp"
-        android:id="@+id/accountPasswordTIL">
+        android:textColor="#FF0000"
+        android:layout_marginLeft="64dp" />
 
-        <EditText
-            android:id="@+id/loginPassword"
-            android:hint="@string/password"
-            android:imeOptions="actionNext"
-            android:inputType="textPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#000000"
-            android:textColorHint="@color/grey"
-            android:ellipsize="start"/>
-    </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="200dp"
+    <EditText
+        android:id="@+id/loginPassword"
+        android:hint="@string/password"
+        android:imeOptions="actionNext"
+        android:inputType="textPassword"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="0dp"
-        android:id="@+id/serverAddressTIL">
-        <EditText
-            android:id="@+id/loginServer"
-            android:hint="@string/serverName"
-            android:imeOptions="actionGo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text"
-            android:textColor="#000000"
-            android:textColorHint="@color/grey"
-            android:ellipsize="start"/>
-    </android.support.design.widget.TextInputLayout>
+        android:textColor="#000000"
+        android:textColorHint="@color/grey"
+        android:layout_marginLeft="64dp"
+        android:layout_marginRight="64dp"
+        android:fontFamily="sans-serif"/>
+
+    <TextView
+        android:id="@+id/loginPasswordError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FF0000"
+        android:layout_marginLeft="64dp" />
+
+    <EditText
+        android:id="@+id/loginServer"
+        android:hint="@string/serverName"
+        android:imeOptions="actionGo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:textColor="#000000"
+        android:textColorHint="@color/grey"
+        android:ellipsize="start"
+        android:layout_marginLeft="64dp"
+        android:layout_marginRight="64dp" />
+
+    <TextView
+        android:id="@+id/loginServerError"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FF0000"
+        android:layout_marginLeft="64dp" />
 
     <Button
         android:id="@+id/loginSubmit"
@@ -89,19 +93,4 @@
         android:layout_marginTop="10dp"
         android:layout_gravity="center_horizontal"/>
 
-
-    <TextView
-        android:id="@+id/loginConnectedAccounts"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/abc_text_size_medium_material"
-        android:text="Placeholder Text"
-        android:textColor="#000000"
-        android:gravity="center"
-        android:padding="10dp"/>
-
-    <ListView
-        android:id="@+id/loginListView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"></ListView>
 </LinearLayout>

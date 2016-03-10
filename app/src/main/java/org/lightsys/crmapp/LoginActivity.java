@@ -1,55 +1,32 @@
 package org.lightsys.crmapp;
 
-import android.database.Cursor;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.lightsys.crmapp.data.Account;
-import org.lightsys.crmapp.data.DataConnection;
-import org.lightsys.crmapp.data.ErrorType;
-import org.lightsys.crmapp.data.LocalDatabaseHelper;
-import org.lightsys.crmapp.data.PullType;
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import org.lightsys.crmapp.data.KardiaFetcher;
+import org.lightsys.crmapp.data.Staff;
+import org.lightsys.crmapp.data.User;
+import org.lightsys.crmapp.data.UserLab;
 
 
 public class LoginActivity extends ActionBarActivity {
 
-
-
-    ListView accountsListView;
     EditText accountName, accountPassword, serverAddress;
-    TextView connectedAccounts;
     View loginLayout;
     Toolbar toolbar;
-    ArrayList<Account> accounts;
-    private static String PartnerId;
+    User account;
     Button button;
-    TextInputLayout userNameWrapper, passwordWrapper, serverWrapper;
-
-    // These will be set by the async task's callback function.
-    private static Boolean isValidAccount = null;
-    private static ErrorType errorType = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,47 +41,8 @@ public class LoginActivity extends ActionBarActivity {
         accountName = (EditText) findViewById(R.id.loginUsername);
         accountPassword = (EditText) findViewById(R.id.loginPassword);
         serverAddress = (EditText) findViewById(R.id.loginServer);
-        connectedAccounts = (TextView) findViewById(R.id.loginConnectedAccounts);
-        accountsListView = (ListView) findViewById(R.id.loginListView);
         button = (Button) findViewById(R.id.loginSubmit);
         loginLayout = findViewById(R.id.loginLayout);
-        userNameWrapper = (TextInputLayout) findViewById(R.id.accountNameTIL);
-        passwordWrapper = (TextInputLayout) findViewById(R.id.accountPasswordTIL);
-        serverWrapper = (TextInputLayout) findViewById(R.id.serverAddressTIL);
-
-        // EditText hint workaround
-        accountPassword.setHint("Password");
-        serverAddress.setHint("Server name or address");
-
-        accountName.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                accountName.setHint("");
-                accountPassword.setHint("Password");
-                serverAddress.setHint("Server name or address");
-                return false;
-            }
-        });
-        accountPassword.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                accountPassword.setHint("");
-                accountName.setHint("Username");
-                serverAddress.setHint("Server name or address");
-                return false;
-            }
-        });
-        serverAddress.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                serverAddress.setHint("");
-                accountPassword.setHint("Password");
-                accountName.setHint("Username");
-                return false;
-            }
-        });
-
-        loadAccounts();
 
         button.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -130,145 +68,67 @@ public class LoginActivity extends ActionBarActivity {
         });
     }
 
-    public void loadAccounts() {
-        LocalDatabaseHelper db = new LocalDatabaseHelper(this);
-
-        // From a pure efficiency standpoint, db.getAccounts() should return the data in a format that's already
-        // ready to be put into the adapter. However, I like having the actual accounts for flexibility.
-        // At some point if this function is only used to populate the ListView it should probably be replaced
-        // for the sake of memory.
-        accounts = db.getAccounts();
-
-        if (accounts.size() > 0) {
-            connectedAccounts.setText("Connected Accounts:");
-        }
-        else {
-            connectedAccounts.setText("");
-        }
-
-        ArrayList<HashMap<String,String>> accountList = new ArrayList<>(accounts.size());
-
-        for (Account account : accounts) {
-            HashMap<String, String> accountMap = new HashMap<>();
-            accountMap.put("accountName", account.getAccountName());
-            accountMap.put("serverAddress", account.getServerName());
-            accountList.add(accountMap);
-        }
-        SimpleAdapter simpleAdapter = new SimpleAdapter(this, accountList,
-                R.layout.login_list_item,
-                new String[]{"accountName", "serverAddress"},
-                new int[]{R.id.loginListUsername, R.id.loginListServerAddress});
-
-
-        accountsListView.setAdapter(simpleAdapter);
-
-    }
-
     public void addAccount(View v) {
-        LocalDatabaseHelper db = new LocalDatabaseHelper(this);
-        accounts = db.getAccounts();
+        UserLab userLab = UserLab.get(this);
+        account = userLab.getUser();
 
         String addAccountName = accountName.getText().toString();
         String addAccountPassword = accountPassword.getText().toString();
         String addServerAddress = serverAddress.getText().toString();
 
-        for(Account account : accounts) {
-            if(account.getAccountName().equals(addAccountName) && account.getServerName().equals(addServerAddress)
-                    && account.getAccountPassword().equals(addAccountPassword)) {
-                //Snackbar.make(v, "Account already stored.", Snackbar.LENGTH_LONG).show();
-                db.close();
-                //Probably should load data from the server here?
-                finish();
-                return;
-            }
-        }
-
         if (addAccountName.equals("")) {
-            ((TextInputLayout) findViewById(R.id.accountNameTIL)).setError("Enter a username.");
-            db.close();
+            ((TextView) findViewById(R.id.loginUsernameError)).setText("Enter a username.");
             return;
-        } else {
-            ((TextInputLayout) findViewById(R.id.accountNameTIL)).setError(null);
+        }
+        else {
+            ((TextView) findViewById(R.id.loginUsernameError)).setText("");
         }
         if (addAccountPassword.equals("")) {
-            ((TextInputLayout) findViewById(R.id.accountPasswordTIL)).setError("Enter a password.");
-            db.close();
+            ((TextView) findViewById(R.id.loginPasswordError)).setText("Enter a password.");
             return;
         } else {
-            ((TextInputLayout) findViewById(R.id.accountPasswordTIL)).setError(null);
+            ((TextView) findViewById(R.id.loginPasswordError)).setText("");
         }
         if (addServerAddress.equals("")) {
-            ((TextInputLayout) findViewById(R.id.serverAddressTIL)).setError("Enter a server address.");
-            db.close();
-            return;
-        } else {
-            ((TextInputLayout) findViewById(R.id.serverAddressTIL)).setError(null);
-        }
-        Account newAccount = new Account(addAccountName, addAccountPassword, addServerAddress);
-
-        //Add an async connection to check if the account is valid with the server.
-        (new DataConnection(this, newAccount, PullType.ValidateAccount)).execute("");
-
-        // waiting to hear back from DataConnection
-        while (isValidAccount == null) {
-            continue;
-        }
-
-        // after done
-        if (isValidAccount) {
-            newAccount.setPartnerId(PartnerId);
-            db.addAccount(newAccount);
-            MainActivity.setLoggedInAccount(newAccount);
-            (new DataConnection(this, newAccount, PullType.GetPartners)).execute("");
-            isValidAccount = null;
-            errorType = null;
-            db.close();
-        } else {
-            // Set error statement based on error provided by async task
-            String errorStatement;
-            if (errorType == ErrorType.ServerNotFound) {
-                errorStatement = "Server not found";
-            } else if (errorType == ErrorType.InvalidLogin) {
-                errorStatement = "Incorrect username/password";
-            } else if (errorType == ErrorType.Unauthorized) {
-                errorStatement = "Unauthorized";
-            } else {
-                errorStatement = "Unknown issue. \n 1) Check Internet connection" +
-                        "\n 2) Server may be down";
-            }
-            Snackbar.make(loginLayout, "Connection to server failed: " + errorStatement, Snackbar.LENGTH_LONG).show();
-            accountName.setText("");
-            accountPassword.setText("");
-            serverAddress.setText("");
-
-            // set async flags back to null for next account connection
-            isValidAccount = null;
-            errorType = null;
-            db.close();
+            ((TextView) findViewById(R.id.loginServerError)).setText("Enter a server address.");
             return;
         }
+        else {
+            ((TextView) findViewById(R.id.loginServerError)).setText("");
+        }
+        User newAccount = new User();
+        newAccount.setUsername(addAccountName);
+        newAccount.setPassword(addAccountPassword);
+        newAccount.setServer(addServerAddress);
+        Log.d("Login", "hellp?");
+        new GetPartnerIdTask().execute(newAccount);
+    }
+
+    private void checkAccount(User user) {
+        if (user.getStaff() != null) {
+            UserLab.get(this).addUser(user);
+        } else {
+            Snackbar.make(loginLayout, "Connection to server failed", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+        Intent main = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(main);
         finish();
     }
 
-    @Override
-    public void onBackPressed() {
-        // if you want to bypass the login, uncomment the line below, and comment finishAffinity
-        // super.onBackPressed();
+    private class GetPartnerIdTask extends AsyncTask<User, Void, User> {
+        @Override
+        protected User doInBackground(User... params) {
+            Log.d("Login", "yes");
+            String partnerId = new KardiaFetcher().getPartnerId(params[0]);
+            Log.d("Login", "yes2");
+            params[0].setStaff(new Staff(partnerId, params[0].getUsername()));
+            return params[0];
+        }
 
-        // prevent bypass login by quitting program on backpressed
-        // this only works on API 16, if API is lower, the back button will do nothing
-        this.finishAffinity();
-    }
-
-    public static void setErrorType(ErrorType pErrorType) {
-        errorType = pErrorType;
-    }
-
-    public static void setIsValidAccount(boolean isValid) {
-        isValidAccount = isValid;
-    }
-
-    public static void returnPartnerId(String partnerId) {
-        PartnerId = partnerId;
+        @Override
+        protected void onPostExecute(User user) {
+            checkAccount(user);
+        }
     }
 }
