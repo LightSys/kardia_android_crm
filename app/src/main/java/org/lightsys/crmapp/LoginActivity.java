@@ -55,15 +55,12 @@ public class LoginActivity extends ActionBarActivity {
         serverAddress.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-
-                addAccount(v);
-
                 if (actionId == EditorInfo.IME_ACTION_GO) {
-                    handled = true;
+                    addAccount(v);
+                    return true;
                 }
-                //finish();
-                return handled;
+
+                return false;
             }
         });
     }
