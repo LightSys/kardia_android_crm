@@ -3,6 +3,7 @@ package org.lightsys.crmapp;
 import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -74,21 +75,31 @@ public class MainFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
-    private class ProfileHolder extends RecyclerView.ViewHolder {
+    private class ProfileHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private LinearLayout mLinearLayout;
 
         public ProfileHolder(View view) {
             super(view);
 
             mLinearLayout = (LinearLayout) view;
+
+            view.setOnClickListener(this);
         }
 
         public void bindProfile(Partner partner) {
             Picasso.with(getActivity())
                     .load(partner.getProfilePictureFilename())
                     .placeholder(R.drawable.persona)
-                    .into(((ImageView)mLinearLayout.findViewById(R.id.profile_photo)));
+                    .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
             ((TextView)mLinearLayout.findViewById(R.id.profile_name)).setText(partner.getPartnerName());
+        }
+
+        @Override
+        public void onClick(View v) {
+            String name = ((TextView)((LinearLayout)v).findViewById(R.id.profile_name)).getText().toString();
+            Snackbar.make(getActivity().findViewById(R.id.coordinatorlayout),
+                    "TODO launch ProfileActivity for " + name,
+                    Snackbar.LENGTH_LONG).show();
         }
     }
 
