@@ -35,6 +35,20 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
         </activity>
+        <service
+            android:name="org.lightsys.crmapp.data.AuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+        <provider
+            android:name="org.lightsys.crmapp.data.KardiaProvider"
+            android:authorities="com.example.android.datasync.provider"
+            android:exported="false"
+            android:syncable="true"/>
     </application>
 
 </manifest>

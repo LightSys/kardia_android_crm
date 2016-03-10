@@ -18,7 +18,7 @@ public class CRMBaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table " + CRMDbSchema.UserTable.NAME + "(" +
-                        " _id integer primary key autoincrement, " +
+                        "_ID integer primary key autoincrement, " +
                         CRMDbSchema.UserTable.Cols.USERNAME + ", " +
                         CRMDbSchema.UserTable.Cols.PASSWORD + ", " +
                         CRMDbSchema.UserTable.Cols.SERVER + ", " +
@@ -27,15 +27,15 @@ public class CRMBaseHelper extends SQLiteOpenHelper {
         );
 
         db.execSQL("create table " + CRMDbSchema.PartnerTable.NAME + "(" +
-                        " _id integer primary key autoincrement, " +
+                        "_ID integer primary key autoincrement, " +
                         CRMDbSchema.PartnerTable.Cols.PARNTER_ID + ", " +
                         CRMDbSchema.PartnerTable.Cols.PARTNER_NAME +
                         ")"
         );
 
         db.execSQL("create table " + CRMDbSchema.CollaborateeTable.NAME + "(" +
-                        " _id integer primary key autoincrement, " +
-                        CRMDbSchema.CollaborateeTable.Cols.COLLABORATOR_ID + ", " +
+                        "_ID integer primary key autoincrement, " +
+                        CRMDbSchema.CollaborateeTable.Cols.COLLABORATEE_ID + ", " +
                         CRMDbSchema.CollaborateeTable.Cols.PARTNER_ID +
                         ")"
         );

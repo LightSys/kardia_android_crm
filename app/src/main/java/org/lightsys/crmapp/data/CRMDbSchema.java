@@ -28,7 +28,7 @@ public class CRMDbSchema {
         public static final String NAME = "collaboratee";
 
         public static final class Cols {
-            public static final String COLLABORATOR_ID = "collaboratorId";
+            public static final String COLLABORATEE_ID = "collaborateeId";
             public static final String PARTNER_ID = "partnerId";
         }
     }
