@@ -13,9 +13,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.lightsys.crmapp.clean_domain.LoggedInUser;
 import org.lightsys.crmapp.clean_domain.UserIdentifier;
-import org.lightsys.crmapp.data.ErrorType;
-import org.lightsys.crmapp.data.GsonCollaboratee;
-import org.lightsys.crmapp.data.GsonCollaborateeList;
+import org.lightsys.crmapp.old_data.ErrorType;
+import org.lightsys.crmapp.old_data.GsonCollaboratee;
+import org.lightsys.crmapp.old_data.GsonCollaborateeList;
 
 import java.io.BufferedReader;
 import java.io.IOException;

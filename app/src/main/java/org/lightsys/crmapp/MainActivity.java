@@ -14,12 +14,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import org.lightsys.crmapp.data.Account;
-import org.lightsys.crmapp.data.DataConnection;
-import org.lightsys.crmapp.data.LocalDatabaseHelper;
-import org.lightsys.crmapp.data.PullType;
-
-import java.util.ArrayList;
+import org.lightsys.crmapp.data.User;
+import org.lightsys.crmapp.data.UserLab;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -28,32 +24,25 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
     FloatingActionButton fab;
 
-    private static Account loggedInAccount;
+    private static User loggedInAccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        loggedInAccount = UserLab.get(this).getUser();
+
+        if (loggedInAccount.getUsername() == null) {
+            Intent login = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(login);
+            finish();
+        }
+
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         setupNavigationView();
         setupToolbar();
         setupFAB();
-
-        ArrayList<Account> accounts = new ArrayList<>();
-        LocalDatabaseHelper db = new LocalDatabaseHelper(this);
-        accounts = db.getAccounts();
-        db.close();
-
-        if (accounts.size() == 0) {
-            //Intent login = new Intent(MainActivity.this, LoginActivity.class);
-            //startActivity(login);
-            //finish();
-        } else {
-            for (Account account : accounts){
-                this.setLoggedInAccount(account);
-                (new DataConnection(this, getLoggedInAccount(), PullType.GetPartners)).execute("");
-            }
-        }
     }
 
     @Override
@@ -124,12 +113,5 @@ public class MainActivity extends AppCompatActivity {
                         Snackbar.LENGTH_LONG).show();
             }
         });
-    }
-
-    public static void setLoggedInAccount(Account a) {
-        loggedInAccount = a;
-    }
-    public static Account getLoggedInAccount() {
-        return loggedInAccount;
     }
 }
