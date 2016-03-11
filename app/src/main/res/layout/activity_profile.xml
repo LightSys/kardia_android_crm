@@ -22,7 +22,7 @@
             android:id="@+id/collapsingtoolbar_profile"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary" />
+            android:background="@color/primary" />
 
     </android.support.design.widget.AppBarLayout>
 

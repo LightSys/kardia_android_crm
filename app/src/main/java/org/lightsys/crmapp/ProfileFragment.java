@@ -31,8 +31,7 @@ public class ProfileFragment extends Fragment {
             mPartnerId = arguments.getString(ProfileActivity.PARTNER_ID_KEY);
         }
 
-        Log.d(LOG_TAG, mName);
-        Log.d(LOG_TAG, mPartnerId);
+        // TODO API call with mPartnerId
 
         View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
 

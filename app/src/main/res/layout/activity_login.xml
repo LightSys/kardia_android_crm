@@ -11,7 +11,7 @@
         android:id="@+id/loginToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary" />
+        android:background="@color/primary" />
 
     <TextView
         android:layout_width="fill_parent"
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:imeOptions="actionNext"
         android:textColor="#000000"
-        android:textColorHint="@color/grey"
+        android:textColorHint="@color/accent"
         android:inputType="text"
         android:ellipsize="start"
         android:layout_gravity="center_horizontal"
@@ -53,7 +53,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="#000000"
-        android:textColorHint="@color/grey"
+        android:textColorHint="@color/accent"
         android:layout_marginLeft="64dp"
         android:layout_marginRight="64dp"
         android:fontFamily="sans-serif"/>
@@ -73,7 +73,7 @@
         android:layout_height="wrap_content"
         android:inputType="text"
         android:textColor="#000000"
-        android:textColorHint="@color/grey"
+        android:textColorHint="@color/accent"
         android:ellipsize="start"
         android:layout_marginLeft="64dp"
         android:layout_marginRight="64dp" />
