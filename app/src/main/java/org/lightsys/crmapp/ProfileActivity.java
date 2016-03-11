@@ -1,5 +1,6 @@
 package org.lightsys.crmapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.Snackbar;
@@ -68,9 +69,10 @@ public class ProfileActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_edit_profile:
-                Snackbar.make(findViewById(R.id.coordinatorlayout_profile),
-                        "TODO launch EditProfileActivity",
-                        Snackbar.LENGTH_LONG).show();
+                Intent i = new Intent(getApplicationContext(), EditProfileActivity.class);
+                i.putExtra(NAME_KEY, mName);
+                i.putExtra(PARTNER_ID_KEY, mPartnerId);
+                startActivity(i);
                 return true;
         }
 

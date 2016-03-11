@@ -2,24 +2,24 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/coordinatorlayout_new_profile"
+    android:id="@+id/coordinatorlayout_profile_input"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <FrameLayout
-        android:id="@+id/fragment_new_profile_container"
+        android:id="@+id/fragment_profile_input_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbar_new_profile"
+        android:id="@+id/appbar_profile_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar_new_profile"
+            android:id="@+id/toolbar_profile_input"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/primary"
