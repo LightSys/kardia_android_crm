@@ -2,9 +2,11 @@ package org.lightsys.crmapp;
 
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v7.app.ActionBar;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
 /**
  * Created by cubemaster on 3/10/16.
@@ -53,6 +55,26 @@ public class ProfileActivity extends AppCompatActivity {
         if(mName != null) {
             mCollapsingToolbarLayout.setTitle(mName);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_profile, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_edit_profile:
+                Snackbar.make(findViewById(R.id.coordinatorlayout_profile),
+                        "TODO launch EditProfileActivity",
+                        Snackbar.LENGTH_LONG).show();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
