@@ -1,5 +1,7 @@
 package org.lightsys.crmapp;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,8 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import org.lightsys.crmapp.data.User;
-import org.lightsys.crmapp.data.UserLab;
+import org.lightsys.crmapp.data.KardiaProvider;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -24,21 +25,20 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
     FloatingActionButton fab;
 
-    private static User loggedInAccount;
+    private AccountManager mAccountManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        loggedInAccount = UserLab.get(this).getUser();
-
-        if (loggedInAccount.getUsername() == null) {
-            Intent login = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(login);
-            finish();
-        }
-
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        mAccountManager = AccountManager.get(this);
+        Account[] accounts = mAccountManager.getAccountsByType(KardiaProvider.accountType);
+        if(accounts.length == 0) {
+            mAccountManager.addAccount(KardiaProvider.accountType, null, null, null, this, null, null);
+            finish();
+        }
 
         setupNavigationView();
         setupToolbar();
