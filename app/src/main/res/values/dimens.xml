@@ -8,4 +8,8 @@
     <dimen name="cardview_profile_layout_margin">16dp</dimen>
     <dimen name="card_profile_padding">16dp</dimen>
     <dimen name="card_profile_divider_small_padding_left">64dp</dimen>
+    <!--<dimen name="new_profile_linear_layout_padding">16dp</dimen>-->
+    <dimen name="new_profile_linear_layout_padding">16dp</dimen>
+    <dimen name="profile_input_icon_size">32dp</dimen>
+    <dimen name="profile_input_layout_margin_right">16dp</dimen>
 </resources>

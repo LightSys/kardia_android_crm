@@ -14,4 +14,22 @@
     <string name="search_hint">Search</string>
     <string name="contact">Contact</string>
     <string name="timeline">Timeline</string>
+
+    <string name="hint_first_name">First Name</string>
+    <string name="hint_last_name">Last Name</string>
+    <string name="hint_phone">Phone</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_street_address">Street Address</string>
+    <string name="hint_city">City</string>
+    <string name="hint_state">State</string>
+    <string name="hint_zip">ZIP</string>
+
+    <string name="profile_input_photo_button">Change</string>
+
+    <string-array name="name_spinner">
+        <item>Home</item>
+        <item>Mobile</item>
+        <item>Work</item>
+    </string-array>
+
 </resources>

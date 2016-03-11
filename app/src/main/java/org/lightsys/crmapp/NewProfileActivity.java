@@ -13,6 +13,11 @@ public class NewProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        ProfileInputFragment fragment = new ProfileInputFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_new_profile_container, fragment)
+                .commit();
+
         setContentView(R.layout.activity_new_profile);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_new_profile);

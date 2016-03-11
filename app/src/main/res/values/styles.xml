@@ -9,7 +9,15 @@
         <item name="android:textColorPrimary">@color/primary_text</item>
         <item name="android:textColorSecondary">@color/secondary_text</item>
         <item name="android:windowBackground">@color/window_background</item>
+    </style>
 
+    <style name="CustomThemeOverlayAppCompatLight" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:spinnerDropDownItemStyle">@style/customSpinnerDropDownItemStyle</item>
+    </style>
+
+    <style name="customSpinnerDropDownItemStyle" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="android:background">#FF00FF</item>
     </style>
 
     <style name="AppBaseTheme" parent="Base.Theme.CRMApp">
