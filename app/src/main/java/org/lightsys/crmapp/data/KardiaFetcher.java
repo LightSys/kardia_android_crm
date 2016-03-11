@@ -1,5 +1,9 @@
 package org.lightsys.crmapp.data;
 
+import android.accounts.Account;
+import android.accounts.AccountAuthenticatorActivity;
+import android.accounts.AccountManager;
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
@@ -22,14 +26,20 @@ import java.util.List;
  * Created by nathan on 3/9/16.
  */
 public class KardiaFetcher {
-    public String getUrlString(final User user, String api) throws IOException {
+    private AccountManager mAccountManager;
+
+    public KardiaFetcher(Context context) {
+        mAccountManager = AccountManager.get(context);
+    }
+
+    public String getUrlString(final Account account, String api) throws IOException {
         Authenticator.setDefault(new Authenticator() {
                                      protected PasswordAuthentication getPasswordAuthentication() {
-                                         return new PasswordAuthentication(user.getUsername(), user.getPassword().toCharArray());
+                                         return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
                                      }
                                  });
 
-        URL url = new URL("http://" + user.getServer() + ":800" + api);
+        URL url = new URL("http://" + mAccountManager.getUserData(account, "server") + ":800" + api);
         Log.d("partner", url.toString());
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 
@@ -38,12 +48,13 @@ public class KardiaFetcher {
             InputStream in = connection.getInputStream();
 
             if(connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new IOException(connection.getResponseMessage() + ": with " + user.getServer());
+                throw new IOException(connection.getResponseMessage() + ": with " + mAccountManager.getUserData(account, "server"));
             }
 
             int bytesRead = 0;
             byte[] buffer = new byte[1024];
             while ((bytesRead = in.read(buffer)) > 0) {
+                Log.d("requests", "number");
                 out.write(buffer, 0, bytesRead);
             }
             out.close();
@@ -53,7 +64,7 @@ public class KardiaFetcher {
         }
     }
 
-    public String getPartnerId(User user) {
+    public String getPartnerId(Account account) {
         List<Staff> staff = new ArrayList<>();
 
         try {
@@ -63,7 +74,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_type", "collection")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String jsonString = getUrlString(user, api);
+            String jsonString = getUrlString(account, api);
             JSONObject jsonBody = new JSONObject(jsonString);
             parseStaff(staff, jsonBody);
         } catch (JSONException je) {
@@ -76,7 +87,7 @@ public class KardiaFetcher {
 
         for(Staff staffMember : staff) {
             Log.d("staff", staffMember.getKardiaLogin());
-            if(user.getUsername().equals(staffMember.getKardiaLogin())) {
+            if(account.name.equals(staffMember.getKardiaLogin())) {
                 return staffMember.getPartnerId();
             }
         }
@@ -84,17 +95,17 @@ public class KardiaFetcher {
         return null;
     }
 
-    public List<Partner> getCollaboratees(User user) {
+    public List<Partner> getCollaboratees(Account account) {
         List<Partner> collaboratees = new ArrayList<>();
 
         try {
-            String api = Uri.parse("/apps/kardia/api/crm/Partners/" + user.getStaff().getPartnerId() + "/Collaboratees")
+            String api = Uri.parse("/apps/kardia/api/crm/Partners/" + mAccountManager.getUserData(account, "partnerId") + "/Collaboratees")
                     .buildUpon()
                     .appendQueryParameter("cx__mode", "rest")
                     .appendQueryParameter("cx__res_type", "collection")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String jsonString = getUrlString(user, api);
+            String jsonString = getUrlString(account, api);
             JSONObject jsonBody = new JSONObject(jsonString);
             parseCollaboratees(collaboratees, jsonBody);
         } catch (JSONException je) {

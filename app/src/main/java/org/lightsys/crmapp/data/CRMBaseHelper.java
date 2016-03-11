@@ -17,15 +17,6 @@ public class CRMBaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table " + CRMDbSchema.UserTable.NAME + "(" +
-                        "_ID integer primary key autoincrement, " +
-                        CRMDbSchema.UserTable.Cols.USERNAME + ", " +
-                        CRMDbSchema.UserTable.Cols.PASSWORD + ", " +
-                        CRMDbSchema.UserTable.Cols.SERVER + ", " +
-                        CRMDbSchema.UserTable.Cols.PARTNER_ID +
-                        ")"
-        );
-
         db.execSQL("create table " + CRMDbSchema.PartnerTable.NAME + "(" +
                         "_ID integer primary key autoincrement, " +
                         CRMDbSchema.PartnerTable.Cols.PARNTER_ID + ", " +

@@ -1,10 +1,16 @@
 package org.lightsys.crmapp;
 
+import android.accounts.Account;
+import android.accounts.AccountAuthenticatorActivity;
+import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatCallback;
+import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -16,27 +22,30 @@ import android.widget.TextView;
 
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.Staff;
-import org.lightsys.crmapp.data.User;
-import org.lightsys.crmapp.data.UserLab;
 
 
-public class LoginActivity extends ActionBarActivity {
+public class LoginActivity extends AccountAuthenticatorActivity implements AppCompatCallback {
 
     EditText accountName, accountPassword, serverAddress;
     View loginLayout;
     Toolbar toolbar;
-    User account;
     Button button;
+    private AppCompatDelegate delegate;
+    private AccountManager mAccountManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+
+        mAccountManager = AccountManager.get(this);
+
+        delegate = AppCompatDelegate.create(this, this);
+
+        delegate.onCreate(savedInstanceState);
+        delegate.setContentView(R.layout.activity_login);
 
         toolbar = (Toolbar) findViewById(R.id.loginToolbar);
-        setSupportActionBar(toolbar);
-        // This should be centered, it seems that will require creating a custom view using XML.
-        getSupportActionBar().setTitle("Kardia CRM");
+        delegate.setSupportActionBar(toolbar);
 
         accountName = (EditText) findViewById(R.id.loginUsername);
         accountPassword = (EditText) findViewById(R.id.loginPassword);
@@ -48,7 +57,6 @@ public class LoginActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 addAccount(v);
-                //finish();
             }
         });
 
@@ -66,9 +74,6 @@ public class LoginActivity extends ActionBarActivity {
     }
 
     public void addAccount(View v) {
-        UserLab userLab = UserLab.get(this);
-        account = userLab.getUser();
-
         String addAccountName = accountName.getText().toString();
         String addAccountPassword = accountPassword.getText().toString();
         String addServerAddress = serverAddress.getText().toString();
@@ -93,39 +98,60 @@ public class LoginActivity extends ActionBarActivity {
         else {
             ((TextView) findViewById(R.id.loginServerError)).setText("");
         }
-        User newAccount = new User();
-        newAccount.setUsername(addAccountName);
-        newAccount.setPassword(addAccountPassword);
-        newAccount.setServer(addServerAddress);
+
+        Account newAccount = new Account(addAccountName, getString(R.string.accout_type));
+        Bundle userData = new Bundle();
+        userData.putString("server", addServerAddress);
+        mAccountManager.addAccountExplicitly(newAccount, addAccountPassword, userData);
         Log.d("Login", "hellp?");
         new GetPartnerIdTask().execute(newAccount);
     }
 
-    private void checkAccount(User user) {
-        if (user.getStaff() != null) {
-            UserLab.get(this).addUser(user);
+    private void checkAccount(Account account) {
+        if (mAccountManager.getUserData(account, "partnerId") != null) {
+            Bundle bundle = new Bundle();
+            bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.accout_type));
+            setAccountAuthenticatorResult(bundle);
+
+            Intent main = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(main);
+            finish();
         } else {
+            mAccountManager.removeAccountExplicitly(account);
             Snackbar.make(loginLayout, "Connection to server failed", Snackbar.LENGTH_LONG).show();
-            return;
         }
-        Intent main = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(main);
-        finish();
     }
 
-    private class GetPartnerIdTask extends AsyncTask<User, Void, User> {
+    @Override
+    public void onSupportActionModeStarted(ActionMode mode) {
+
+    }
+
+    @Override
+    public void onSupportActionModeFinished(ActionMode mode) {
+
+    }
+
+    @Nullable
+    @Override
+    public ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback) {
+        return null;
+    }
+
+    private class GetPartnerIdTask extends AsyncTask<Account, Void, Account> {
         @Override
-        protected User doInBackground(User... params) {
+        protected Account doInBackground(Account... accounts) {
             Log.d("Login", "yes");
-            String partnerId = new KardiaFetcher().getPartnerId(params[0]);
+            String partnerId = new KardiaFetcher(LoginActivity.this).getPartnerId(accounts[0]);
             Log.d("Login", "yes2");
-            params[0].setStaff(new Staff(partnerId, params[0].getUsername()));
-            return params[0];
+            mAccountManager.setUserData(accounts[0], "partnerId", partnerId);
+            return accounts[0];
         }
 
         @Override
-        protected void onPostExecute(User user) {
-            checkAccount(user);
+        protected void onPostExecute(Account account) {
+            checkAccount(account);
         }
     }
 }

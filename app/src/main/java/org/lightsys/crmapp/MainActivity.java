@@ -1,6 +1,7 @@
 package org.lightsys.crmapp;
 
-import android.content.Intent;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -14,9 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import org.lightsys.crmapp.data.User;
-import org.lightsys.crmapp.data.UserLab;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,21 +22,20 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
     FloatingActionButton fab;
 
-    private static User loggedInAccount;
+    private AccountManager mAccountManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        loggedInAccount = UserLab.get(this).getUser();
-
-        if (loggedInAccount.getUsername() == null) {
-            Intent login = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(login);
-            finish();
-        }
-
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        mAccountManager = AccountManager.get(this);
+        Account[] accounts = mAccountManager.getAccountsByType(getString(R.string.accout_type));
+        if(accounts.length == 0) {
+            mAccountManager.addAccount(getString(R.string.accout_type), null, null, null, this, null, null);
+            finish();
+        }
 
         setupNavigationView();
         setupToolbar();

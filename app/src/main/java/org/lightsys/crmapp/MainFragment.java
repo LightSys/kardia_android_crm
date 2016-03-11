@@ -1,5 +1,7 @@
 package org.lightsys.crmapp;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,8 +19,6 @@ import com.squareup.picasso.Picasso;
 
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.Partner;
-import org.lightsys.crmapp.data.User;
-import org.lightsys.crmapp.data.UserLab;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,15 +29,16 @@ import java.util.List;
 public class MainFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private List<Partner> mProfiles = new ArrayList<>();
-    private User mUser;
+    private Account mAccount;
 
     public MainFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mUser = UserLab.get(getActivity()).getUser();
-        if(mUser.getUsername() != null) {
+        Account[] accounts = AccountManager.get(getActivity()).getAccountsByType(getString(R.string.accout_type));
+        if(accounts.length > 0) {
+            mAccount = accounts[0];
             new GetCollaborateesTask().execute();
         }
     }
@@ -122,7 +123,7 @@ public class MainFragment extends Fragment {
     private class GetCollaborateesTask extends AsyncTask<Void, Void, List<Partner>> {
         @Override
         protected List<Partner> doInBackground(Void... params) {
-            return new KardiaFetcher().getCollaboratees(mUser);
+            return new KardiaFetcher(getActivity()).getCollaboratees(mAccount);
         }
 
         @Override
