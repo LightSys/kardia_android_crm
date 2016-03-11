@@ -40,6 +40,10 @@ public class ProfileActivity extends AppCompatActivity {
                     .add(R.id.fragment_profile_container, fragment)
                     .commit();
         }
+        else {
+            mName = savedInstanceState.getString(NAME_KEY);
+            mPartnerId = savedInstanceState.getString(PARTNER_ID_KEY);
+        }
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar_profile);
         setSupportActionBar(mToolbar);
@@ -49,5 +53,13 @@ public class ProfileActivity extends AppCompatActivity {
         if(mName != null) {
             mCollapsingToolbarLayout.setTitle(mName);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putString(NAME_KEY, mName);
+        savedInstanceState.putString(PARTNER_ID_KEY, mPartnerId);
+
+        super.onSaveInstanceState(savedInstanceState);
     }
 }
