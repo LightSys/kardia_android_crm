@@ -1,11 +1,13 @@
 package org.lightsys.crmapp;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +30,8 @@ import java.util.List;
  * Created by cubemaster on 3/7/16.
  */
 public class MainFragment extends Fragment {
+    private static final String LOG_TAG = MainFragment.class.getName();
+
     private RecyclerView mRecyclerView;
     private List<Partner> mProfiles = new ArrayList<>();
     private User mUser;
@@ -51,9 +55,6 @@ public class MainFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // TODO create adapter and set iton mListView
-        // TODO call setOnItemClickListener on mListView
-
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         mRecyclerView = (android.support.v7.widget.RecyclerView) rootView.findViewById(R.id.recyclerview_profiles);
@@ -77,6 +78,7 @@ public class MainFragment extends Fragment {
 
     private class ProfileHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private LinearLayout mLinearLayout;
+        private Partner mPartner;
 
         public ProfileHolder(View view) {
             super(view);
@@ -92,14 +94,17 @@ public class MainFragment extends Fragment {
                     .placeholder(R.drawable.persona)
                     .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
             ((TextView)mLinearLayout.findViewById(R.id.profile_name)).setText(partner.getPartnerName());
+            mPartner = partner;
         }
 
         @Override
         public void onClick(View v) {
             String name = ((TextView)((LinearLayout)v).findViewById(R.id.profile_name)).getText().toString();
-            Snackbar.make(getActivity().findViewById(R.id.coordinatorlayout),
-                    "TODO launch ProfileActivity for " + name,
-                    Snackbar.LENGTH_LONG).show();
+            Log.d(LOG_TAG, name);
+            Intent i = new Intent(getActivity(), ProfileActivity.class);
+            i.putExtra(ProfileActivity.NAME_KEY, name);
+            i.putExtra(ProfileActivity.PARTNER_ID_KEY, mPartner.getPartnerId());
+            startActivity(i);
         }
     }
 

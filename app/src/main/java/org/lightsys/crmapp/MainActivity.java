@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String s) {
                 // TODO execute query and repopulate
-                Snackbar.make(findViewById(R.id.coordinatorlayout),
+                Snackbar.make(findViewById(R.id.coordinatorlayout_main),
                         "TODO execute query and repopulate",
                         Snackbar.LENGTH_LONG).show();
                 return false;
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        toolbar = (Toolbar) findViewById(R.id.mainToolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
 
         final ActionBar ab = getSupportActionBar();
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Snackbar.make(findViewById(R.id.coordinatorlayout),
+                Snackbar.make(findViewById(R.id.coordinatorlayout_main),
                         "TODO launch NewProfileActivity",
                         Snackbar.LENGTH_LONG).show();
             }

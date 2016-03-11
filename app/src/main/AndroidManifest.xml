@@ -28,7 +28,7 @@
             android:label="@string/title_activity_login" >
         </activity>
         <activity
-            android:name=".profile_activity.ProfileActivity"
+            android:name=".ProfileActivity"
             android:label="@string/title_activity_profile"
             android:parentActivityName=".MainActivity" >
             <meta-data
