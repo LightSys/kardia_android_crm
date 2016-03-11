@@ -7,4 +7,5 @@
     <dimen name="expanded_toolbar_height">256dp</dimen>
     <dimen name="cardview_profile_layout_margin">16dp</dimen>
     <dimen name="card_profile_padding">16dp</dimen>
+    <dimen name="card_profile_divider_small_padding_left">64dp</dimen>
 </resources>

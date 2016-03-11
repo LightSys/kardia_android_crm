@@ -5,23 +5,133 @@
     android:layout_height="match_parent">
 
     <android.support.v7.widget.CardView
-        android:id="@+id/cardview_profile"
+        android:id="@+id/cardview_contact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/primary_text"
-        android:layout_margin="@dimen/cardview_profile_layout_margin">
+        android:layout_marginTop="@dimen/cardview_profile_layout_margin"
+        android:layout_marginLeft="@dimen/cardview_profile_layout_margin"
+        android:layout_marginRight="@dimen/cardview_profile_layout_margin">
 
         <LinearLayout
+            android:id="@+id/linearlayout_contact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/textview_profile"
+                android:text="@string/contact"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/card_profile_padding"
                 android:textColor="@color/primary_text" />
+
+            <include layout="@layout/divider" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/card_profile_padding"
+                android:paddingBottom="@dimen/card_profile_padding"
+                android:paddingRight="@dimen/card_profile_padding"
+                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
+                android:textColor="@color/primary_text"
+                android:text="@string/hello_world" />
+
+            <include layout="@layout/divider_small" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/card_profile_padding"
+                android:paddingBottom="@dimen/card_profile_padding"
+                android:paddingRight="@dimen/card_profile_padding"
+                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
+                android:textColor="@color/primary_text"
+                android:text="@string/hello_world" />
+
+            <include layout="@layout/divider_small" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/card_profile_padding"
+                android:paddingBottom="@dimen/card_profile_padding"
+                android:paddingRight="@dimen/card_profile_padding"
+                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
+                android:textColor="@color/primary_text"
+                android:text="@string/hello_world" />
+
+            <include layout="@layout/divider" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/card_profile_padding"
+                android:textColor="@color/primary_text"
+                android:text="@string/hello_world" />
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardview_timeline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/primary_text"
+        android:layout_margin="@dimen/cardview_profile_layout_margin">
+
+        <LinearLayout
+            android:id="@+id/linearlayout_timeline"
+            android:layout_below="@id/linearlayout_contact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/card_profile_padding"
+                android:textColor="@color/primary_text"
+                android:text="@string/timeline" />
+
+            <include layout="@layout/divider" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/card_profile_padding"
+                android:paddingBottom="@dimen/card_profile_padding"
+                android:paddingRight="@dimen/card_profile_padding"
+                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
+                android:textColor="@color/primary_text"
+                android:text="@string/hello_world" />
+
+            <include layout="@layout/divider_small" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/card_profile_padding"
+                android:paddingBottom="@dimen/card_profile_padding"
+                android:paddingRight="@dimen/card_profile_padding"
+                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
+                android:textColor="@color/primary_text"
+                android:text="@string/hello_world" />
+
+            <include layout="@layout/divider_small" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/card_profile_padding"
+                android:paddingBottom="@dimen/card_profile_padding"
+                android:paddingRight="@dimen/card_profile_padding"
+                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
+                android:textColor="@color/primary_text"
+                android:text="@string/hello_world" />
 
             <include layout="@layout/divider" />
 

@@ -35,7 +35,7 @@ public class ProfileFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        ((TextView)rootView.findViewById(R.id.textview_profile)).setText(mPartnerId);
+        //((TextView)rootView.findViewById(R.id.textview_profile)).setText(mPartnerId);
 
         return rootView;
     }
