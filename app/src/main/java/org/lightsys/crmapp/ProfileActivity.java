@@ -37,7 +37,7 @@ public class ProfileActivity extends AppCompatActivity {
             fragment.setArguments(arguments);
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_profile_container, fragment)
+                    .replace(R.id.fragment_profile_container, fragment)
                     .commit();
         }
         else {

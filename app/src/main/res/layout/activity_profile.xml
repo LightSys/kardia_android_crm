@@ -21,8 +21,8 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             android:fitsSystemWindows="true"
             app:contentScrim="@color/primary"
-            app:expandedTitleMarginStart="@dimen/text_margin_left_expanded_toolbar"
-            app:expandedTitleMarginEnd="@dimen/text_margin_right_expanded_toolbar">
+            app:expandedTitleMarginStart="48dp"
+            app:expandedTitleMarginEnd="64dp">
 
             <ImageView
                 android:id="@+id/backdrop_profile"
