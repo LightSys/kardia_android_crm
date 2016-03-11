@@ -1,11 +1,10 @@
 package org.lightsys.crmapp;
 
-import android.app.Fragment;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
 /**
  * Created by cubemaster on 3/10/16.
@@ -18,6 +17,7 @@ public class ProfileActivity extends AppCompatActivity {
     public String mName;
     public String mPartnerId;
     public Toolbar mToolbar;
+    public CollapsingToolbarLayout mCollapsingToolbarLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,11 +41,13 @@ public class ProfileActivity extends AppCompatActivity {
                     .commit();
         }
 
-        mToolbar = (Toolbar) findViewById(R.id.collapsingtoolbar_profile);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar_profile);
         setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final ActionBar ab = getSupportActionBar();
-        ab.setDisplayHomeAsUpEnabled(true);
-        ab.setTitle(mName);
+        mCollapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingtoolbarlayout_profile);
+        if(mName != null) {
+            mCollapsingToolbarLayout.setTitle(mName);
+        }
     }
 }

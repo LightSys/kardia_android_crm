@@ -11,7 +11,8 @@
         android:id="@+id/loginToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary" />
+        android:background="@color/primary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <TextView
         android:layout_width="fill_parent"

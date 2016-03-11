@@ -4,26 +4,55 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinatorlayout_profile"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <FrameLayout
-        android:id="@+id/fragment_profile_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbar_profile"
+        android:id="@+id/appbarlayout_profile"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/expanded_toolbar_height"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:fitsSystemWindows="true">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/collapsingtoolbar_profile"
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsingtoolbarlayout_profile"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/primary" />
+            android:layout_height="match_parent"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            android:fitsSystemWindows="true"
+            app:contentScrim="@color/primary"
+            app:expandedTitleMarginStart="@dimen/text_margin_left_expanded_toolbar"
+            app:expandedTitleMarginEnd="@dimen/text_margin_right_expanded_toolbar">
+
+            <ImageView
+                android:id="@+id/backdrop_profile"
+                android:src="@drawable/persona"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:fitsSystemWindows="true"
+                app:layout_collapseMode="parallax" />
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar_profile"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin" />
+
+        </android.support.design.widget.CollapsingToolbarLayout>
 
     </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <FrameLayout
+            android:id="@+id/fragment_profile_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </android.support.v4.widget.NestedScrollView>
 
 </android.support.design.widget.CoordinatorLayout>
