@@ -12,6 +12,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
@@ -62,7 +63,19 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 values.put(CRMContract.CollaborateeTable.PARTNER_ID, collaboratee.getPartnerId());
                 values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.getPartnerName());
                 try {
-                    provider.insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
+                    Cursor cursor = provider.query(CRMContract.CollaborateeTable.CONTENT_URI,
+                            null,
+                            CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
+                            new String[] {collaboratee.getPartnerId()},
+                            null);
+                    if(cursor.moveToFirst()) {
+                        provider.update(CRMContract.CollaborateeTable.CONTENT_URI,
+                                values,
+                                CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
+                                new String[] {collaboratee.getPartnerId()});
+                    } else {
+                        provider.insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
+                    }
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }

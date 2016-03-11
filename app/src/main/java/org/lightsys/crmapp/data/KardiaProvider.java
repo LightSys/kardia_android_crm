@@ -126,6 +126,36 @@ public class KardiaProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+        String table;
+        int id;
+
+        switch (sUriMatcher.match(uri)) {
+            /*case 1:
+                table = CRMContract.PartnerTable.NAME;
+                id = values.getAsInteger(CRMContract.PartnerTable.Cols.PARNTER_ID);
+                break;
+            case 3:
+                table = CRMContract.CollaborateeTable.NAME;
+                id = values.getAsInteger(CRMContract.CollaborateeTable.Cols.COLLABORATER_ID);
+                break;*/
+            case 1:
+                table = CRMContract.StaffTable.NAME;
+                id = values.getAsInteger(CRMContract.StaffTable.PARTNER_ID);
+                break;
+            case 2:
+                table = CRMContract.CollaborateeTable.NAME;
+                id = values.getAsInteger(CRMContract.CollaborateeTable.COLLABORATER_ID);
+                break;
+            default:
+                table = "";
+                id = 0;
+                break;
+        }
+
+        db = mOpenHelper.getWritableDatabase();
+
+
+
+        return db.update(table, values, selection, selectionArgs);
     }
 }
