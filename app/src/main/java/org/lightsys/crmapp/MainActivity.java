@@ -108,9 +108,8 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Snackbar.make(findViewById(R.id.coordinatorlayout_main),
-                        "TODO launch NewProfileActivity",
-                        Snackbar.LENGTH_LONG).show();
+                Intent i = new Intent(getApplicationContext(), NewProfileActivity.class);
+                startActivity(i);
             }
         });
     }
