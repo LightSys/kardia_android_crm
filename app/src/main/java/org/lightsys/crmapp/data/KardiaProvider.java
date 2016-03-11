@@ -1,61 +1,80 @@
 package org.lightsys.crmapp.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
+import android.util.Log;
 
 /**
  * Created by nathan on 3/10/16.
  */
 public class KardiaProvider extends ContentProvider {
-    private static final int USERS = 1;
-    private static final int USERS_ID = 2;
-    private static final int USERS_USERNAME = 3;
-    private static final int USERS_PASSWORD = 4;
-    private static final int USERS_SERVER = 5;
-    private static final int USERS_PARTNERID = 6;
-
-    private static final int PARTNERS = 7;
-    private static final int PARTNERS_PARTNERID = 8;
-    private static final int PARTNERS_PARTNERNAME = 9;
-    private static final int PARTNERS_ID = 11;
-
-    private static final int PARTNERS_COLLABORATEES = 13;
-    private static final int PARTNERS_COLLABORATEES_ID = 10;
-    private static final int PARTNERS_COLLABORATEES_COLLABORATEEID = 12;
-
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
-    static
-    {
-        sUriMatcher.addURI("org.lightsys.crmapp.provider", "users", USERS);
-        sUriMatcher.addURI("org.lightsys.crmapp.provider", "users/#", USERS_ID);
-        sUriMatcher.addURI("org.lightsys.crmapp.provider", "users/#/username", USERS_USERNAME);
-        sUriMatcher.addURI("org.lightsys.crmapp.provider", "users/#/password", USERS_PASSWORD);
-        sUriMatcher.addURI("org.lightsys.crmapp.provider", "users/#/server", USERS_SERVER);
-        sUriMatcher.addURI("org.lightsys.crmapp.provider", "users/#/partnerId", USERS_PARTNERID);
-        sUriMatcher.addURI("org.lightsys.crmapp.provider", "partners", PARTNERS);
-        sUriMatcher.addURI("org.lightsys.crmapp.provider", "partners/#", PARTNERS_ID);
-        sUriMatcher.addURI("org.lightsys.crmapp.provider", "partners/#/partnerId", PARTNERS_PARTNERID);
-        sUriMatcher.addURI("org.lightsys.crmapp.provider", "partners/#/partnerName", PARTNERS_PARTNERNAME);
-        sUriMatcher.addURI("org.lightsys.crmapp.provider", "partners/#/collaboratees", PARTNERS_COLLABORATEES);
-        sUriMatcher.addURI("org.lightsys.crmapp.provider", "partners/#/collaboratees/#", PARTNERS_COLLABORATEES_ID);
-        sUriMatcher.addURI("org.lightsys.crmapp.provider", "partners/#/collaboratees/#/collbaorateeId", PARTNERS_COLLABORATEES_COLLABORATEEID);
+    public static final String providerAuthority = "org.lightsys.crmapp.provider";
+
+    public static final String accountType = "org.lightsys.crmapp";
+
+    //private static final String mimeType = "text/plain";
+
+    private CRMOpenHelper mOpenHelper;
+
+    private SQLiteDatabase db;
+
+    static {
+        sUriMatcher.addURI(providerAuthority, "staff", 1);
+        sUriMatcher.addURI(providerAuthority, "collaboratees", 2);
     }
+
 
     @Override
     public boolean onCreate() {
-        return false;
+        mOpenHelper = new CRMOpenHelper(getContext());
+
+        return true;
     }
 
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        return null;
+        Log.d("ContentProvider", "yes");
+
+        SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+
+        switch (sUriMatcher.match(uri)) {
+            /*case 1:
+                builder.setTables(CRMContract.PartnerTable.NAME);
+                break;
+            case 2:
+                builder.setTables(CRMContract.PartnerTable.NAME);
+                builder.appendWhere(CRMContract.PartnerTable.Cols.PARNTER_ID + " = " + uri.getLastPathSegment());
+                break;
+            case 3:
+                builder.setTables(CRMContract.CollaborateeTable.NAME);
+                break;*/
+            case 1:
+                builder.setTables(CRMContract.StaffTable.NAME);
+                break;
+            case 2:
+                builder.setTables(CRMContract.CollaborateeTable.NAME);
+                break;
+            default:
+                break;
+        }
+
+        db = mOpenHelper.getWritableDatabase();
+
+        Log.d("ContentProvider", builder.getTables());
+
+        Log.d("Query", builder.buildQuery(projection, selection, selectionArgs, null, null, sortOrder, null));
+
+        return builder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
     }
 
     @Nullable
@@ -67,7 +86,37 @@ public class KardiaProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        return null;
+        String table;
+        int id;
+
+        switch (sUriMatcher.match(uri)) {
+            /*case 1:
+                table = CRMContract.PartnerTable.NAME;
+                id = values.getAsInteger(CRMContract.PartnerTable.Cols.PARNTER_ID);
+                break;
+            case 3:
+                table = CRMContract.CollaborateeTable.NAME;
+                id = values.getAsInteger(CRMContract.CollaborateeTable.Cols.COLLABORATER_ID);
+                break;*/
+            case 1:
+                table = CRMContract.StaffTable.NAME;
+                id = values.getAsInteger(CRMContract.StaffTable.PARTNER_ID);
+                break;
+            case 2:
+                table = CRMContract.CollaborateeTable.NAME;
+                id = values.getAsInteger(CRMContract.CollaborateeTable.COLLABORATER_ID);
+                break;
+            default:
+                table = "";
+                id = 0;
+                break;
+        }
+
+        db = mOpenHelper.getWritableDatabase();
+
+        db.insert(table, null, values);
+
+        return ContentUris.withAppendedId(uri, id);
     }
 
     @Override

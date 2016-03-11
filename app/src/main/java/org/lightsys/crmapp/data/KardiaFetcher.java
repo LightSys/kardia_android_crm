@@ -26,20 +26,25 @@ import java.util.List;
  * Created by nathan on 3/9/16.
  */
 public class KardiaFetcher {
-    private AccountManager mAccountManager;
+    private Context mContext;
 
     public KardiaFetcher(Context context) {
-        mAccountManager = AccountManager.get(context);
+        mContext = context;
     }
 
     public String getUrlString(final Account account, String api) throws IOException {
+        Log.d("passwordFetcher", AccountManager.get(mContext).getPassword(account));
+        Log.d("serverFetcher", AccountManager.get(mContext).getUserData(account, "server"));
+
         Authenticator.setDefault(new Authenticator() {
                                      protected PasswordAuthentication getPasswordAuthentication() {
-                                         return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
+                                         Log.d("passwordFetcher", AccountManager.get(mContext).getPassword(account));
+                                         Log.d("serverFetcher", AccountManager.get(mContext).getUserData(account, "server"));
+                                         return new PasswordAuthentication(account.name, AccountManager.get(mContext).getPassword(account).toCharArray());
                                      }
                                  });
 
-        URL url = new URL("http://" + mAccountManager.getUserData(account, "server") + ":800" + api);
+        URL url = new URL("http://" + AccountManager.get(mContext).getUserData(account, "server") + ":800" + api);
         Log.d("partner", url.toString());
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 
@@ -48,7 +53,7 @@ public class KardiaFetcher {
             InputStream in = connection.getInputStream();
 
             if(connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new IOException(connection.getResponseMessage() + ": with " + mAccountManager.getUserData(account, "server"));
+                throw new IOException(connection.getResponseMessage() + ": with " + AccountManager.get(mContext).getUserData(account, "server"));
             }
 
             int bytesRead = 0;
@@ -64,7 +69,7 @@ public class KardiaFetcher {
         }
     }
 
-    public String getPartnerId(Account account) {
+    public List<Staff> getStaff(Account account) {
         List<Staff> staff = new ArrayList<>();
 
         try {
@@ -74,6 +79,8 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_type", "collection")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
+            Log.d("staff", api);
+            Log.d("serverSync", AccountManager.get(mContext).getUserData(account, "server"));
             String jsonString = getUrlString(account, api);
             JSONObject jsonBody = new JSONObject(jsonString);
             parseStaff(staff, jsonBody);
@@ -85,29 +92,23 @@ public class KardiaFetcher {
 
         Log.d("staff", "yes");
 
-        for(Staff staffMember : staff) {
-            Log.d("staff", staffMember.getKardiaLogin());
-            if(account.name.equals(staffMember.getKardiaLogin())) {
-                return staffMember.getPartnerId();
-            }
-        }
-
-        return null;
+        return staff;
     }
 
     public List<Partner> getCollaboratees(Account account) {
         List<Partner> collaboratees = new ArrayList<>();
 
         try {
-            String api = Uri.parse("/apps/kardia/api/crm/Partners/" + mAccountManager.getUserData(account, "partnerId") + "/Collaboratees")
+            String crmApi = Uri.parse("/apps/kardia/api/crm/Partners/" + AccountManager.get(mContext).getUserData(account, "partnerId") + "/Collaboratees")
                     .buildUpon()
                     .appendQueryParameter("cx__mode", "rest")
                     .appendQueryParameter("cx__res_type", "collection")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String jsonString = getUrlString(account, api);
-            JSONObject jsonBody = new JSONObject(jsonString);
-            parseCollaboratees(collaboratees, jsonBody);
+            String crmJsonString = getUrlString(account, crmApi);
+            JSONObject crmJsonBody = new JSONObject(crmJsonString);
+
+            parseCollaboratees(collaboratees, crmJsonBody);
         } catch (JSONException je) {
             je.printStackTrace();
         } catch (IOException ioe) {
@@ -117,13 +118,13 @@ public class KardiaFetcher {
         return collaboratees;
     }
 
-    private void parseCollaboratees(List<Partner> collaboratees, JSONObject jsonBody) throws IOException, JSONException {
-        Iterator<String> keys = jsonBody.keys();
+    private void parseCollaboratees(List<Partner> collaboratees, JSONObject crmJsonBody) throws IOException, JSONException {
+        Iterator<String> crmKeys = crmJsonBody.keys();
 
-        while(keys.hasNext()) {
-            String key = keys.next();
+        while(crmKeys.hasNext()) {
+            String key = crmKeys.next();
             if(!key.equals("@id")) {
-                JSONObject jsonPartner = jsonBody.getJSONObject(key);
+                JSONObject jsonPartner = crmJsonBody.getJSONObject(key);
 
                 Partner collaboratee = new Partner();
 
@@ -133,6 +134,63 @@ public class KardiaFetcher {
                 collaboratees.add(collaboratee);
             }
         }
+    }
+
+    public Partner getCollaborateeInfo(Account account, Partner collaboratee) {
+        try {
+            String partnerApi = Uri.parse("/apps/kardia/api/partner/Partners/" + collaboratee.getPartnerId())
+                    .buildUpon()
+                    .appendQueryParameter("cx__mode", "rest")
+                    .appendQueryParameter("cx__res_format", "attrs")
+                    .appendQueryParameter("cx__res_attrs", "basic")
+                    .build().toString();
+            String partnerJsonString = getUrlString(account, partnerApi);
+            JSONObject partnerJsonBody = new JSONObject(partnerJsonString);
+
+            String addressApi = Uri.parse("/apps/kardia/api/partner/Partners/" + collaboratee.getPartnerId() + "/Addresses")
+                    .buildUpon()
+                    .appendQueryParameter("cx__mode", "rest")
+                    .appendQueryParameter("cx__res_type", "collection")
+                    .appendQueryParameter("cx__res_attrs", "basic")
+                    .build().toString();
+            String addressJsonString = getUrlString(account, addressApi);
+            JSONObject addressJsonBody = new JSONObject(addressJsonString);
+
+            String contactApi = Uri.parse("/apps/kardia/api/partner/Partners/" + collaboratee.getPartnerId() + "/ContactInfo")
+                    .buildUpon()
+                    .appendQueryParameter("cx__mode", "rest")
+                    .appendQueryParameter("cx__res_type", "collection")
+                    .appendQueryParameter("cx__res_attrs", "basic")
+                    .build().toString();
+            String contactJsonString = getUrlString(account, contactApi);
+            JSONObject contactJsonBody = new JSONObject(contactJsonString);
+
+            parseCollaborateeInfo(collaboratee, partnerJsonBody, addressJsonBody, contactJsonBody);
+        } catch (JSONException je) {
+            je.printStackTrace();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        return collaboratee;
+    }
+
+    private void parseCollaborateeInfo(Partner collaboratee, JSONObject partnerJsonBody, JSONObject addressJsonBody, JSONObject contactJsonBody) throws IOException, JSONException {
+        /*Iterator<String> partnerKeys = partnerJsonBody.keys();
+
+        while(partnerKeys.hasNext()) {
+            String key = partnerKeys.next();
+            if(!key.equals("@id")) {
+                JSONObject jsonPartner = crmJsonBody.getJSONObject(key);
+
+                Partner collaboratee = new Partner();
+
+                collaboratee.setPartnerId(jsonPartner.getString("partner_id"));
+                collaboratee.setPartnerName(jsonPartner.getString("partner_name"));
+
+                collaboratees.add(collaboratee);
+            }
+        }*/
     }
 
     private void parseStaff(List<Staff> staff, JSONObject jsonBody) throws IOException, JSONException {

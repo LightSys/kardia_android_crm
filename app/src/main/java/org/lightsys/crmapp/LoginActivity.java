@@ -3,7 +3,11 @@ package org.lightsys.crmapp;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -20,8 +24,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
-import org.lightsys.crmapp.data.Staff;
+import org.lightsys.crmapp.data.KardiaProvider;
 
 
 public class LoginActivity extends AccountAuthenticatorActivity implements AppCompatCallback {
@@ -71,6 +76,22 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
                 return false;
             }
         });
+
+        //createAccount();
+    }
+
+    private void createAccount() {
+        Account account = new Account("Methuselah96", KardiaProvider.accountType);
+        if (mAccountManager.addAccountExplicitly(account, null, null)) {
+            // Inform the system that this account supports sync
+            //ContentResolver.setIsSyncable(account, KardiaProvider.providerAuthority, 1);
+            // Inform the system that this account is eligible for auto sync when the network is up
+            ContentResolver.setSyncAutomatically(account, KardiaProvider.providerAuthority, true);
+            // Recommend a schedule for automatic synchronization. The system may modify this based
+            // on other scheduled syncs and network utilization.
+            ContentResolver.addPeriodicSync(
+                    account, KardiaProvider.providerAuthority, new Bundle(), 60 * 60);
+        }
     }
 
     public void addAccount(View v) {
@@ -99,11 +120,16 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             ((TextView) findViewById(R.id.loginServerError)).setText("");
         }
 
-        Account newAccount = new Account(addAccountName, getString(R.string.accout_type));
+        Account newAccount = new Account(addAccountName, KardiaProvider.accountType);
         Bundle userData = new Bundle();
-        userData.putString("server", addServerAddress);
         mAccountManager.addAccountExplicitly(newAccount, addAccountPassword, userData);
+        mAccountManager.setUserData(newAccount, "server", addServerAddress);
         Log.d("Login", "hellp?");
+        try {
+            Thread.sleep(1000);                 //1000 milliseconds is one second.
+        } catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
         new GetPartnerIdTask().execute(newAccount);
     }
 
@@ -111,7 +137,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         if (mAccountManager.getUserData(account, "partnerId") != null) {
             Bundle bundle = new Bundle();
             bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.accout_type));
+            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, KardiaProvider.accountType);
             setAccountAuthenticatorResult(bundle);
 
             Intent main = new Intent(LoginActivity.this, MainActivity.class);
@@ -142,8 +168,37 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
     private class GetPartnerIdTask extends AsyncTask<Account, Void, Account> {
         @Override
         protected Account doInBackground(Account... accounts) {
+            //getContentResolver().setSyncAutomatically(accounts[0], KardiaProvider.providerAuthority, true);
+            //ContentResolver.setIsSyncable(accounts[0], KardiaProvider.providerAuthority, 1);
+            //ContentResolver.setSyncAutomatically(accounts[0], KardiaProvider.providerAuthority, true);
+            //ContentResolver.addPeriodicSync(
+            //        accounts[0], KardiaProvider.providerAuthority, new Bundle(), 60 * 60);
+            Bundle settingsBundle = new Bundle();
+            settingsBundle.putBoolean(
+                    ContentResolver.SYNC_EXTRAS_MANUAL, true);
+            settingsBundle.putBoolean(
+                    ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+            Log.d("serverLogin", mAccountManager.getUserData(accounts[0], "server"));
+            ContentResolver.requestSync(accounts[0], KardiaProvider.providerAuthority, settingsBundle);
             Log.d("Login", "yes");
-            String partnerId = new KardiaFetcher(LoginActivity.this).getPartnerId(accounts[0]);
+            Log.d("URI", CRMContract.StaffTable.CONTENT_URI.toString());
+            try {
+                Thread.sleep(1000);                 //1000 milliseconds is one second.
+            } catch(InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+            Cursor cursor = getContentResolver().query(
+                    CRMContract.StaffTable.CONTENT_URI,
+                    new String[] {CRMContract.StaffTable.PARTNER_ID},
+                    CRMContract.StaffTable.KARDIA_LOGIN + " = ?",
+                    new String[] {accounts[0].name},
+                    null
+            );
+            String partnerId = null;
+            if(cursor.moveToFirst()) {
+                Log.d("StaffResults", "yes");
+                partnerId = cursor.getString(0);
+            }
             Log.d("Login", "yes2");
             mAccountManager.setUserData(accounts[0], "partnerId", partnerId);
             return accounts[0];

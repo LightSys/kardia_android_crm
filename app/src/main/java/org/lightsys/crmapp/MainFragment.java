@@ -3,10 +3,13 @@ package org.lightsys.crmapp;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Fragment;
+import android.content.ContentResolver;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,7 +20,9 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
+import org.lightsys.crmapp.data.KardiaProvider;
 import org.lightsys.crmapp.data.Partner;
 
 import java.util.ArrayList;
@@ -36,7 +41,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Account[] accounts = AccountManager.get(getActivity()).getAccountsByType(getString(R.string.accout_type));
+        Account[] accounts = AccountManager.get(getActivity()).getAccountsByType(KardiaProvider.accountType);
         if(accounts.length > 0) {
             mAccount = accounts[0];
             new GetCollaborateesTask().execute();
@@ -123,7 +128,42 @@ public class MainFragment extends Fragment {
     private class GetCollaborateesTask extends AsyncTask<Void, Void, List<Partner>> {
         @Override
         protected List<Partner> doInBackground(Void... params) {
-            return new KardiaFetcher(getActivity()).getCollaboratees(mAccount);
+            //getContentResolver().setSyncAutomatically(accounts[0], KardiaProvider.providerAuthority, true);
+            //ContentResolver.setIsSyncable(accounts[0], KardiaProvider.providerAuthority, 1);
+            //ContentResolver.setSyncAutomatically(accounts[0], KardiaProvider.providerAuthority, true);
+            //ContentResolver.addPeriodicSync(
+            //        accounts[0], KardiaProvider.providerAuthority, new Bundle(), 60 * 60);
+            Bundle settingsBundle = new Bundle();
+            settingsBundle.putBoolean(
+                    ContentResolver.SYNC_EXTRAS_MANUAL, true);
+            settingsBundle.putBoolean(
+                    ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+            //Log.d("serverLogin", AccountManager.get(getActivity()).getUserData(accounts[0], "server"));
+            ContentResolver.requestSync(mAccount, KardiaProvider.providerAuthority, settingsBundle);
+            Log.d("Login", "yes");
+            Log.d("URI", CRMContract.StaffTable.CONTENT_URI.toString());
+            try {
+                Thread.sleep(1000);                 //1000 milliseconds is one second.
+            } catch(InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+            Cursor cursor = getActivity().getContentResolver().query(
+                    CRMContract.CollaborateeTable.CONTENT_URI,
+                    new String[] {CRMContract.CollaborateeTable.PARTNER_ID, CRMContract.CollaborateeTable.PARTNER_NAME},
+                    CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
+                    new String[] {AccountManager.get(getActivity()).getUserData(mAccount, "partnerId")},
+                    null
+            );
+            String partnerId = null;
+            List<Partner> collaboratees = new ArrayList<>();
+            while(cursor.moveToNext()) {
+                Log.d("StaffResults", "yes");
+                Partner collaboratee = new Partner(cursor.getString(0));
+                collaboratee.setPartnerName(cursor.getString(1));
+                collaboratees.add(collaboratee);
+            }
+            Log.d("Login", "yes2");
+            return collaboratees;
         }
 
         @Override
