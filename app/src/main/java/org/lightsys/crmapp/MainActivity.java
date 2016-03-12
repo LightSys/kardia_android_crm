@@ -21,17 +21,11 @@ import org.lightsys.crmapp.data.KardiaProvider;
 
 public class MainActivity extends AppCompatActivity {
 
-    DrawerLayout drawerLayout;
-    Toolbar toolbar;
-    FloatingActionButton fab;
-
     private AccountManager mAccountManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_main);
 
         mAccountManager = AccountManager.get(this);
         Account[] accounts = mAccountManager.getAccountsByType(KardiaProvider.accountType);
@@ -39,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
             mAccountManager.addAccount(KardiaProvider.accountType, null, null, null, this, null, null);
             finish();
         }
+
+        setContentView(R.layout.activity_main);
 
         setupNavigationView();
         setupToolbar();
@@ -70,28 +66,20 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
                 return true;
-            //case R.id.action_search:
-                //return true;
         }
-
-        //noinspection SimplifiableIfStatement
-        //if (id == R.id.action_settings) {
-        //    return true;
-        //}
 
         return super.onOptionsItemSelected(item);
     }
 
     private void setupToolbar() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
 
         final ActionBar ab = getSupportActionBar();
@@ -100,11 +88,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupNavigationView(){
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        // TODO create navigation view
     }
 
     private void setupFAB() {
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

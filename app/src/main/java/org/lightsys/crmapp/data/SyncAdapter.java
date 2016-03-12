@@ -58,10 +58,20 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             List<Partner> collaboratees = fetcher.getCollaboratees(account);
             for (Partner collaboratee : collaboratees) {
                 Log.d("collobarateeSync", collaboratee.getPartnerName());
+                fetcher.getCollaborateeInfo(account, collaboratee);
                 ContentValues values = new ContentValues();
                 values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, partnerId);
                 values.put(CRMContract.CollaborateeTable.PARTNER_ID, collaboratee.getPartnerId());
                 values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.getPartnerName());
+                values.put(CRMContract.CollaborateeTable.SURNAME, collaboratee.getSurname());
+                values.put(CRMContract.CollaborateeTable.GIVEN_NAMES, collaboratee.getGivenNames());
+                values.put(CRMContract.CollaborateeTable.PHONE, collaboratee.getPhone());
+                values.put(CRMContract.CollaborateeTable.CELL, collaboratee.getCell());
+                values.put(CRMContract.CollaborateeTable.EMAIL, collaboratee.getEmail());
+                values.put(CRMContract.CollaborateeTable.ADDRESS_1, collaboratee.getAddress1());
+                values.put(CRMContract.CollaborateeTable.CITY, collaboratee.getCity());
+                values.put(CRMContract.CollaborateeTable.STATE_PROVINCE, collaboratee.getStateProvince());
+                values.put(CRMContract.CollaborateeTable.POSTAL_CODE, collaboratee.getPostalCode());
                 try {
                     Cursor cursor = provider.query(CRMContract.CollaborateeTable.CONTENT_URI,
                             null,

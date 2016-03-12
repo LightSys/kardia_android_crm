@@ -30,6 +30,8 @@ public class EditProfileActivity extends AppCompatActivity {
             arguments.putString(PARTNER_ID_KEY, mPartnerId);
 
             ProfileInputFragment fragment = new ProfileInputFragment();
+            fragment.setArguments(arguments);
+
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_profile_input_container, fragment)
                     .commit();

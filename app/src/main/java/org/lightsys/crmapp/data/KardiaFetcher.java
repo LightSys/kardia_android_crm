@@ -175,22 +175,44 @@ public class KardiaFetcher {
         return collaboratee;
     }
 
-    private void parseCollaborateeInfo(Partner collaboratee, JSONObject partnerJsonBody, JSONObject addressJsonBody, JSONObject contactJsonBody) throws IOException, JSONException {
-        /*Iterator<String> partnerKeys = partnerJsonBody.keys();
+    private Partner parseCollaborateeInfo(Partner collaboratee, JSONObject partnerJsonBody, JSONObject addressJsonBody, JSONObject contactJsonBody) throws IOException, JSONException {
+        collaboratee.setSurname(partnerJsonBody.getString("surname"));
+        collaboratee.setGivenNames(partnerJsonBody.getString("given_names"));
 
-        while(partnerKeys.hasNext()) {
-            String key = partnerKeys.next();
+        Iterator<String> addressKeys = addressJsonBody.keys();
+
+        while(addressKeys.hasNext()) {
+            String key = addressKeys.next();
             if(!key.equals("@id")) {
-                JSONObject jsonPartner = crmJsonBody.getJSONObject(key);
+                JSONObject jsonAddress = addressJsonBody.getJSONObject(key);
 
-                Partner collaboratee = new Partner();
-
-                collaboratee.setPartnerId(jsonPartner.getString("partner_id"));
-                collaboratee.setPartnerName(jsonPartner.getString("partner_name"));
-
-                collaboratees.add(collaboratee);
+                collaboratee.setAddress1(jsonAddress.getString("address_1"));
+                collaboratee.setCity(jsonAddress.getString("city"));
+                collaboratee.setStateProvince(jsonAddress.getString("state_province"));
+                collaboratee.setPostalCode(jsonAddress.getString("postal_code"));
             }
-        }*/
+        }
+
+        Iterator<String> contactKeys = contactJsonBody.keys();
+
+        while(addressKeys.hasNext()) {
+            String key = addressKeys.next();
+            if(!key.equals("@id")) {
+                JSONObject jsonContact = contactJsonBody.getJSONObject(key);
+
+                if("C".equals(jsonContact.getString("contact_type_code"))) {
+                    collaboratee.setCity(jsonContact.getString("contact"));
+                }
+                if("E".equals(jsonContact.getString("contact_type_code"))) {
+                    collaboratee.setEmail(jsonContact.getString("contact"));
+                }
+                if("P".equals(jsonContact.getString("contact_type_code"))) {
+                    collaboratee.setPhone(jsonContact.getString("contact"));
+                }
+            }
+        }
+
+        return collaboratee;
     }
 
     private void parseStaff(List<Staff> staff, JSONObject jsonBody) throws IOException, JSONException {

@@ -3,11 +3,9 @@ package org.lightsys.crmapp;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
-import android.content.ContentResolver;
-import android.content.Context;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -27,15 +25,15 @@ import android.widget.TextView;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.KardiaProvider;
+import org.lightsys.crmapp.data.Partner;
+import org.lightsys.crmapp.data.Staff;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class LoginActivity extends AccountAuthenticatorActivity implements AppCompatCallback {
 
-    EditText accountName, accountPassword, serverAddress;
-    View loginLayout;
-    Toolbar toolbar;
-    Button button;
-    private AppCompatDelegate delegate;
     private AccountManager mAccountManager;
 
     @Override
@@ -44,20 +42,15 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
         mAccountManager = AccountManager.get(this);
 
-        delegate = AppCompatDelegate.create(this, this);
+        AppCompatDelegate delegate = AppCompatDelegate.create(this, this);
 
         delegate.onCreate(savedInstanceState);
         delegate.setContentView(R.layout.activity_login);
 
-        toolbar = (Toolbar) findViewById(R.id.loginToolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.loginToolbar);
         delegate.setSupportActionBar(toolbar);
 
-        accountName = (EditText) findViewById(R.id.loginUsername);
-        accountPassword = (EditText) findViewById(R.id.loginPassword);
-        serverAddress = (EditText) findViewById(R.id.loginServer);
-        button = (Button) findViewById(R.id.loginSubmit);
-        loginLayout = findViewById(R.id.loginLayout);
-
+        Button button = (Button) findViewById(R.id.loginSubmit);
         button.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,6 +58,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             }
         });
 
+        EditText serverAddress = (EditText) findViewById(R.id.loginServer);
         serverAddress.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -76,25 +70,13 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
                 return false;
             }
         });
-
-        //createAccount();
-    }
-
-    private void createAccount() {
-        Account account = new Account("Methuselah96", KardiaProvider.accountType);
-        if (mAccountManager.addAccountExplicitly(account, null, null)) {
-            // Inform the system that this account supports sync
-            //ContentResolver.setIsSyncable(account, KardiaProvider.providerAuthority, 1);
-            // Inform the system that this account is eligible for auto sync when the network is up
-            ContentResolver.setSyncAutomatically(account, KardiaProvider.providerAuthority, true);
-            // Recommend a schedule for automatic synchronization. The system may modify this based
-            // on other scheduled syncs and network utilization.
-            ContentResolver.addPeriodicSync(
-                    account, KardiaProvider.providerAuthority, new Bundle(), 60 * 60);
-        }
     }
 
     public void addAccount(View v) {
+        EditText accountName = (EditText) findViewById(R.id.loginUsername);
+        EditText accountPassword = (EditText) findViewById(R.id.loginPassword);
+        EditText serverAddress = (EditText) findViewById(R.id.loginServer);
+
         String addAccountName = accountName.getText().toString();
         String addAccountPassword = accountPassword.getText().toString();
         String addServerAddress = serverAddress.getText().toString();
@@ -121,32 +103,33 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         }
 
         Account newAccount = new Account(addAccountName, KardiaProvider.accountType);
-        Bundle userData = new Bundle();
-        mAccountManager.addAccountExplicitly(newAccount, addAccountPassword, userData);
+        mAccountManager.addAccountExplicitly(newAccount, addAccountPassword, null);
         mAccountManager.setUserData(newAccount, "server", addServerAddress);
-        Log.d("Login", "hellp?");
-        try {
-            Thread.sleep(1000);                 //1000 milliseconds is one second.
-        } catch(InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
         new GetPartnerIdTask().execute(newAccount);
     }
 
     private void checkAccount(Account account) {
         if (mAccountManager.getUserData(account, "partnerId") != null) {
+            getContentResolver().setSyncAutomatically(account, KardiaProvider.providerAuthority, true);
+
             Bundle bundle = new Bundle();
             bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
             bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, KardiaProvider.accountType);
             setAccountAuthenticatorResult(bundle);
 
-            Intent main = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(main);
-            finish();
+            new GetCollaborateesTask().execute(account);
         } else {
+            // TODO don't remove account explicitly
             mAccountManager.removeAccountExplicitly(account);
+            View loginLayout = findViewById(R.id.loginLayout);
             Snackbar.make(loginLayout, "Connection to server failed", Snackbar.LENGTH_LONG).show();
         }
+    }
+
+    private void mainActivity() {
+        Intent main = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(main);
+        finish();
     }
 
     @Override
@@ -168,24 +151,13 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
     private class GetPartnerIdTask extends AsyncTask<Account, Void, Account> {
         @Override
         protected Account doInBackground(Account... accounts) {
-            //getContentResolver().setSyncAutomatically(accounts[0], KardiaProvider.providerAuthority, true);
-            //ContentResolver.setIsSyncable(accounts[0], KardiaProvider.providerAuthority, 1);
-            //ContentResolver.setSyncAutomatically(accounts[0], KardiaProvider.providerAuthority, true);
-            //ContentResolver.addPeriodicSync(
-            //        accounts[0], KardiaProvider.providerAuthority, new Bundle(), 60 * 60);
-            Bundle settingsBundle = new Bundle();
-            settingsBundle.putBoolean(
-                    ContentResolver.SYNC_EXTRAS_MANUAL, true);
-            settingsBundle.putBoolean(
-                    ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-            Log.d("serverLogin", mAccountManager.getUserData(accounts[0], "server"));
-            ContentResolver.requestSync(accounts[0], KardiaProvider.providerAuthority, settingsBundle);
-            Log.d("Login", "yes");
-            Log.d("URI", CRMContract.StaffTable.CONTENT_URI.toString());
-            try {
-                Thread.sleep(1000);                 //1000 milliseconds is one second.
-            } catch(InterruptedException ex) {
-                Thread.currentThread().interrupt();
+            KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
+            List<Staff> staff = fetcher.getStaff(accounts[0]);
+            for(Staff staffMember : staff) {
+                ContentValues values = new ContentValues();
+                values.put(CRMContract.StaffTable.PARTNER_ID, staffMember.getPartnerId());
+                values.put(CRMContract.StaffTable.KARDIA_LOGIN, staffMember.getKardiaLogin());
+                getContentResolver().insert(CRMContract.StaffTable.CONTENT_URI, values);
             }
             Cursor cursor = getContentResolver().query(
                     CRMContract.StaffTable.CONTENT_URI,
@@ -196,17 +168,37 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             );
             String partnerId = null;
             if(cursor.moveToFirst()) {
-                Log.d("StaffResults", "yes");
-                partnerId = cursor.getString(0);
+                mAccountManager.setUserData(accounts[0], "partnerId", cursor.getString(0));
             }
-            Log.d("Login", "yes2");
-            mAccountManager.setUserData(accounts[0], "partnerId", partnerId);
+            cursor.close();
             return accounts[0];
         }
 
         @Override
         protected void onPostExecute(Account account) {
             checkAccount(account);
+        }
+    }
+
+    private class GetCollaborateesTask extends AsyncTask<Account, Void, Void> {
+        @Override
+        protected Void doInBackground(Account... accounts) {
+            KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
+            List<Partner> collaboratees = fetcher.getCollaboratees(accounts[0]);
+            for (Partner collaboratee : collaboratees) {
+                ContentValues values = new ContentValues();
+                values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, mAccountManager.getUserData(accounts[0], "partnerId"));
+                values.put(CRMContract.CollaborateeTable.PARTNER_ID, collaboratee.getPartnerId());
+                values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.getPartnerName());
+                getContentResolver().insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            mainActivity();
         }
     }
 }

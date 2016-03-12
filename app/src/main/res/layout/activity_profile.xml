@@ -25,7 +25,7 @@
 
             <ImageView
                 android:id="@+id/backdrop_profile"
-                android:src="@drawable/persona"
+                android:src="@drawable/john_smith"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
