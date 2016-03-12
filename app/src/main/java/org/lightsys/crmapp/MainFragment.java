@@ -8,7 +8,6 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,7 +22,6 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import org.lightsys.crmapp.data.CRMContract;
-import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.KardiaProvider;
 import org.lightsys.crmapp.data.Partner;
 
@@ -45,7 +43,8 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Account[] accounts = AccountManager.get(getActivity()).getAccountsByType(KardiaProvider.accountType);
+        AccountManager accountManager = AccountManager.get(getActivity());
+        Account[] accounts = accountManager.getAccountsByType(KardiaProvider.accountType);
         if(accounts.length > 0) {
             mAccount = accounts[0];
             new GetCollaborateesTask().execute();
@@ -54,7 +53,6 @@ public class MainFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
         return super.onOptionsItemSelected(item);
     }
 
@@ -96,16 +94,16 @@ public class MainFragment extends Fragment {
         public void bindProfile(Partner partner) {
             Picasso.with(getActivity())
                     .load(partner.getProfilePictureFilename())
-                    .placeholder(R.drawable.persona)
+                    .placeholder(R.drawable.john_smith)
                     .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
-            ((TextView)mLinearLayout.findViewById(R.id.profile_name)).setText(partner.getPartnerName());
+            ((TextView) mLinearLayout.findViewById(R.id.profile_name)).setText(partner.getPartnerName());
+
             mPartner = partner;
         }
 
         @Override
         public void onClick(View v) {
             String name = ((TextView)((LinearLayout)v).findViewById(R.id.profile_name)).getText().toString();
-            Log.d(LOG_TAG, name);
             Intent i = new Intent(getActivity(), ProfileActivity.class);
             i.putExtra(ProfileActivity.NAME_KEY, name);
             i.putExtra(ProfileActivity.PARTNER_ID_KEY, mPartner.getPartnerId());
@@ -143,25 +141,6 @@ public class MainFragment extends Fragment {
     private class GetCollaborateesTask extends AsyncTask<Void, Void, List<Partner>> {
         @Override
         protected List<Partner> doInBackground(Void... params) {
-            //getContentResolver().setSyncAutomatically(accounts[0], KardiaProvider.providerAuthority, true);
-            //ContentResolver.setIsSyncable(accounts[0], KardiaProvider.providerAuthority, 1);
-            //ContentResolver.setSyncAutomatically(accounts[0], KardiaProvider.providerAuthority, true);
-            //ContentResolver.addPeriodicSync(
-            //        accounts[0], KardiaProvider.providerAuthority, new Bundle(), 60 * 60);
-            Bundle settingsBundle = new Bundle();
-            settingsBundle.putBoolean(
-                    ContentResolver.SYNC_EXTRAS_MANUAL, true);
-            settingsBundle.putBoolean(
-                    ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-            //Log.d("serverLogin", AccountManager.get(getActivity()).getUserData(accounts[0], "server"));
-            ContentResolver.requestSync(mAccount, KardiaProvider.providerAuthority, settingsBundle);
-            Log.d("Login", "yes");
-            Log.d("URI", CRMContract.StaffTable.CONTENT_URI.toString());
-            try {
-                Thread.sleep(1000);                 //1000 milliseconds is one second.
-            } catch(InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
             Cursor cursor = getActivity().getContentResolver().query(
                     CRMContract.CollaborateeTable.CONTENT_URI,
                     new String[] {CRMContract.CollaborateeTable.PARTNER_ID, CRMContract.CollaborateeTable.PARTNER_NAME},
@@ -169,15 +148,15 @@ public class MainFragment extends Fragment {
                     new String[] {AccountManager.get(getActivity()).getUserData(mAccount, "partnerId")},
                     null
             );
-            String partnerId = null;
+
             List<Partner> collaboratees = new ArrayList<>();
             while(cursor.moveToNext()) {
-                Log.d("StaffResults", "yes");
                 Partner collaboratee = new Partner(cursor.getString(0));
                 collaboratee.setPartnerName(cursor.getString(1));
                 collaboratees.add(collaboratee);
             }
-            Log.d("Login", "yes2");
+            cursor.close();
+
             return collaboratees;
         }
 

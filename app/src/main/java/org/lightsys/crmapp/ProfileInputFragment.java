@@ -1,5 +1,7 @@
 package org.lightsys.crmapp;
 
+import android.accounts.AccountManager;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -14,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 
 import com.squareup.picasso.Picasso;
+
+import org.lightsys.crmapp.data.CRMContract;
 
 import java.util.Arrays;
 
@@ -76,11 +80,32 @@ public class ProfileInputFragment extends Fragment {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.name_spinner, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+
+        Cursor cursor = getActivity().getContentResolver().query(
+                CRMContract.CollaborateeTable.CONTENT_URI,
+                new String[] {CRMContract.CollaborateeTable.GIVEN_NAMES,
+                        CRMContract.CollaborateeTable.SURNAME,
+                        CRMContract.CollaborateeTable.PHONE,
+                        CRMContract.CollaborateeTable.EMAIL,
+                        CRMContract.CollaborateeTable.ADDRESS_1,
+                        CRMContract.CollaborateeTable.CITY,
+                        CRMContract.CollaborateeTable.STATE_PROVINCE,
+                        CRMContract.CollaborateeTable.POSTAL_CODE},
+                CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
+                new String[] {mPartnerId},
+                null
+        );
+
+        if(cursor.moveToFirst()) {
+            //populate fields here
+            Log.d("profileName", mPartnerId);
+        }
+
         spinner.setAdapter(adapter);
 
         for(int i = 0; i < mEditTextData.length; i++) {
             final EditText editText = (EditText) rootView.findViewById(VIEW_IDS[i]);
-            editText.setText(mEditTextData[i]);
+            editText.setText(cursor.getString(i));
             editText.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void afterTextChanged(Editable s) {
@@ -90,6 +115,8 @@ public class ProfileInputFragment extends Fragment {
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
             });
         }
+
+        cursor.close();
 
         return rootView;
     }

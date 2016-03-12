@@ -37,7 +37,7 @@
                 android:paddingRight="@dimen/card_profile_padding"
                 android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
                 android:textColor="@color/primary_text"
-                android:text="@string/hello_world" />
+                android:text="john.smith@covenant.edu" />
 
             <include layout="@layout/divider_small" />
 
@@ -49,7 +49,7 @@
                 android:paddingRight="@dimen/card_profile_padding"
                 android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
                 android:textColor="@color/primary_text"
-                android:text="@string/hello_world" />
+                android:text="267-774-6180" />
 
             <include layout="@layout/divider_small" />
 
@@ -61,16 +61,16 @@
                 android:paddingRight="@dimen/card_profile_padding"
                 android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
                 android:textColor="@color/primary_text"
-                android:text="@string/hello_world" />
+                android:text="656 Maple Avenue, Glenside, PA 19038" />
 
             <include layout="@layout/divider" />
 
-            <TextView
+            <!-- <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/card_profile_padding"
                 android:textColor="@color/primary_text"
-                android:text="@string/hello_world" />
+                android:text="@string/hello_world" /> -->
 
         </LinearLayout>
 
@@ -107,7 +107,7 @@
                 android:paddingRight="@dimen/card_profile_padding"
                 android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
                 android:textColor="@color/primary_text"
-                android:text="@string/hello_world" />
+                android:text="Phone Call: teset2" />
 
             <include layout="@layout/divider_small" />
 
@@ -119,7 +119,7 @@
                 android:paddingRight="@dimen/card_profile_padding"
                 android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
                 android:textColor="@color/primary_text"
-                android:text="@string/hello_world" />
+                android:text="Email message: test" />
 
             <include layout="@layout/divider_small" />
 
@@ -131,16 +131,16 @@
                 android:paddingRight="@dimen/card_profile_padding"
                 android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
                 android:textColor="@color/primary_text"
-                android:text="@string/hello_world" />
+                android:text="Added to Kardia" />
 
             <include layout="@layout/divider" />
 
-            <TextView
+            <!-- <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/card_profile_padding"
                 android:textColor="@color/primary_text"
-                android:text="@string/hello_world" />
+                android:text="@string/hello_world" /> -->
 
         </LinearLayout>
 
