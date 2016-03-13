@@ -3,7 +3,6 @@ package org.lightsys.crmapp;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
@@ -22,11 +21,8 @@ import android.widget.TextView;
 
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
-import org.lightsys.crmapp.data.Partner;
-import org.lightsys.crmapp.data.Staff;
 
 import java.util.HashMap;
-import java.util.List;
 
 
 public class LoginActivity extends AccountAuthenticatorActivity implements AppCompatCallback {
@@ -143,6 +139,8 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
                 mAccountManager.setUserData(account, "server", server);
                 mAccountManager.setUserData(account, "partnerId", staff.get(username));
 
+                //TODO Request immediate sync
+
                 getContentResolver().setSyncAutomatically(account, CRMContract.PROVIDER_AUTHORITY, true);
 
                 Bundle bundle = new Bundle();
@@ -151,8 +149,9 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
                 setAccountAuthenticatorResult(bundle);
 
                 return true;
+            } else {
+                return false;
             }
-            return false;
         }
 
         @Override
