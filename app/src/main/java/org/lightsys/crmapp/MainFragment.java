@@ -4,13 +4,11 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Fragment;
 import android.content.Intent;
-import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +20,6 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import org.lightsys.crmapp.data.CRMContract;
-import org.lightsys.crmapp.data.KardiaProvider;
 import org.lightsys.crmapp.data.Partner;
 
 import java.util.ArrayList;
@@ -44,7 +41,7 @@ public class MainFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AccountManager accountManager = AccountManager.get(getActivity());
-        Account[] accounts = accountManager.getAccountsByType(KardiaProvider.accountType);
+        Account[] accounts = accountManager.getAccountsByType(CRMContract.accountType);
         if(accounts.length > 0) {
             mAccount = accounts[0];
             new GetCollaborateesTask().execute();
