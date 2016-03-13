@@ -41,7 +41,7 @@ public class MainFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AccountManager accountManager = AccountManager.get(getActivity());
-        Account[] accounts = accountManager.getAccountsByType(CRMContract.accountType);
+        Account[] accounts = accountManager.getAccountsByType(CRMContract.ACCOUNT_TYPE);
         if(accounts.length > 0) {
             mAccount = accounts[0];
             new GetCollaborateesTask().execute();

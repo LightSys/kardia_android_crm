@@ -2,6 +2,8 @@ package org.lightsys.crmapp.data;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.net.Uri;
 
@@ -16,6 +18,7 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,12 +34,47 @@ public class KardiaFetcher {
         mAccountManager = AccountManager.get(context);
     }
 
-    public String getUrlString(final Account account, String api) throws IOException {
+    public String getWithPassword(final String username, final String password, final String server, String api) throws IOException {
         Authenticator.setDefault(new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
+                return new PasswordAuthentication(username, password.toCharArray());
             }
         });
+
+        URL url = new URL("http://" + server + ":800" + api);
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+
+        try {
+            // TODO Change to buffered streams?
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            InputStream in = connection.getInputStream();
+
+            if(connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new IOException(connection.getResponseMessage() + ": with " + server);
+            }
+
+            int bytesRead = 0;
+            byte[] buffer = new byte[1024];
+            while ((bytesRead = in.read(buffer)) > 0) {
+                out.write(buffer, 0, bytesRead);
+            }
+            out.close();
+            return out.toString();
+        } finally {
+            connection.disconnect();
+        }
+    }
+
+    public String getWithAuthToken(Account account, String api) throws IOException {
+        try {
+            api = Uri.parse(api).buildUpon()
+                    .appendQueryParameter("cx__akey", mAccountManager.blockingGetAuthToken(account, CRMContract.AUTH_TOKEN_TYPE, false))
+                    .build().toString();
+        } catch (OperationCanceledException e) {
+            e.printStackTrace();
+        } catch (AuthenticatorException e) {
+            e.printStackTrace();
+        }
 
         URL url = new URL("http://" + mAccountManager.getUserData(account, "server") + ":800" + api);
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
@@ -62,8 +100,8 @@ public class KardiaFetcher {
         }
     }
 
-    public List<Staff> getStaff(Account account) {
-        List<Staff> staff = new ArrayList<>();
+    public HashMap<String, String> getStaff(String username, String password, String server) {
+        HashMap<String, String> staff = new HashMap<>();
 
         try {
             String api = Uri.parse("/apps/kardia/api/partner/Staff")
@@ -72,7 +110,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_type", "collection")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String jsonString = getUrlString(account, api);
+            String jsonString = getWithPassword(username, password, server, api);
             JSONObject jsonBody = new JSONObject(jsonString);
             parseStaffJson(staff, jsonBody);
         } catch (JSONException je) {
@@ -94,7 +132,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_type", "collection")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String crmJsonString = getUrlString(account, crmApi);
+            String crmJsonString = getWithAuthToken(account, crmApi);
             JSONObject crmJsonBody = new JSONObject(crmJsonString);
 
             parseCollaborateesJson(collaboratees, crmJsonBody);
@@ -133,7 +171,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_format", "attrs")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String partnerJsonString = getUrlString(account, partnerApi);
+            String partnerJsonString = getWithAuthToken(account, partnerApi);
             JSONObject partnerJsonBody = new JSONObject(partnerJsonString);
 
             String addressApi = Uri.parse("/apps/kardia/api/partner/Partners/" + collaboratee.getPartnerId() + "/Addresses")
@@ -142,7 +180,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_type", "collection")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String addressJsonString = getUrlString(account, addressApi);
+            String addressJsonString = getWithAuthToken(account, addressApi);
             JSONObject addressJsonBody = new JSONObject(addressJsonString);
 
             String contactApi = Uri.parse("/apps/kardia/api/partner/Partners/" + collaboratee.getPartnerId() + "/ContactInfo")
@@ -151,7 +189,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_type", "collection")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String contactJsonString = getUrlString(account, contactApi);
+            String contactJsonString = getWithAuthToken(account, contactApi);
             JSONObject contactJsonBody = new JSONObject(contactJsonString);
 
             parseCollaborateeInfoJson(collaboratee, partnerJsonBody, addressJsonBody, contactJsonBody);
@@ -205,7 +243,7 @@ public class KardiaFetcher {
         return collaboratee;
     }
 
-    private void parseStaffJson(List<Staff> staff, JSONObject jsonBody) throws IOException, JSONException {
+    private void parseStaffJson(HashMap<String, String> staff, JSONObject jsonBody) throws IOException, JSONException {
         Iterator<String> keys = jsonBody.keys();
 
         while(keys.hasNext()) {
@@ -213,12 +251,7 @@ public class KardiaFetcher {
             if(!key.equals("@id")) {
                 JSONObject jsonStaff = jsonBody.getJSONObject(key);
 
-                Staff staffMember = new Staff();
-
-                staffMember.setPartnerId(jsonStaff.getString("partner_id"));
-                staffMember.setKardiaLogin(jsonStaff.getString("kardia_login"));
-
-                staff.add(staffMember);
+                staff.put(jsonStaff.getString("kardia_login"), jsonStaff.getString("partner_id"));
             }
         }
     }

@@ -21,8 +21,8 @@ public class KardiaProvider extends ContentProvider {
     private SQLiteDatabase mDatabase;
 
     static {
-        sUriMatcher.addURI(CRMContract.providerAuthority, "staff", 1);
-        sUriMatcher.addURI(CRMContract.providerAuthority, "collaboratees", 2);
+        sUriMatcher.addURI(CRMContract.PROVIDER_AUTHORITY, "staff", 1);
+        sUriMatcher.addURI(CRMContract.PROVIDER_AUTHORITY, "collaboratees", 2);
     }
 
 
