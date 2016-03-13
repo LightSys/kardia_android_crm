@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 /**
  * Created by nathan on 3/10/16.
@@ -17,25 +16,20 @@ import android.util.Log;
 public class KardiaProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
-    public static final String providerAuthority = "org.lightsys.crmapp.provider";
-
-    public static final String accountType = "org.lightsys.crmapp";
-
-    //private static final String mimeType = "text/plain";
-
     private CRMOpenHelper mOpenHelper;
 
-    private SQLiteDatabase db;
+    private SQLiteDatabase mDatabase;
 
     static {
-        sUriMatcher.addURI(providerAuthority, "staff", 1);
-        sUriMatcher.addURI(providerAuthority, "collaboratees", 2);
+        sUriMatcher.addURI(CRMContract.providerAuthority, "staff", 1);
+        sUriMatcher.addURI(CRMContract.providerAuthority, "collaboratees", 2);
     }
 
 
     @Override
     public boolean onCreate() {
         mOpenHelper = new CRMOpenHelper(getContext());
+        mDatabase = mOpenHelper.getWritableDatabase();
 
         return true;
     }
@@ -43,38 +37,20 @@ public class KardiaProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        Log.d("ContentProvider", "yes");
-
         SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 
         switch (sUriMatcher.match(uri)) {
-            /*case 1:
-                builder.setTables(CRMContract.PartnerTable.NAME);
-                break;
-            case 2:
-                builder.setTables(CRMContract.PartnerTable.NAME);
-                builder.appendWhere(CRMContract.PartnerTable.Cols.PARNTER_ID + " = " + uri.getLastPathSegment());
-                break;
-            case 3:
-                builder.setTables(CRMContract.CollaborateeTable.NAME);
-                break;*/
             case 1:
-                builder.setTables(CRMContract.StaffTable.NAME);
+                builder.setTables(CRMContract.StaffTable.TABLE_NAME);
                 break;
             case 2:
-                builder.setTables(CRMContract.CollaborateeTable.NAME);
+                builder.setTables(CRMContract.CollaborateeTable.TABLE_NAME);
                 break;
             default:
                 break;
         }
 
-        db = mOpenHelper.getWritableDatabase();
-
-        Log.d("ContentProvider", builder.getTables());
-
-        Log.d("Query", builder.buildQuery(projection, selection, selectionArgs, null, null, sortOrder, null));
-
-        return builder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
+        return builder.query(mDatabase, projection, selection, selectionArgs, null, null, sortOrder);
     }
 
     @Nullable
@@ -90,20 +66,12 @@ public class KardiaProvider extends ContentProvider {
         int id;
 
         switch (sUriMatcher.match(uri)) {
-            /*case 1:
-                table = CRMContract.PartnerTable.NAME;
-                id = values.getAsInteger(CRMContract.PartnerTable.Cols.PARNTER_ID);
-                break;
-            case 3:
-                table = CRMContract.CollaborateeTable.NAME;
-                id = values.getAsInteger(CRMContract.CollaborateeTable.Cols.COLLABORATER_ID);
-                break;*/
             case 1:
-                table = CRMContract.StaffTable.NAME;
+                table = CRMContract.StaffTable.TABLE_NAME;
                 id = values.getAsInteger(CRMContract.StaffTable.PARTNER_ID);
                 break;
             case 2:
-                table = CRMContract.CollaborateeTable.NAME;
+                table = CRMContract.CollaborateeTable.TABLE_NAME;
                 id = values.getAsInteger(CRMContract.CollaborateeTable.COLLABORATER_ID);
                 break;
             default:
@@ -112,9 +80,7 @@ public class KardiaProvider extends ContentProvider {
                 break;
         }
 
-        db = mOpenHelper.getWritableDatabase();
-
-        db.insert(table, null, values);
+        mDatabase.insert(table, null, values);
 
         return ContentUris.withAppendedId(uri, id);
     }
@@ -127,35 +93,19 @@ public class KardiaProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         String table;
-        int id;
 
         switch (sUriMatcher.match(uri)) {
-            /*case 1:
-                table = CRMContract.PartnerTable.NAME;
-                id = values.getAsInteger(CRMContract.PartnerTable.Cols.PARNTER_ID);
-                break;
-            case 3:
-                table = CRMContract.CollaborateeTable.NAME;
-                id = values.getAsInteger(CRMContract.CollaborateeTable.Cols.COLLABORATER_ID);
-                break;*/
             case 1:
-                table = CRMContract.StaffTable.NAME;
-                id = values.getAsInteger(CRMContract.StaffTable.PARTNER_ID);
+                table = CRMContract.StaffTable.TABLE_NAME;
                 break;
             case 2:
-                table = CRMContract.CollaborateeTable.NAME;
-                id = values.getAsInteger(CRMContract.CollaborateeTable.COLLABORATER_ID);
+                table = CRMContract.CollaborateeTable.TABLE_NAME;
                 break;
             default:
                 table = "";
-                id = 0;
                 break;
         }
 
-        db = mOpenHelper.getWritableDatabase();
-
-
-
-        return db.update(table, values, selection, selectionArgs);
+        return mDatabase.update(table, values, selection, selectionArgs);
     }
 }

@@ -14,10 +14,7 @@ import org.lightsys.crmapp.LoginActivity;
 /**
  * Created by nathan on 3/10/16.
  */
-/*
- * Implement AbstractAccountAuthenticator and stub out all
- * of its methods
- */
+
 public class Authenticator extends AbstractAccountAuthenticator {
 
     private Context mContext;

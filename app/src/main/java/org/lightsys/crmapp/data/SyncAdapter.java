@@ -28,23 +28,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         mContentResolver = context.getContentResolver();
     }
 
-    public SyncAdapter(
-            Context context,
-            boolean autoInitialize,
-            boolean allowParallelSyncs) {
-        super(context, autoInitialize, allowParallelSyncs);
-        mContentResolver = context.getContentResolver();
-    }
-
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d("sync", "yes");
+        //TODO Sync correctly
         KardiaFetcher fetcher = new KardiaFetcher(getContext());
-        Log.d("serverSync", AccountManager.get(getContext()).getUserData(account, "server"));
         List<Staff> staff = fetcher.getStaff(account);
         for(Staff staffMember : staff) {
             ContentValues values = new ContentValues();
-            Log.d("kardiaLogin", staffMember.getKardiaLogin());
             values.put(CRMContract.StaffTable.PARTNER_ID, staffMember.getPartnerId());
             values.put(CRMContract.StaffTable.KARDIA_LOGIN, staffMember.getKardiaLogin());
             try {
@@ -63,15 +53,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, partnerId);
                 values.put(CRMContract.CollaborateeTable.PARTNER_ID, collaboratee.getPartnerId());
                 values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.getPartnerName());
-                values.put(CRMContract.CollaborateeTable.SURNAME, collaboratee.getSurname());
-                values.put(CRMContract.CollaborateeTable.GIVEN_NAMES, collaboratee.getGivenNames());
-                values.put(CRMContract.CollaborateeTable.PHONE, collaboratee.getPhone());
-                values.put(CRMContract.CollaborateeTable.CELL, collaboratee.getCell());
-                values.put(CRMContract.CollaborateeTable.EMAIL, collaboratee.getEmail());
-                values.put(CRMContract.CollaborateeTable.ADDRESS_1, collaboratee.getAddress1());
-                values.put(CRMContract.CollaborateeTable.CITY, collaboratee.getCity());
-                values.put(CRMContract.CollaborateeTable.STATE_PROVINCE, collaboratee.getStateProvince());
-                values.put(CRMContract.CollaborateeTable.POSTAL_CODE, collaboratee.getPostalCode());
                 try {
                     Cursor cursor = provider.query(CRMContract.CollaborateeTable.CONTENT_URI,
                             null,

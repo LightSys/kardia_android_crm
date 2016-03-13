@@ -24,11 +24,9 @@ import android.widget.TextView;
 
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
-import org.lightsys.crmapp.data.KardiaProvider;
 import org.lightsys.crmapp.data.Partner;
 import org.lightsys.crmapp.data.Staff;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -102,7 +100,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             ((TextView) findViewById(R.id.loginServerError)).setText("");
         }
 
-        Account newAccount = new Account(addAccountName, KardiaProvider.accountType);
+        Account newAccount = new Account(addAccountName, CRMContract.accountType);
         mAccountManager.addAccountExplicitly(newAccount, addAccountPassword, null);
         mAccountManager.setUserData(newAccount, "server", addServerAddress);
         new GetPartnerIdTask().execute(newAccount);
@@ -110,11 +108,11 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
     private void checkAccount(Account account) {
         if (mAccountManager.getUserData(account, "partnerId") != null) {
-            getContentResolver().setSyncAutomatically(account, KardiaProvider.providerAuthority, true);
+            getContentResolver().setSyncAutomatically(account, CRMContract.providerAuthority, true);
 
             Bundle bundle = new Bundle();
             bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, KardiaProvider.accountType);
+            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, CRMContract.accountType);
             setAccountAuthenticatorResult(bundle);
 
             new GetCollaborateesTask().execute(account);

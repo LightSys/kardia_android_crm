@@ -16,7 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import org.lightsys.crmapp.data.KardiaProvider;
+import org.lightsys.crmapp.data.CRMContract;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -28,9 +28,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         mAccountManager = AccountManager.get(this);
-        Account[] accounts = mAccountManager.getAccountsByType(KardiaProvider.accountType);
+        Account[] accounts = mAccountManager.getAccountsByType(CRMContract.accountType);
         if(accounts.length == 0) {
-            mAccountManager.addAccount(KardiaProvider.accountType, null, null, null, this, null, null);
+            mAccountManager.addAccount(CRMContract.accountType, null, null, null, this, null, null);
             finish();
         }
 
