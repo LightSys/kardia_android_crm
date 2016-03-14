@@ -9,6 +9,8 @@ public class Partner {
     private String partnerId;
     private String partnerName;
     private String profilePictureFilename;
+    private List<Contact> contacts;
+    private List<Address> addresses;
 
     public Partner() {
 
@@ -16,11 +18,6 @@ public class Partner {
 
     public Partner(String partnerId) {
         this.partnerId = partnerId;
-    }
-
-    public Partner(String partnerId, String partnerName) {
-        this.partnerId = partnerId;
-        this.partnerName = partnerName;
     }
 
     public String getPartnerId() {
@@ -45,5 +42,21 @@ public class Partner {
 
     public void setProfilePictureFilename(String profilePictureFilename) {
         this.profilePictureFilename = profilePictureFilename;
+    }
+
+    public List<Contact> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<Contact> contacts) {
+        this.contacts = contacts;
+    }
+
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
     }
 }

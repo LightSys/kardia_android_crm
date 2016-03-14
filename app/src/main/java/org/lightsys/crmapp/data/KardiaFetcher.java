@@ -122,6 +122,20 @@ public class KardiaFetcher {
         return staff;
     }
 
+
+    private void parseStaffJson(HashMap<String, String> staff, JSONObject jsonBody) throws IOException, JSONException {
+        Iterator<String> keys = jsonBody.keys();
+
+        while(keys.hasNext()) {
+            String key = keys.next();
+            if(!key.equals("@id")) {
+                JSONObject jsonStaff = jsonBody.getJSONObject(key);
+
+                staff.put(jsonStaff.getString("kardia_login"), jsonStaff.getString("partner_id"));
+            }
+        }
+    }
+
     public List<Partner> getCollaboratees(Account account) {
         List<Partner> collaboratees = new ArrayList<>();
 
@@ -241,18 +255,5 @@ public class KardiaFetcher {
         }*/
 
         return collaboratee;
-    }
-
-    private void parseStaffJson(HashMap<String, String> staff, JSONObject jsonBody) throws IOException, JSONException {
-        Iterator<String> keys = jsonBody.keys();
-
-        while(keys.hasNext()) {
-            String key = keys.next();
-            if(!key.equals("@id")) {
-                JSONObject jsonStaff = jsonBody.getJSONObject(key);
-
-                staff.put(jsonStaff.getString("kardia_login"), jsonStaff.getString("partner_id"));
-            }
-        }
     }
 }

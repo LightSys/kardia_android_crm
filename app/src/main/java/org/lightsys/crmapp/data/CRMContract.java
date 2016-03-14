@@ -10,19 +10,6 @@ public class CRMContract {
     public static final String ACCOUNT_TYPE = "org.lightsys.crmapp";
     public static final String AUTH_TOKEN_TYPE = "org.lightsys.crmapp";
 
-    public static final class StaffTable {
-        public static final String TABLE_NAME = "staff";
-        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path("staff").build();
-
-        public static final String PARTNER_ID = "partnerId";
-        public static final String KARDIA_LOGIN = "kardiaLogin";
-
-        public static final String CREATE_TABLE = "CREATE TABLE " + CRMContract.StaffTable.TABLE_NAME + "(" +
-                        CRMContract.StaffTable.PARTNER_ID + ", " +
-                        CRMContract.StaffTable.KARDIA_LOGIN +
-                        ")";
-    }
-
     public static final class CollaborateeTable {
         public static final String TABLE_NAME = "collaboratee";
         public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path("collaboratees").build();
