@@ -21,8 +21,7 @@ public class KardiaProvider extends ContentProvider {
     private SQLiteDatabase mDatabase;
 
     static {
-        sUriMatcher.addURI(CRMContract.PROVIDER_AUTHORITY, "staff", 1);
-        sUriMatcher.addURI(CRMContract.PROVIDER_AUTHORITY, "collaboratees", 2);
+        sUriMatcher.addURI(CRMContract.PROVIDER_AUTHORITY, "collaboratees", 1);
     }
 
 
@@ -41,9 +40,6 @@ public class KardiaProvider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case 1:
-                builder.setTables(CRMContract.StaffTable.TABLE_NAME);
-                break;
-            case 2:
                 builder.setTables(CRMContract.CollaborateeTable.TABLE_NAME);
                 break;
             default:
@@ -67,10 +63,6 @@ public class KardiaProvider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case 1:
-                table = CRMContract.StaffTable.TABLE_NAME;
-                id = values.getAsInteger(CRMContract.StaffTable.PARTNER_ID);
-                break;
-            case 2:
                 table = CRMContract.CollaborateeTable.TABLE_NAME;
                 id = values.getAsInteger(CRMContract.CollaborateeTable.COLLABORATER_ID);
                 break;
@@ -96,9 +88,6 @@ public class KardiaProvider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case 1:
-                table = CRMContract.StaffTable.TABLE_NAME;
-                break;
-            case 2:
                 table = CRMContract.CollaborateeTable.TABLE_NAME;
                 break;
             default:
