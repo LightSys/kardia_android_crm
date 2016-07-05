@@ -32,6 +32,17 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         //TODO Sync correctly
         KardiaFetcher fetcher = new KardiaFetcher(getContext());
+        List<Staff> staff = fetcher.getStaff(account);
+        for(Staff staffMember : staff) {
+            ContentValues values = new ContentValues();
+            values.put(CRMContract.StaffTable.PARTNER_ID, staffMember.getPartnerId());
+            values.put(CRMContract.StaffTable.KARDIA_LOGIN, staffMember.getKardiaLogin());
+            try {
+                provider.insert(CRMContract.StaffTable.CONTENT_URI, values);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
         String partnerId = AccountManager.get(getContext()).getUserData(account, "partnerId");
         if(partnerId != null) {
             List<Partner> collaboratees = fetcher.getCollaboratees(account);
