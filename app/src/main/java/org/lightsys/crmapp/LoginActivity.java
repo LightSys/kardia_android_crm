@@ -5,6 +5,7 @@ import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatCallback;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -25,7 +27,6 @@ import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.Partner;
 import org.lightsys.crmapp.data.Staff;
 
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -74,24 +75,24 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         EditText accountPassword = (EditText) findViewById(R.id.loginPassword);
         EditText serverAddress = (EditText) findViewById(R.id.loginServer);
 
-        String username = accountName.getText().toString();
-        String password = accountPassword.getText().toString();
-        String server = serverAddress.getText().toString();
+        String addAccountName = accountName.getText().toString();
+        String addAccountPassword = accountPassword.getText().toString();
+        String addServerAddress = serverAddress.getText().toString();
 
-        if (username.equals("")) {
+        if (addAccountName.equals("")) {
             ((TextView) findViewById(R.id.loginUsernameError)).setText("Enter a username.");
             return;
         }
         else {
             ((TextView) findViewById(R.id.loginUsernameError)).setText("");
         }
-        if (password.equals("")) {
+        if (addAccountPassword.equals("")) {
             ((TextView) findViewById(R.id.loginPasswordError)).setText("Enter a password.");
             return;
         } else {
             ((TextView) findViewById(R.id.loginPasswordError)).setText("");
         }
-        if (server.equals("")) {
+        if (addServerAddress.equals("")) {
             ((TextView) findViewById(R.id.loginServerError)).setText("Enter a server address.");
             return;
         }
@@ -99,18 +100,34 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             ((TextView) findViewById(R.id.loginServerError)).setText("");
         }
 
-        new GetPartnerIdTask().execute(username, password, server);
+        Account newAccount = new Account(addAccountName, CRMContract.accountType);
+        mAccountManager.addAccountExplicitly(newAccount, addAccountPassword, null);
+        mAccountManager.setUserData(newAccount, "server", addServerAddress);
+        new GetPartnerIdTask().execute(newAccount);
     }
 
-    private void processResult(boolean accountAdded) {
-        if (accountAdded) {
-            Intent main = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(main);
-            finish();
+    private void checkAccount(Account account) {
+        if (mAccountManager.getUserData(account, "partnerId") != null) {
+            getContentResolver().setSyncAutomatically(account, CRMContract.providerAuthority, true);
+
+            Bundle bundle = new Bundle();
+            bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, CRMContract.accountType);
+            setAccountAuthenticatorResult(bundle);
+
+            new GetCollaborateesTask().execute(account);
         } else {
+            // TODO don't remove account explicitly
+            mAccountManager.removeAccountExplicitly(account);
             View loginLayout = findViewById(R.id.loginLayout);
             Snackbar.make(loginLayout, "Connection to server failed", Snackbar.LENGTH_LONG).show();
         }
+    }
+
+    private void mainActivity() {
+        Intent main = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(main);
+        finish();
     }
 
     @Override
@@ -129,35 +146,57 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         return null;
     }
 
-    private class GetPartnerIdTask extends AsyncTask<String, Void, Boolean> {
+    private class GetPartnerIdTask extends AsyncTask<Account, Void, Account> {
         @Override
-        protected Boolean doInBackground(String... accountData) {
-            String username = accountData[0];
-            String password = accountData[1];
-            String server = accountData[2];
+        protected Account doInBackground(Account... accounts) {
             KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
-            HashMap<String, String> staff = fetcher.getStaff(username, password, server);
-            if(staff.containsKey(username)) {
-                Account account = new Account(username, CRMContract.ACCOUNT_TYPE);
-                mAccountManager.addAccountExplicitly(account, password, null);
-                mAccountManager.setUserData(account, "server", server);
-                mAccountManager.setUserData(account, "partnerId", staff.get(username));
-
-                getContentResolver().setSyncAutomatically(account, CRMContract.PROVIDER_AUTHORITY, true);
-
-                Bundle bundle = new Bundle();
-                bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-                bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, CRMContract.ACCOUNT_TYPE);
-                setAccountAuthenticatorResult(bundle);
-
-                return true;
+            List<Staff> staff = fetcher.getStaff(accounts[0]);
+            for(Staff staffMember : staff) {
+                ContentValues values = new ContentValues();
+                values.put(CRMContract.StaffTable.PARTNER_ID, staffMember.getPartnerId());
+                values.put(CRMContract.StaffTable.KARDIA_LOGIN, staffMember.getKardiaLogin());
+                getContentResolver().insert(CRMContract.StaffTable.CONTENT_URI, values);
             }
-            return false;
+            Cursor cursor = getContentResolver().query(
+                    CRMContract.StaffTable.CONTENT_URI,
+                    new String[] {CRMContract.StaffTable.PARTNER_ID},
+                    CRMContract.StaffTable.KARDIA_LOGIN + " = ?",
+                    new String[] {accounts[0].name},
+                    null
+            );
+            String partnerId = null;
+            if(cursor.moveToFirst()) {
+                mAccountManager.setUserData(accounts[0], "partnerId", cursor.getString(0));
+            }
+            cursor.close();
+            return accounts[0];
         }
 
         @Override
-        protected void onPostExecute(Boolean accountAdded) {
-            processResult(accountAdded);
+        protected void onPostExecute(Account account) {
+            checkAccount(account);
+        }
+    }
+
+    private class GetCollaborateesTask extends AsyncTask<Account, Void, Void> {
+        @Override
+        protected Void doInBackground(Account... accounts) {
+            KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
+            List<Partner> collaboratees = fetcher.getCollaboratees(accounts[0]);
+            for (Partner collaboratee : collaboratees) {
+                ContentValues values = new ContentValues();
+                values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, mAccountManager.getUserData(accounts[0], "partnerId"));
+                values.put(CRMContract.CollaborateeTable.PARTNER_ID, collaboratee.getPartnerId());
+                values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.getPartnerName());
+                getContentResolver().insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            mainActivity();
         }
     }
 }

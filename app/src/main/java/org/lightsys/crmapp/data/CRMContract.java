@@ -6,9 +6,8 @@ import android.net.Uri;
  * Created by nathan on 3/9/16.
  */
 public class CRMContract {
-    public static final String PROVIDER_AUTHORITY = "org.lightsys.crmapp.provider";
-    public static final String ACCOUNT_TYPE = "org.lightsys.crmapp";
-    public static final String AUTH_TOKEN_TYPE = "org.lightsys.crmapp";
+    public static final String providerAuthority = "org.lightsys.crmapp.provider";
+    public static final String accountType = "org.lightsys.crmapp";
 
     public static final class StaffTable {
         public static final String TABLE_NAME = "staff";

@@ -28,9 +28,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         mAccountManager = AccountManager.get(this);
-        Account[] accounts = mAccountManager.getAccountsByType(CRMContract.ACCOUNT_TYPE);
+        Account[] accounts = mAccountManager.getAccountsByType(CRMContract.accountType);
         if(accounts.length == 0) {
-            mAccountManager.addAccount(CRMContract.ACCOUNT_TYPE, null, null, null, this, null, null);
+            mAccountManager.addAccount(CRMContract.accountType, null, null, null, this, null, null);
             finish();
         }
 
