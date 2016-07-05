@@ -1,11 +1,5 @@
-# Kardia CRM Android App
+# kardia_android_crm
+A Kardia CRM app for Android
 
-## 1. Read the CRM Mobile App PDF.
+# 1. Read the CRM Mobile App PDF.
 This file contains the design specifications for the app as given by Greg.
-
-## 2. Read the JSON REST specifications in the Centrallix system docs.
-https://github.com/LightSys/centrallix/blob/master/centrallix-sysdoc/JSON-REST.txt
-
-## 3. Read the API specifications for CRM and Partners in the Kardia system docs.
-https://github.com/LightSys/kardia/blob/master/kardia-sysdoc/API-crm.txt
-https://github.com/LightSys/kardia/blob/master/kardia-sysdoc/API-partner.txt
