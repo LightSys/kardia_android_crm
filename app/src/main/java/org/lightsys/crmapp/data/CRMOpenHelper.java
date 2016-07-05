@@ -17,6 +17,7 @@ public class CRMOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        db.execSQL(CRMContract.StaffTable.CREATE_TABLE);
         db.execSQL(CRMContract.CollaborateeTable.CREATE_TABLE);
     }
 

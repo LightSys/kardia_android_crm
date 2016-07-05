@@ -36,6 +36,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         if(partnerId != null) {
             List<Partner> collaboratees = fetcher.getCollaboratees(account);
             for (Partner collaboratee : collaboratees) {
+                Log.d("collobarateeSync", collaboratee.getPartnerName());
                 fetcher.getCollaborateeInfo(account, collaboratee);
                 ContentValues values = new ContentValues();
                 values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, partnerId);
