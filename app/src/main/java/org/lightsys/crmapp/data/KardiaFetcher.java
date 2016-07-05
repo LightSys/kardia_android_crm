@@ -218,7 +218,7 @@ public class KardiaFetcher {
 
     private Partner parseCollaborateeInfoJson(Partner collaboratee, JSONObject partnerJsonBody, JSONObject addressJsonBody, JSONObject contactJsonBody) throws IOException, JSONException {
         //TODO Use contact provider
-        collaboratee.setSurname(partnerJsonBody.getString("surname"));
+        /*collaboratee.setSurname(partnerJsonBody.getString("surname"));
         collaboratee.setGivenNames(partnerJsonBody.getString("given_names"));
 
         Iterator<String> addressKeys = addressJsonBody.keys();
@@ -237,44 +237,22 @@ public class KardiaFetcher {
 
         Iterator<String> contactKeys = contactJsonBody.keys();
 
-        while(contactKeys.hasNext()) {
-            String key = contactKeys.next();
+        while(addressKeys.hasNext()) {
+            String key = addressKeys.next();
             if(!key.equals("@id")) {
                 JSONObject jsonContact = contactJsonBody.getJSONObject(key);
 
                 if("C".equals(jsonContact.getString("contact_type_code"))) {
-                    collaboratee.setCell(jsonContact.getString("cell"));
+                    collaboratee.setCity(jsonContact.getString("contact"));
                 }
                 if("E".equals(jsonContact.getString("contact_type_code"))) {
-                    collaboratee.setEmail(jsonContact.getString("email"));
+                    collaboratee.setEmail(jsonContact.getString("contact"));
                 }
                 if("P".equals(jsonContact.getString("contact_type_code"))) {
-                    collaboratee.setPhone(jsonContact.getString("phone"));
+                    collaboratee.setPhone(jsonContact.getString("contact"));
                 }
-
-                //commented methods of contact have not been added as columns for the database
-                //also need to add methods to partner
-
-                /*if("B".equals(jsonContact.getString("contact_type_code"))) {
-                    collaboratee.setBlog(jsonContact.getString("blog"));
-                }
-                if("F".equals(jsonContact.getString("contact_type_code"))) {
-                    collaboratee.setFax(jsonContact.getString("fax"));
-                }
-                if("K".equals(jsonContact.getString("contact_type_code"))) {
-                    collaboratee.setFacebook(jsonContact.getString("facebook"));
-                }
-                if("S".equals(jsonContact.getString("contact_type_code"))) {
-                    collaboratee.setSkype(jsonContact.getString("skype"));
-                }
-                if("T".equals(jsonContact.getString("contact_type_code"))) {
-                    collaboratee.setTwitter(jsonContact.getString("twitter"));
-                }
-                if("W".equals(jsonContact.getString("contact_type_code"))) {
-                    collaboratee.setWeb(jsonContact.getString("website"));
-                }*/
             }
-        }
+        }*/
 
         return collaboratee;
     }

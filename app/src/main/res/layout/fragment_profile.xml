@@ -37,9 +37,7 @@
                 android:paddingRight="@dimen/card_profile_padding"
                 android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
                 android:textColor="@color/primary_text"
-                android:id="@+id/e_address"
-                android:text="None"/>
-            <!--android:text="john.smith@covenant.edu" />-->
+                android:text="john.smith@covenant.edu" />
 
             <include layout="@layout/divider_small" />
 
@@ -51,9 +49,7 @@
                 android:paddingRight="@dimen/card_profile_padding"
                 android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
                 android:textColor="@color/primary_text"
-                android:id="@+id/phone_number"
-                android:text="None"/>
-            <!--android:text="267-774-6180" />-->
+                android:text="267-774-6180" />
 
             <include layout="@layout/divider_small" />
 
@@ -65,9 +61,7 @@
                 android:paddingRight="@dimen/card_profile_padding"
                 android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
                 android:textColor="@color/primary_text"
-                android:id="@+id/s_address"
-                android:text="None"/>
-                <!--android:text="656 Maple Avenue, Glenside, PA 19038" />-->
+                android:text="656 Maple Avenue, Glenside, PA 19038" />
 
             <include layout="@layout/divider" />
 
