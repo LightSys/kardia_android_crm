@@ -1,8 +1,10 @@
 package org.lightsys.crmapp.data;
 
+import android.accounts.AccountManager;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,9 +22,13 @@ public class KardiaProvider extends ContentProvider {
 
     private SQLiteDatabase mDatabase;
 
+    private Context mContext;
+    private AccountManager mAccountManager;
+
     static {
         sUriMatcher.addURI(CRMContract.providerAuthority, "staff", 1);
         sUriMatcher.addURI(CRMContract.providerAuthority, "collaboratees", 2);
+        sUriMatcher.addURI(CRMContract.providerAuthority, "timeline", 3);
     }
 
 
@@ -45,6 +51,9 @@ public class KardiaProvider extends ContentProvider {
                 break;
             case 2:
                 builder.setTables(CRMContract.CollaborateeTable.TABLE_NAME);
+                break;
+            case 3:
+                builder.setTables(CRMContract.TimelineTable.TABLE_NAME);
                 break;
             default:
                 break;
@@ -74,6 +83,10 @@ public class KardiaProvider extends ContentProvider {
                 table = CRMContract.CollaborateeTable.TABLE_NAME;
                 id = values.getAsInteger(CRMContract.CollaborateeTable.COLLABORATER_ID);
                 break;
+            case 3:
+                table = CRMContract.TimelineTable.TABLE_NAME;
+                id = values.getAsInteger(CRMContract.TimelineTable.CONTACT_ID);
+                break;
             default:
                 table = "";
                 id = 0;
@@ -100,6 +113,9 @@ public class KardiaProvider extends ContentProvider {
                 break;
             case 2:
                 table = CRMContract.CollaborateeTable.TABLE_NAME;
+                break;
+            case 3:
+                table = CRMContract.TimelineTable.TABLE_NAME;
                 break;
             default:
                 table = "";

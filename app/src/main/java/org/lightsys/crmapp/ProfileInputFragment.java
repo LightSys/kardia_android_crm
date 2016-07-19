@@ -1,25 +1,21 @@
 package org.lightsys.crmapp;
 
-import android.accounts.AccountManager;
-import android.database.Cursor;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import org.lightsys.crmapp.data.CRMContract;
-
-import java.util.Arrays;
 
 /**
  * Created by cubemaster on 3/11/16.
@@ -38,10 +34,21 @@ public class ProfileInputFragment extends Fragment {
             R.id.profile_input_zip};
 
     private String mName;
+    private String mSurname;
+    private String mGivenName;
     private String mPartnerId;
+    private String mPhone;
+    private String mCell;
+    private String mEmail;
+    private String mAddress;
+    private String mCity;
+    private String mState;
+    private String mPostalCode;
     private boolean mNewProfile;
 
-    //private String mFirstName, mLastName, mPhone, mEmail, mStreetAddress, mCity, mState, mZIP;
+    Spinner phoneType;
+
+
     private String[] mEditTextData;
 
     @Override
@@ -54,7 +61,16 @@ public class ProfileInputFragment extends Fragment {
         Bundle arguments = getArguments();
         if (arguments != null) {
             mName = arguments.getString(ProfileActivity.NAME_KEY);
+            mSurname = arguments.getString(EditProfileActivity.SURNAME_KEY);
+            mGivenName = arguments.getString(EditProfileActivity.GIVEN_NAMES_KEY);
             mPartnerId = arguments.getString(ProfileActivity.PARTNER_ID_KEY);
+            mPhone = arguments.getString(EditProfileActivity.PHONE_KEY);
+            mCell = arguments.getString(EditProfileActivity.CELL_KEY);
+            mEmail = arguments.getString(EditProfileActivity.EMAIL_KEY);
+            mAddress = arguments.getString(EditProfileActivity.ADDRESS_KEY);
+            mCity = arguments.getString(EditProfileActivity.CITY_KEY);
+            mState = arguments.getString(EditProfileActivity.STATE_KEY);
+            mPostalCode = arguments.getString(EditProfileActivity.POSTALCODE_KEY);
             mNewProfile = false;
         }
         else {
@@ -81,42 +97,47 @@ public class ProfileInputFragment extends Fragment {
                 R.array.name_spinner, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
 
-        Cursor cursor = getActivity().getContentResolver().query(
-                CRMContract.CollaborateeTable.CONTENT_URI,
-                new String[] {CRMContract.CollaborateeTable.GIVEN_NAMES,
-                        CRMContract.CollaborateeTable.SURNAME,
-                        CRMContract.CollaborateeTable.PHONE,
-                        CRMContract.CollaborateeTable.EMAIL,
-                        CRMContract.CollaborateeTable.ADDRESS_1,
-                        CRMContract.CollaborateeTable.CITY,
-                        CRMContract.CollaborateeTable.STATE_PROVINCE,
-                        CRMContract.CollaborateeTable.POSTAL_CODE},
-                CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
-                new String[] {mPartnerId},
-                null
-        );
+        TextView firstName = (TextView)rootView.findViewById(R.id.profile_input_name_first);
+        TextView lastName = (TextView)rootView.findViewById(R.id.profile_input_name_last);
+        TextView cell = (TextView)rootView.findViewById(R.id.profile_input_phone_text);
+        final TextView phone = (TextView)rootView.findViewById(R.id.profile_input_phone_text);
+        TextView email = (TextView)rootView.findViewById(R.id.profile_input_email);
+        TextView address = (TextView)rootView.findViewById(R.id.profile_input_street_address);
+        TextView city = (TextView)rootView.findViewById(R.id.profile_input_city);
+        TextView state = (TextView)rootView.findViewById(R.id.profile_input_state);
+        TextView postalCode = (TextView)rootView.findViewById(R.id.profile_input_zip);
+        phoneType = (Spinner)rootView.findViewById(R.id.profile_input_phone_spinner);
 
-        if(cursor.moveToFirst()) {
-            //populate fields here
-            Log.d("profileName", mPartnerId);
-        }
-
-        spinner.setAdapter(adapter);
-
-        for(int i = 0; i < mEditTextData.length; i++) {
-            final EditText editText = (EditText) rootView.findViewById(VIEW_IDS[i]);
-            editText.setText(cursor.getString(i));
-            editText.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void afterTextChanged(Editable s) {
-                    mEditTextData[getIndexById(editText.getId())] = s.toString();
+        phoneType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                String type = (String)phoneType.getSelectedItem();
+                if (type.equals("Home")){
+                    phone.setText(mPhone);
                 }
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            });
-        }
+                else if (type.equals("Mobile")){
+                    phone.setText(mCell);
+                }
 
-        cursor.close();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+
+        });
+
+
+        firstName.setText(mGivenName);
+        lastName.setText(mSurname);
+        //phone.setText(mPhone);
+        cell.setText(mCell);
+        email.setText(mEmail);
+        address.setText(mAddress);
+        city.setText(mCity);
+        state.setText(mState);
+        postalCode.setText(mPostalCode);
 
         return rootView;
     }
@@ -134,4 +155,18 @@ public class ProfileInputFragment extends Fragment {
         }
         return -1;
     }
+
+
+    private class MyOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> parent,
+                                   View view, int pos, long id) {
+            Toast.makeText(parent.getContext(), "The planet is " + parent.getItemAtPosition(pos).toString(), Toast.LENGTH_LONG).show();
+        }
+
+        public void onNothingSelected(AdapterView parent) {
+            // Do nothing.
+        }
+    }
+
 }

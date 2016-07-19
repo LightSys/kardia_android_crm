@@ -2,6 +2,7 @@ package org.lightsys.crmapp;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -58,6 +59,12 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String s) {
+                MainFragment mainFrag = (MainFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_profiles);
+
+                if (mainFrag != null && mainFrag.isVisible()) {
+                    mainFrag.search(s);
+                }
+
                 return false;
             }
         });

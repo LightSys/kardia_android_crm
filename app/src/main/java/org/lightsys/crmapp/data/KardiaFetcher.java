@@ -120,6 +120,7 @@ public class KardiaFetcher {
                 collaboratee.setPartnerId(jsonPartner.getString("partner_id"));
                 collaboratee.setPartnerName(jsonPartner.getString("partner_name"));
 
+
                 collaboratees.add(collaboratee);
             }
         }
@@ -166,7 +167,7 @@ public class KardiaFetcher {
 
     private Partner parseCollaborateeInfoJson(Partner collaboratee, JSONObject partnerJsonBody, JSONObject addressJsonBody, JSONObject contactJsonBody) throws IOException, JSONException {
         //TODO Use contact provider
-        /*collaboratee.setSurname(partnerJsonBody.getString("surname"));
+        collaboratee.setSurname(partnerJsonBody.getString("surname"));
         collaboratee.setGivenNames(partnerJsonBody.getString("given_names"));
 
         Iterator<String> addressKeys = addressJsonBody.keys();
@@ -185,22 +186,24 @@ public class KardiaFetcher {
 
         Iterator<String> contactKeys = contactJsonBody.keys();
 
-        while(addressKeys.hasNext()) {
-            String key = addressKeys.next();
+        while(contactKeys.hasNext()) {
+            String key = contactKeys.next();
             if(!key.equals("@id")) {
                 JSONObject jsonContact = contactJsonBody.getJSONObject(key);
 
-                if("C".equals(jsonContact.getString("contact_type_code"))) {
-                    collaboratee.setCity(jsonContact.getString("contact"));
+                if(jsonContact.getString("contact_type").equals("Cell")) {
+                    collaboratee.setCell(jsonContact.getString("contact"));
                 }
-                if("E".equals(jsonContact.getString("contact_type_code"))) {
+
+                if(jsonContact.getString("contact_type").equals("Email")) {
                     collaboratee.setEmail(jsonContact.getString("contact"));
                 }
-                if("P".equals(jsonContact.getString("contact_type_code"))) {
-                    collaboratee.setPhone(jsonContact.getString("contact"));
+
+                if(jsonContact.getString("contact_type").equals("Phone")) {
+                    collaboratee.setCell(jsonContact.getString("contact"));
                 }
             }
-        }*/
+        }
 
         return collaboratee;
     }
@@ -222,4 +225,57 @@ public class KardiaFetcher {
             }
         }
     }
+
+    public List<TimelineItem> getTimelineItems(Account account) {
+        List<TimelineItem> timelineItems = new ArrayList<>();
+
+        try {
+            String crmApi = Uri.parse("/apps/kardia/api/crm/Partners/" + AccountManager.get(mContext).getUserData(account, "collabId") + "/ContactHistory")
+                    .buildUpon()
+                    .appendQueryParameter("cx__mode", "rest")
+                    .appendQueryParameter("cx__res_type", "collection")
+                    .appendQueryParameter("cx__res_attrs", "basic")
+                    .build().toString();
+            String timelineJsonString = getUrlString(account, crmApi);
+            JSONObject timelineJsonBody = new JSONObject(timelineJsonString);
+
+            parseTimelineItemsJson(timelineItems, timelineJsonBody);
+        } catch (JSONException je) {
+            je.printStackTrace();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        return timelineItems;
+    }
+
+    private void parseTimelineItemsJson(List<TimelineItem> timelineItems, JSONObject timelineJsonBody) throws IOException, JSONException {
+        Iterator<String> timelineKeys = timelineJsonBody.keys();
+
+        while(timelineKeys.hasNext()) {
+            String key = timelineKeys.next();
+            if(!key.equals("@id")) {
+                JSONObject jsonItem = timelineJsonBody.getJSONObject(key);
+
+                TimelineItem item = new TimelineItem();
+
+                item.setContactId(jsonItem.getString("name"));
+                item.setPartnerId(jsonItem.getString("partner_id"));
+                item.setCollaborateeId(jsonItem.getString("collab_partner_id"));
+                item.setCollaborateeName(jsonItem.getString("collab_partner_name"));
+                item.setContactHistoryId(jsonItem.getString("contact_history_id"));
+                item.setContactHistoryType(jsonItem.getString("contact_history_type"));
+                item.setSubject(jsonItem.getString("subject"));
+                item.setNotes(jsonItem.getString("notes"));
+
+                JSONObject jsonDate = jsonItem.getJSONObject("date_created");
+                String date = jsonDate.getInt("year") + "-" + jsonDate.getInt("month") + "-" + jsonDate.getInt("day");
+                item.setDate(date);
+
+
+                timelineItems.add(item);
+            }
+        }
+    }
+
 }

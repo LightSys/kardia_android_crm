@@ -52,7 +52,14 @@
         <activity
             android:name=".EditProfileActivity"
             android:label="@string/title_activity_profile"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity
+            android:name=".TimelineItemDetailActivity"
+            android:label="TimelineActivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
+
         <service
             android:name="org.lightsys.crmapp.data.AuthenticatorService">
             <intent-filter>

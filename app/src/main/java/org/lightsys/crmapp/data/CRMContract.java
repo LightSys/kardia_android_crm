@@ -54,4 +54,30 @@ public class CRMContract {
                         CRMContract.CollaborateeTable.POSTAL_CODE +
                         ")";
     }
+
+    public static final class TimelineTable {
+        public static final String TABLE_NAME = "timeline";
+        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path("timeline").build();
+
+        public static final String CONTACT_ID = "contactId";
+        public static final String PARTNER_ID = "partnerId";
+        public static final String COLLABORATEE_ID = "collaborateeId";
+        public static final String COLLABORATEE_NAME = "collaborateeName";
+        public static final String CONTACT_HISTORY_ID = "contactHistoryId";
+        public static final String CONTACT_HISTORY_TYPE = "contactHistoryType";
+        public static final String SUBJECT = "subject";
+        public static final String NOTES = "notes";
+        public static final String DATE = "date";
+
+        public static final String CREATE_TABLE = "CREATE TABLE " + TimelineTable.TABLE_NAME + "("  +
+                TimelineTable.CONTACT_ID + "," +
+                TimelineTable.PARTNER_ID + "," +
+                TimelineTable.COLLABORATEE_ID + "," +
+                TimelineTable.COLLABORATEE_NAME + "," +
+                TimelineTable.CONTACT_HISTORY_ID + "," +
+                TimelineTable.CONTACT_HISTORY_TYPE + "," +
+                TimelineTable.SUBJECT + "," +
+                TimelineTable.NOTES + "," +
+                TimelineTable.DATE + ")";
+    }
 }

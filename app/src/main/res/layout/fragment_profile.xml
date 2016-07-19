@@ -37,7 +37,10 @@
                 android:paddingRight="@dimen/card_profile_padding"
                 android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
                 android:textColor="@color/primary_text"
-                android:text="john.smith@covenant.edu" />
+                android:id="@+id/e_address"
+                android:text="No Email Address"/>
+
+
 
             <include layout="@layout/divider_small" />
 
@@ -49,7 +52,8 @@
                 android:paddingRight="@dimen/card_profile_padding"
                 android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
                 android:textColor="@color/primary_text"
-                android:text="267-774-6180" />
+                android:id="@+id/phone_number"
+                android:text="No Phone Number"/>
 
             <include layout="@layout/divider_small" />
 
@@ -61,16 +65,12 @@
                 android:paddingRight="@dimen/card_profile_padding"
                 android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
                 android:textColor="@color/primary_text"
-                android:text="656 Maple Avenue, Glenside, PA 19038" />
+                android:id="@+id/s_address"
+                android:text="No Street Address"/>
 
             <include layout="@layout/divider" />
 
-            <!-- <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/card_profile_padding"
-                android:textColor="@color/primary_text"
-                android:text="@string/hello_world" /> -->
+
 
         </LinearLayout>
 
@@ -87,7 +87,7 @@
             android:id="@+id/linearlayout_timeline"
             android:layout_below="@id/linearlayout_contact"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
             <TextView
@@ -95,55 +95,26 @@
                 android:layout_height="wrap_content"
                 android:padding="@dimen/card_profile_padding"
                 android:textColor="@color/primary_text"
-                android:text="@string/timeline" />
+                android:text="@string/timeline"
+                android:id="@+id/timelineText" />
 
             <include layout="@layout/divider" />
 
-            <TextView
+            <org.lightsys.crmapp.data.NonScrollListView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/card_profile_padding"
-                android:paddingBottom="@dimen/card_profile_padding"
-                android:paddingRight="@dimen/card_profile_padding"
-                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
-                android:textColor="@color/primary_text"
-                android:text="Phone Call: teset2" />
+                android:layout_height="match_parent"
+                android:id="@+id/timelineList" />
 
             <include layout="@layout/divider_small" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/card_profile_padding"
-                android:paddingBottom="@dimen/card_profile_padding"
-                android:paddingRight="@dimen/card_profile_padding"
-                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
-                android:textColor="@color/primary_text"
-                android:text="Email message: test" />
-
             <include layout="@layout/divider_small" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/card_profile_padding"
-                android:paddingBottom="@dimen/card_profile_padding"
-                android:paddingRight="@dimen/card_profile_padding"
-                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
-                android:textColor="@color/primary_text"
-                android:text="Added to Kardia" />
 
             <include layout="@layout/divider" />
 
-            <!-- <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/card_profile_padding"
-                android:textColor="@color/primary_text"
-                android:text="@string/hello_world" /> -->
 
         </LinearLayout>
 
     </android.support.v7.widget.CardView>
+
 
 </LinearLayout>

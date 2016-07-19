@@ -15,7 +15,6 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.util.Log;
 
 import java.util.List;
 
@@ -47,7 +46,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         if(partnerId != null) {
             List<Partner> collaboratees = fetcher.getCollaboratees(account);
             for (Partner collaboratee : collaboratees) {
-                Log.d("collobarateeSync", collaboratee.getPartnerName());
                 fetcher.getCollaborateeInfo(account, collaboratee);
                 ContentValues values = new ContentValues();
                 values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, partnerId);
@@ -72,5 +70,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
         }
+
     }
 }

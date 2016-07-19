@@ -24,12 +24,13 @@
     <string name="hint_state">State</string>
     <string name="hint_zip">ZIP</string>
 
+    <string name="back">Back</string>
+
     <string name="profile_input_photo_button">Change</string>
 
     <string-array name="name_spinner">
-        <item>Home</item>
         <item>Mobile</item>
-        <item>Work</item>
+        <item>Home</item>
     </string-array>
 
 </resources>
