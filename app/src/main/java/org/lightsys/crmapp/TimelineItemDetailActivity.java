@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 /**
  * Created by ca2br on 7/18/16.
+ *
+ * displays detailed information about a timelitem
  */
 public class TimelineItemDetailActivity extends AppCompatActivity {
 

@@ -2,6 +2,7 @@ package org.lightsys.crmapp.data;
 
 /**
  * Created by nathan on 3/10/16.
+ *
  */
 
 import android.accounts.Account;

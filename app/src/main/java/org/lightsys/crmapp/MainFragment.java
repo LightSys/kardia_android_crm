@@ -7,8 +7,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -152,11 +154,15 @@ public class MainFragment extends android.support.v4.app.Fragment {
                     new String[] {CRMContract.CollaborateeTable.PARTNER_ID, CRMContract.CollaborateeTable.PARTNER_NAME, CRMContract.CollaborateeTable.EMAIL,
                             CRMContract.CollaborateeTable.PHONE, CRMContract.CollaborateeTable.ADDRESS_1, CRMContract.CollaborateeTable.CITY,
                             CRMContract.CollaborateeTable.STATE_PROVINCE, CRMContract.CollaborateeTable.POSTAL_CODE, CRMContract.CollaborateeTable.CELL,
-                            CRMContract.CollaborateeTable.SURNAME, CRMContract.CollaborateeTable.GIVEN_NAMES},
+                            CRMContract.CollaborateeTable.SURNAME, CRMContract.CollaborateeTable.GIVEN_NAMES, CRMContract.CollaborateeTable.PHONE_ID,
+                            CRMContract.CollaborateeTable.CELL_ID, CRMContract.CollaborateeTable.EMAIL_ID, CRMContract.CollaborateeTable.PHONE_JSON_ID,
+                            CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID, CRMContract.CollaborateeTable.ADDRESS_JSON_ID,
+                            CRMContract.CollaborateeTable.PARTNER_JSON_ID},
                     CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
                     new String[] {AccountManager.get(getActivity()).getUserData(mAccount, "partnerId")},
                     null
             );
+
 
 
             while(cursor.moveToNext()) {
@@ -172,6 +178,14 @@ public class MainFragment extends android.support.v4.app.Fragment {
                     collaboratee.setCell(cursor.getString(8));
                     collaboratee.setSurname(cursor.getString(9));
                     collaboratee.setGivenNames(cursor.getString(10));
+                    collaboratee.setPhoneId(cursor.getString(11));
+                    collaboratee.setCellId(cursor.getString(12));
+                    collaboratee.setEmailId(cursor.getString(13));
+                    collaboratee.setPhoneJsonId(cursor.getString(14));
+                    collaboratee.setCellJsonId(cursor.getString(15));
+                    collaboratee.setEmailJsonId(cursor.getString(16));
+                    collaboratee.setAddressJsonId(cursor.getString(17));
+                    collaboratee.setPartnerJsonId(cursor.getString(18));
                 }
             }
             cursor.close();
@@ -182,6 +196,8 @@ public class MainFragment extends android.support.v4.app.Fragment {
 
                 KardiaFetcher fetcher = new KardiaFetcher(getContext());
                 collaboratee = fetcher.getCollaborateeInfo(mAccount, collaboratee);
+
+
 
                 mPartner2 = collaboratee;
 
@@ -199,21 +215,66 @@ public class MainFragment extends android.support.v4.app.Fragment {
                 values.put(CRMContract.CollaborateeTable.POSTAL_CODE, collaboratee.getPostalCode());
                 values.put(CRMContract.CollaborateeTable.SURNAME, collaboratee.getSurname());
                 values.put(CRMContract.CollaborateeTable.GIVEN_NAMES, collaboratee.getGivenNames());
+                values.put(CRMContract.CollaborateeTable.PHONE_ID, collaboratee.getPhoneId());
+                values.put(CRMContract.CollaborateeTable.EMAIL_ID, collaboratee.getEmailId());
+                values.put(CRMContract.CollaborateeTable.CELL_ID, collaboratee.getCellId());
+                values.put(CRMContract.CollaborateeTable.PHONE_JSON_ID, collaboratee.getPhoneJsonId());
+                values.put(CRMContract.CollaborateeTable.CELL_JSON_ID, collaboratee.getCellJsonId());
+                values.put(CRMContract.CollaborateeTable.EMAIL_JSON_ID, collaboratee.getEmailJsonId());
+                values.put(CRMContract.CollaborateeTable.ADDRESS_JSON_ID, collaboratee.getAddressJsonId());
+                values.put(CRMContract.CollaborateeTable.PARTNER_JSON_ID, collaboratee.getPartnerJsonId());
                 getContext().getContentResolver().insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
 
+
+               mPartner2 = collaboratee;
 
                 Cursor cursor2 = getActivity().getContentResolver().query(
                         CRMContract.CollaborateeTable.CONTENT_URI,
                         new String[]{CRMContract.CollaborateeTable.PARTNER_ID, CRMContract.CollaborateeTable.PARTNER_NAME, CRMContract.CollaborateeTable.EMAIL,
                                 CRMContract.CollaborateeTable.PHONE, CRMContract.CollaborateeTable.ADDRESS_1, CRMContract.CollaborateeTable.CITY,
                                 CRMContract.CollaborateeTable.STATE_PROVINCE, CRMContract.CollaborateeTable.POSTAL_CODE, CRMContract.CollaborateeTable.CELL,
-                                CRMContract.CollaborateeTable.SURNAME, CRMContract.CollaborateeTable.GIVEN_NAMES},
+                                CRMContract.CollaborateeTable.SURNAME, CRMContract.CollaborateeTable.GIVEN_NAMES, CRMContract.CollaborateeTable.PHONE_ID,
+                                CRMContract.CollaborateeTable.CELL_ID, CRMContract.CollaborateeTable.EMAIL_ID, CRMContract.CollaborateeTable.PHONE_JSON_ID,
+                                CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID, CRMContract.CollaborateeTable.ADDRESS_JSON_ID,
+                                CRMContract.CollaborateeTable.PARTNER_JSON_ID},
                         CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
                         new String[]{AccountManager.get(getActivity()).getUserData(mAccount, "partnerId")},
                         null
                 );
 
+                //I don't remember why this is commented out
+                //we were having issues getting stuff out of the database
+                //it is possible that the things were never getting into the database
+                //this should be fixed
+               /* while(cursor2.moveToNext()) {
+                    if (cursor2.getString(0).equals(mPartner2.getPartnerId())) {
+                        collaboratee.setPartnerName(cursor2.getString(1));
+                        collaboratee.setEmail(cursor2.getString(2));
+                        collaboratee.setPhone(cursor2.getString(3));
+                        collaboratee.setAddress1(cursor2.getString(4));
+                        collaboratee.setCity(cursor2.getString(5));
+                        collaboratee.setStateProvince(cursor2.getString(6));
+                        collaboratee.setPostalCode(cursor2.getString(7));
+                        collaboratee.setFullAddress(cursor2.getString(4), cursor2.getString(5), cursor2.getString(6), cursor2.getString(7));
+                        collaboratee.setCell(cursor2.getString(8));
+                        collaboratee.setSurname(cursor2.getString(9));
+                        collaboratee.setGivenNames(cursor2.getString(10));
+                        collaboratee.setPhoneId(cursor2.getString(11));
+                        collaboratee.setCellId(cursor2.getString(12));
+                        collaboratee.setEmailId(cursor2.getString(13));
+                        collaboratee.setPhoneJsonId(cursor2.getString(14));
+                        collaboratee.setCellJsonId(cursor2.getString(15));
+                        collaboratee.setEmailJsonId(cursor2.getString(16));
+                        collaboratee.setAddressJsonId(cursor2.getString(17));
+                        collaboratee.setPartnerJsonId(cursor2.getString(18));
+                    }
+                }*/
+
+
                 cursor2.close();
+
+                mPartner2 = collaboratee;
+
             }
             else {
                 mPartner2 = collaboratee;
@@ -225,8 +286,7 @@ public class MainFragment extends android.support.v4.app.Fragment {
 
 
         /**
-         *
-         *
+         * Places info into an intent after Async task has finished
          */
         @Override
         protected void onPostExecute(Partner collaboratee) {
@@ -245,6 +305,16 @@ public class MainFragment extends android.support.v4.app.Fragment {
             i.putExtra(ProfileActivity.SURNAME_KEY, mPartner2.getSurname());
             i.putExtra(ProfileActivity.GIVEN_NAMES_KEY, mPartner2.getGivenNames());
 
+            i.putExtra(ProfileActivity.PHONE_ID_KEY, mPartner2.getPhoneId());
+            i.putExtra(ProfileActivity.CELL_ID_KEY, mPartner2.getCellId());
+            i.putExtra(ProfileActivity.EMAIL_ID_KEY, mPartner2.getEmailId());
+
+            i.putExtra(ProfileActivity.PHONE_JSON_ID_KEY, mPartner2.getPhoneJsonId());
+            i.putExtra(ProfileActivity.CELL_JSON_ID_KEY, mPartner2.getCellJsonId());
+            i.putExtra(ProfileActivity.EMAIL_JSON_ID_KEY, mPartner2.getEmailJsonId());
+            i.putExtra(ProfileActivity.ADDRESS_JSON_ID_KEY, mPartner2.getAddressJsonId());
+            i.putExtra(ProfileActivity.PARTNER_JSON_ID_KEY, mPartner2.getPartnerJsonId());
+
             i.putExtra(ProfileActivity.BLOG_KEY, mPartner2.getBlog());
             i.putExtra(ProfileActivity.FAX_KEY, mPartner2.getFax());
             i.putExtra(ProfileActivity.FACEBOOK_KEY, mPartner2.getFacebook());
@@ -260,7 +330,9 @@ public class MainFragment extends android.support.v4.app.Fragment {
 
 
 
-
+    /**
+     * Lists profiles.
+     */
     private class ProfileAdapter extends RecyclerView.Adapter<ProfileHolder> {
         private List<Partner> mCollaboratees;
 
@@ -289,7 +361,9 @@ public class MainFragment extends android.support.v4.app.Fragment {
     }
 
 
-
+    /**
+     * Fetches a list of collaboratee IDs and names.
+     */
     private class GetCollaborateesTask extends AsyncTask<Void, Void, List<Partner>> {
         @Override
         protected List<Partner> doInBackground(Void... params) {
@@ -312,7 +386,9 @@ public class MainFragment extends android.support.v4.app.Fragment {
             return collaboratees;
         }
 
-
+        /**
+         * Sets up an adapter to list profiles after Async task is complete.
+         */
         @Override
         protected void onPostExecute(List<Partner> collaboratees) {
             mProfiles = collaboratees;
@@ -320,6 +396,9 @@ public class MainFragment extends android.support.v4.app.Fragment {
         }
     }
 
+    /**
+     * Searches through a list of profile names for a particular substring.
+     */
     public void search(String searchText){
 
         ArrayList<Partner> profiles = new ArrayList<>();

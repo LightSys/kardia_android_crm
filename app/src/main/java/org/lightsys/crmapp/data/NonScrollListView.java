@@ -11,10 +11,10 @@ import android.widget.ListView;
  * Created by Judah on 6/24/2016.
  *
  * a listview that doesn't scroll!
- * this is so that you can scroll the whole page of the detailed note views
+ * this is so that you can scroll the whole page
  * rather than scrolling the tiny list view
  * it makes the whole thing more readable
- * it kind of sacrifices efficiency though as the listview now has to load all TimelineItems at once
+ * it kind of sacrifices efficiency though as the listview now has to load all things at once
  */
 
 //I don't really know what is happening here

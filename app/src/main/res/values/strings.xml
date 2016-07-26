@@ -18,6 +18,8 @@
     <string name="hint_first_name">First Name</string>
     <string name="hint_last_name">Last Name</string>
     <string name="hint_phone">Phone</string>
+    <string name="hint_area_code">Area</string>
+    <string name="hint_country_code">+1</string>
     <string name="hint_email">Email</string>
     <string name="hint_street_address">Street Address</string>
     <string name="hint_city">City</string>
@@ -25,6 +27,7 @@
     <string name="hint_zip">ZIP</string>
 
     <string name="back">Back</string>
+    <string name="submit">Submit</string>
 
     <string name="profile_input_photo_button">Change</string>
 

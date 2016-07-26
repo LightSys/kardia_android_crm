@@ -37,6 +37,13 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp" />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/submit"
+            android:id="@+id/submit"
+            android:layout_gravity="center_horizontal" />
+
     </LinearLayout>
 
 </android.support.v4.widget.NestedScrollView>

@@ -11,9 +11,20 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by nathan on 3/10/16.
+ *
+ * Commented by Judah on 7/26/16.
+ * This is the class that is supposed to talk to the database
+ * but as far as we can tell it is not working
+ * we are not sure if the problem is with this class or with something else
+ * all we know is that when we call a query, it doesn't return anything
+ *
+ * ToDo figure out why queries aren't working properly
+ *
+ * this class holds methods for query, insert, delete, and update
  */
 public class KardiaProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -26,6 +37,7 @@ public class KardiaProvider extends ContentProvider {
     private AccountManager mAccountManager;
 
     static {
+        //things used to identify what tables we are dealing with
         sUriMatcher.addURI(CRMContract.providerAuthority, "staff", 1);
         sUriMatcher.addURI(CRMContract.providerAuthority, "collaboratees", 2);
         sUriMatcher.addURI(CRMContract.providerAuthority, "timeline", 3);
@@ -40,11 +52,13 @@ public class KardiaProvider extends ContentProvider {
         return true;
     }
 
+    //function that queries the database
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 
+        //determine what table we are dealing with
         switch (sUriMatcher.match(uri)) {
             case 1:
                 builder.setTables(CRMContract.StaffTable.TABLE_NAME);
@@ -68,12 +82,14 @@ public class KardiaProvider extends ContentProvider {
         return null;
     }
 
+    //function that inserts stuffs into the database
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         String table;
         int id;
 
+        //determine what table we are dealing with
         switch (sUriMatcher.match(uri)) {
             case 1:
                 table = CRMContract.StaffTable.TABLE_NAME;
@@ -98,15 +114,18 @@ public class KardiaProvider extends ContentProvider {
         return ContentUris.withAppendedId(uri, id);
     }
 
+    //function that deletes stuffs from the database
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         return 0;
     }
 
+    //function that updates stuffs in the database
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         String table;
 
+        //determine what table we are dealing with
         switch (sUriMatcher.match(uri)) {
             case 1:
                 table = CRMContract.StaffTable.TABLE_NAME;

@@ -34,6 +34,10 @@ import java.util.Map;
 
 /**
  * Created by cubemaster on 3/10/16.
+ * Edited by Ca2br and Judah on 7/19/16
+ *
+ * Holds contact information for a partner.
+ * Lists timeline items for a partner.
  */
 public class ProfileFragment extends Fragment {
     private static final String LOG_TAG = ProfileFragment.class.getName();
@@ -51,6 +55,12 @@ public class ProfileFragment extends Fragment {
     private String mCell;
     private String mSurname;
     private String mGivenName;
+
+    private String mPhoneJsonId;
+    private String mCellJsonId;
+    private String mEmailJsonId;
+    private String mAddressJsonId;
+    private String mPartnerJsonId;
 
     private String mBlog;
     private String mFax;
@@ -73,7 +83,9 @@ public class ProfileFragment extends Fragment {
 
     }
 
-
+    /**
+     * Creates and assigns all of the textViews for a profile.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Bundle arguments = getArguments();
@@ -92,6 +104,13 @@ public class ProfileFragment extends Fragment {
             mCell = arguments.getString(ProfileActivity.CELL_KEY);
             mSurname = arguments.getString(ProfileActivity.SURNAME_KEY);
             mGivenName = arguments.getString(ProfileActivity.GIVEN_NAMES_KEY);
+
+            mPhoneJsonId = arguments.getString(ProfileActivity.PHONE_JSON_ID_KEY);
+            mCellJsonId = arguments.getString(ProfileActivity.CELL_JSON_ID_KEY);
+            mEmailJsonId = arguments.getString(ProfileActivity.EMAIL_JSON_ID_KEY);
+            mAddressJsonId = arguments.getString(ProfileActivity.ADDRESS_JSON_ID_KEY);
+            mPartnerJsonId = arguments.getString(ProfileActivity.PARTNER_JSON_ID_KEY);
+
 
             mBlog = arguments.getString(ProfileActivity.BLOG_KEY);
             mFax = arguments.getString(ProfileActivity.FAX_KEY);
@@ -209,6 +228,9 @@ public class ProfileFragment extends Fragment {
         return dateInt;
     }
 
+    /**
+     * Sets up adapter for list of timeline items.
+     */
     private void setupAdapter() {
         if (isAdded()) {
 
@@ -236,6 +258,9 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Fetches timeline info from Kardia.
+     */
     private class getTimelineTask extends AsyncTask<Void, Void, List<TimelineItem>> {
         @Override
         protected List<TimelineItem> doInBackground(Void... params) {
@@ -318,6 +343,9 @@ public class ProfileFragment extends Fragment {
 
         }
 
+        /**
+         * Creates and populates a timeline layout.
+         */
         public View getView(final int position, View convertView, ViewGroup parent) {
 
             TimelineLayout rowView = (TimelineLayout) convertView;
@@ -382,31 +410,6 @@ public class ProfileFragment extends Fragment {
 
         }
 
-    }
-
-    private class TimelineHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private LinearLayout mLinearLayout;
-        private Partner mPartner;
-
-        public TimelineHolder(View view) {
-            super(view);
-
-            mLinearLayout = (LinearLayout) view;
-
-            view.setOnClickListener(this);
-        }
-
-        public void bindItem(TimelineItem item) {
-
-            ((TextView) mLinearLayout.findViewById(R.id.timeline_item)).setText(item.getContactHistoryType() +
-            " from " + item.getCollaborateeName() + " on " + item.getDate());
-
-        }
-
-        @Override
-        public void onClick(View v) {
-            //fragment stuffs goes here for timeline
-        }
     }
 
 }

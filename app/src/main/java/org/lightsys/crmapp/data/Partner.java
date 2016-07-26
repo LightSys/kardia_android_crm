@@ -18,9 +18,17 @@ public class Partner {
     private String postalCode;
 
     private String cell;
+    private String cellId;
     private String phone;
+    private String phoneId;
     private String email;
+    private String emailId;
 
+    private String phoneJsonId;
+    private String cellJsonId;
+    private String emailJsonId;
+    private String addressJsonId;
+    private String partnerJsonId;
 
     private String blog;
     private String fax;
@@ -154,6 +162,10 @@ public class Partner {
         this.cell = cell;
     }
 
+    public String getCellId() { return cellId; }
+
+    public void setCellId(String cellId) { this.cellId = cellId; }
+
     public String getPhone() {
         return phone;
     }
@@ -161,6 +173,10 @@ public class Partner {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
+    public String getPhoneId() { return phoneId; }
+
+    public void setPhoneId(String phoneId) { this.phoneId = phoneId; }
 
     public String getEmail() {
         return email;
@@ -170,7 +186,51 @@ public class Partner {
         this.email = email;
     }
 
+    public String getEmailId() { return emailId; }
 
+    public void setEmailId(String emailId) { this.emailId = emailId; }
+
+
+
+    public String getPhoneJsonId() {
+        return phoneJsonId;
+    }
+
+    public void setPhoneJsonId(String phoneJsonId) {
+        this.phoneJsonId = phoneJsonId;
+    }
+
+    public String getCellJsonId() {
+        return cellJsonId;
+    }
+
+    public void setCellJsonId(String cellJsonId) {
+        this.cellJsonId = cellJsonId;
+    }
+
+    public String getEmailJsonId() {
+        return emailJsonId;
+    }
+
+    public void setEmailJsonId(String emailJsonId) {
+        this.emailJsonId = emailJsonId;
+    }
+
+    public  String getAddressJsonId(){
+        return addressJsonId;
+    }
+
+    public void setAddressJsonId(String addressJsonId){
+        this.addressJsonId = addressJsonId;
+    }
+
+    public String getPartnerJsonId(){
+        return partnerJsonId;
+    }
+
+    public void setPartnerJsonId(String partnerJsonId){
+        this.partnerJsonId = partnerJsonId;
+    }
 
 
     public String getBlog() {

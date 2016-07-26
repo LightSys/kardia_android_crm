@@ -3,14 +3,58 @@
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/profile_input_phone_icon"
-        android:layout_width="@dimen/profile_input_icon_size"
-        android:layout_height="@dimen/profile_input_icon_size"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginRight="16dp"
-        android:src="@drawable/ic_phone_black_24dp" />
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/profile_input_phone_icon"
+            android:layout_width="@dimen/profile_input_icon_size"
+            android:layout_height="@dimen/profile_input_icon_size"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginRight="16dp"
+            android:src="@drawable/ic_phone_black_24dp" />
+
+        <EditText
+            android:id="@+id/profile_input_country_code_text"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:maxLength="2"
+            android:hint="@string/hint_country_code"
+            android:nextFocusDown="@+id/profile_input_email" />
+
+        <EditText
+            android:id="@+id/profile_input_area_code_text"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:maxLength="3"
+            android:hint="@string/hint_area_code"
+            android:nextFocusDown="@+id/profile_input_email" />
+
+        <EditText
+            android:id="@+id/profile_input_phone_text"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:maxLength="7"
+            android:hint="@string/hint_phone"
+            android:nextFocusDown="@+id/profile_input_email"
+            android:layout_weight="0.02" />
+
+        <Spinner
+            android:id="@+id/profile_input_phone_spinner"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+
+            android:spinnerDropDownItemStyle="@style/customSpinnerDropDownItemStyle"
+            android:entries="@array/name_spinner" />
+
+    </TableRow>
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="0dp"
@@ -18,24 +62,6 @@
         android:layout_height="wrap_content"
         android:textColorHint="@color/divider">
 
-        <EditText
-            android:id="@+id/profile_input_phone_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:inputType="phone"
-            android:hint="@string/hint_phone"
-            android:nextFocusDown="@+id/profile_input_email" />
-
     </android.support.design.widget.TextInputLayout>
-
-    <Spinner
-        android:id="@+id/profile_input_phone_spinner"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-
-        android:spinnerDropDownItemStyle="@style/customSpinnerDropDownItemStyle"
-        android:entries="@array/name_spinner" />
 
 </LinearLayout>

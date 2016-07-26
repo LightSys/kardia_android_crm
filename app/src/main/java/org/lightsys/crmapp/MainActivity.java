@@ -24,6 +24,10 @@ public class MainActivity extends AppCompatActivity {
 
     private AccountManager mAccountManager;
 
+    /**
+     * Retrieves account information.
+     * Sets up main activity view.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,12 +46,18 @@ public class MainActivity extends AppCompatActivity {
         setupFAB();
     }
 
+    /**
+     * Builds options menu
+     * Sets up "search" function
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
+        // Gets text to search for.
         final SearchView search = (SearchView) menu.findItem(R.id.action_search).getActionView();
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            // Runs when a search is submitted.
             @Override
             public boolean onQueryTextSubmit(String s) {
                 // TODO execute query and repopulate
@@ -57,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
 
+            /**
+             * Runs a search every time the search input is changed.
+             */
             @Override
             public boolean onQueryTextChange(String s) {
                 MainFragment mainFrag = (MainFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_profiles);
@@ -71,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Provides option to select something within the Menu.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -85,6 +101,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Creates a toolbar.
+     */
     private void setupToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);

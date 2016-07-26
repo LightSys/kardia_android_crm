@@ -4,6 +4,13 @@ import android.net.Uri;
 
 /**
  * Created by nathan on 3/9/16.
+ *
+ * Edited by Ca2br and Judah on 7/26/16
+ * this is a thing
+ * this thing store table information for the local database
+ * the local database that, at the moment, doesn't work :(
+ * this class doesn't actually do anything with the actual database
+ * it just holds all the constants used when talking to the broken local database
  */
 public class CRMContract {
     public static final String providerAuthority = "org.lightsys.crmapp.provider";
@@ -32,12 +39,20 @@ public class CRMContract {
         public static final String SURNAME = "surname";
         public static final String GIVEN_NAMES = "givenNames";
         public static final String PHONE = "phone";
+        public static final String PHONE_ID = "phoneId";
         public static final String CELL = "cell";
+        public static final String CELL_ID = "cellId";
         public static final String EMAIL = "email";
+        public static final String EMAIL_ID = "emailId";
         public static final String ADDRESS_1 = "address1";
         public static final String CITY = "city";
         public static final String STATE_PROVINCE = "stateProvince";
         public static final String POSTAL_CODE = "postalCode";
+        public static final String PHONE_JSON_ID = "phoneJsonId";
+        public static final String CELL_JSON_ID = "cellJsonId";
+        public static final String EMAIL_JSON_ID = "emailJsonId";
+        public static final String ADDRESS_JSON_ID = "addressJsonId";
+        public static final String PARTNER_JSON_ID = "partnerJsonId";
 
         public static final String CREATE_TABLE = "CREATE TABLE " + CRMContract.CollaborateeTable.TABLE_NAME + "(" +
                         CRMContract.CollaborateeTable.COLLABORATER_ID + ", " +
@@ -46,13 +61,20 @@ public class CRMContract {
                         CRMContract.CollaborateeTable.SURNAME + ", " +
                         CRMContract.CollaborateeTable.GIVEN_NAMES + ", " +
                         CRMContract.CollaborateeTable.PHONE + ", " +
+                        CRMContract.CollaborateeTable.PHONE_ID + ", " +
                         CRMContract.CollaborateeTable.CELL + ", " +
+                        CRMContract.CollaborateeTable.CELL_ID + ", " +
                         CRMContract.CollaborateeTable.EMAIL + ", " +
+                        CRMContract.CollaborateeTable.EMAIL_ID + ", " +
                         CRMContract.CollaborateeTable.ADDRESS_1 + ", " +
                         CRMContract.CollaborateeTable.CITY + ", " +
                         CRMContract.CollaborateeTable.STATE_PROVINCE + ", " +
-                        CRMContract.CollaborateeTable.POSTAL_CODE +
-                        ")";
+                        CRMContract.CollaborateeTable.POSTAL_CODE + ", " +
+                        CRMContract.CollaborateeTable.PHONE_JSON_ID + ", " +
+                        CRMContract.CollaborateeTable.CELL_JSON_ID + ", " +
+                        CRMContract.CollaborateeTable.EMAIL_JSON_ID + ", " +
+                        CRMContract.CollaborateeTable.ADDRESS_JSON_ID + ", " +
+                        CRMContract.CollaborateeTable.PARTNER_JSON_ID + ")";
     }
 
     public static final class TimelineTable {

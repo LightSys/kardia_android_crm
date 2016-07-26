@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:inputType="textCapWords"
             android:hint="@string/hint_last_name"
-            android:nextFocusDown="@+id/profile_input_phone_text" />
+            android:nextFocusDown="@+id/profile_input_country_code_text" />
 
     </android.support.design.widget.TextInputLayout>
 

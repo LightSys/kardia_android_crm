@@ -2,6 +2,8 @@ package org.lightsys.crmapp.data;
 
 /**
  * Created by ca2br on 7/13/16.
+ *
+ * holds info relavent to the timeline
  */
 public class TimelineItem {
     private String contactId;

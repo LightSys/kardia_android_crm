@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * Created by nathan on 3/9/16.
+ *
+ * This thing creates the database
  */
 public class CRMOpenHelper extends SQLiteOpenHelper {
     private static final int VERSION = 1;
