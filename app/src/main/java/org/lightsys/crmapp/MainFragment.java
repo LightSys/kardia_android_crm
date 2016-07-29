@@ -149,6 +149,7 @@ public class MainFragment extends android.support.v4.app.Fragment {
         protected Partner doInBackground(Void... params) {
             Partner collaboratee = new Partner(mPartner2.getPartnerId(), mPartner2.getPartnerName());
 
+            //get collaboratee from the database
             Cursor cursor = getActivity().getContentResolver().query(
                     CRMContract.CollaborateeTable.CONTENT_URI,
                     new String[] {CRMContract.CollaborateeTable.PARTNER_ID, CRMContract.CollaborateeTable.PARTNER_NAME, CRMContract.CollaborateeTable.EMAIL,
@@ -164,7 +165,7 @@ public class MainFragment extends android.support.v4.app.Fragment {
             );
 
 
-
+            //turn raw query stuffs into a partner
             while(cursor.moveToNext()) {
                 if (cursor.getString(0).equals(mPartner2.getPartnerId())) {
                     collaboratee.setPartnerName(cursor.getString(1));
@@ -190,44 +191,68 @@ public class MainFragment extends android.support.v4.app.Fragment {
             }
             cursor.close();
 
+            //if the collaboratee is missing any information, pull it down from the server
             if(collaboratee.getEmail() == null || collaboratee.getPhone() == null || collaboratee.getAddress1() == null
                     || collaboratee.getCity() == null || collaboratee.getStateProvince() == null || collaboratee.getPostalCode() == null ||
                     collaboratee.getCell() == null) {
 
+                //get all the collaboratee junk from the server
                 KardiaFetcher fetcher = new KardiaFetcher(getContext());
                 collaboratee = fetcher.getCollaborateeInfo(mAccount, collaboratee);
 
+                mPartner2 = collaboratee;
 
+                //get new stuff ready to go into the database, but don't add blank things
+                //blank things break things
+                ContentValues values = new ContentValues();
+                if (collaboratee.getPartnerId() != null) {
+                    values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, collaboratee.getPartnerId());
+                }if (collaboratee.getPartnerName() != null) {
+                    values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.getPartnerName());
+                }if (collaboratee.getSurname() != null) {
+                    values.put(CRMContract.CollaborateeTable.SURNAME, collaboratee.getSurname());
+                }if (collaboratee.getGivenNames() != null) {
+                    values.put(CRMContract.CollaborateeTable.GIVEN_NAMES, collaboratee.getGivenNames());
+                }if (collaboratee.getPhone() != null) {
+                    values.put(CRMContract.CollaborateeTable.PHONE, collaboratee.getPhone());
+                }if (collaboratee.getCell() != null) {
+                    values.put(CRMContract.CollaborateeTable.CELL, collaboratee.getCell());
+                }if (collaboratee.getEmail() != null) {
+                    values.put(CRMContract.CollaborateeTable.EMAIL, collaboratee.getEmail());
+                }if (collaboratee.getAddress1() != null) {
+                    values.put(CRMContract.CollaborateeTable.ADDRESS_1, collaboratee.getAddress1());
+                }if (collaboratee.getCity() != null) {
+                    values.put(CRMContract.CollaborateeTable.CITY, collaboratee.getCity());
+                }if (collaboratee.getStateProvince() != null) {
+                    values.put(CRMContract.CollaborateeTable.STATE_PROVINCE, collaboratee.getStateProvince());
+                }if (collaboratee.getPostalCode() != null) {
+                    values.put(CRMContract.CollaborateeTable.POSTAL_CODE, collaboratee.getPostalCode());
+                }if (collaboratee.getPhoneId() != null) {
+                    values.put(CRMContract.CollaborateeTable.PHONE_ID, collaboratee.getPhoneId());
+                }if (collaboratee.getEmailId() != null) {
+                    values.put(CRMContract.CollaborateeTable.EMAIL_ID, collaboratee.getEmailId());
+                }if (collaboratee.getCellId() != null) {
+                    values.put(CRMContract.CollaborateeTable.CELL_ID, collaboratee.getCellId());
+                }if (collaboratee.getPhoneJsonId() != null) {
+                    values.put(CRMContract.CollaborateeTable.PHONE_JSON_ID, collaboratee.getPhoneJsonId());
+                }if (collaboratee.getCellJsonId() != null) {
+                    values.put(CRMContract.CollaborateeTable.CELL_JSON_ID, collaboratee.getCellJsonId());
+                }if (collaboratee.getEmailJsonId() != null) {
+                    values.put(CRMContract.CollaborateeTable.EMAIL_JSON_ID, collaboratee.getEmailJsonId());
+                }if (collaboratee.getAddressJsonId() != null) {
+                    values.put(CRMContract.CollaborateeTable.ADDRESS_JSON_ID, collaboratee.getAddressJsonId());
+                }if (collaboratee.getPartnerJsonId() != null) {
+                    values.put(CRMContract.CollaborateeTable.PARTNER_JSON_ID, collaboratee.getPartnerJsonId());
+                }
+
+                //put new stuff into database
+                getContext().getContentResolver().update(CRMContract.CollaborateeTable.CONTENT_URI, values,
+                        CRMContract.CollaborateeTable.PARTNER_ID + " = ?", new String[] {collaboratee.getPartnerId()});
 
                 mPartner2 = collaboratee;
 
-                ContentValues values = new ContentValues();
-                values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, collaboratee.getPartnerId());
-                values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.getPartnerName());
-                values.put(CRMContract.CollaborateeTable.SURNAME, collaboratee.getSurname());
-                values.put(CRMContract.CollaborateeTable.GIVEN_NAMES, collaboratee.getGivenNames());
-                values.put(CRMContract.CollaborateeTable.PHONE, collaboratee.getPhone());
-                values.put(CRMContract.CollaborateeTable.CELL, collaboratee.getCell());
-                values.put(CRMContract.CollaborateeTable.EMAIL, collaboratee.getEmail());
-                values.put(CRMContract.CollaborateeTable.ADDRESS_1, collaboratee.getAddress1());
-                values.put(CRMContract.CollaborateeTable.CITY, collaboratee.getCity());
-                values.put(CRMContract.CollaborateeTable.STATE_PROVINCE, collaboratee.getStateProvince());
-                values.put(CRMContract.CollaborateeTable.POSTAL_CODE, collaboratee.getPostalCode());
-                values.put(CRMContract.CollaborateeTable.SURNAME, collaboratee.getSurname());
-                values.put(CRMContract.CollaborateeTable.GIVEN_NAMES, collaboratee.getGivenNames());
-                values.put(CRMContract.CollaborateeTable.PHONE_ID, collaboratee.getPhoneId());
-                values.put(CRMContract.CollaborateeTable.EMAIL_ID, collaboratee.getEmailId());
-                values.put(CRMContract.CollaborateeTable.CELL_ID, collaboratee.getCellId());
-                values.put(CRMContract.CollaborateeTable.PHONE_JSON_ID, collaboratee.getPhoneJsonId());
-                values.put(CRMContract.CollaborateeTable.CELL_JSON_ID, collaboratee.getCellJsonId());
-                values.put(CRMContract.CollaborateeTable.EMAIL_JSON_ID, collaboratee.getEmailJsonId());
-                values.put(CRMContract.CollaborateeTable.ADDRESS_JSON_ID, collaboratee.getAddressJsonId());
-                values.put(CRMContract.CollaborateeTable.PARTNER_JSON_ID, collaboratee.getPartnerJsonId());
-                getContext().getContentResolver().insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
-
-
-               mPartner2 = collaboratee;
-
+                //pull stuff back out of the database
+                //this gets the original data back in case kardia returned nothing
                 Cursor cursor2 = getActivity().getContentResolver().query(
                         CRMContract.CollaborateeTable.CONTENT_URI,
                         new String[]{CRMContract.CollaborateeTable.PARTNER_ID, CRMContract.CollaborateeTable.PARTNER_NAME, CRMContract.CollaborateeTable.EMAIL,
@@ -242,11 +267,8 @@ public class MainFragment extends android.support.v4.app.Fragment {
                         null
                 );
 
-                //I don't remember why this is commented out
-                //we were having issues getting stuff out of the database
-                //it is possible that the things were never getting into the database
-                //this should be fixed
-               /* while(cursor2.moveToNext()) {
+                //smash query data into the general shape of a partner
+                while(cursor2.moveToNext()) {
                     if (cursor2.getString(0).equals(mPartner2.getPartnerId())) {
                         collaboratee.setPartnerName(cursor2.getString(1));
                         collaboratee.setEmail(cursor2.getString(2));
@@ -268,7 +290,7 @@ public class MainFragment extends android.support.v4.app.Fragment {
                         collaboratee.setAddressJsonId(cursor2.getString(17));
                         collaboratee.setPartnerJsonId(cursor2.getString(18));
                     }
-                }*/
+                }
 
 
                 cursor2.close();
@@ -363,10 +385,14 @@ public class MainFragment extends android.support.v4.app.Fragment {
 
     /**
      * Fetches a list of collaboratee IDs and names.
+     * ToDo make this asyncTask get stuffs from kardia
+     * if this doesn't get things from kardia, new partners will never be registered.
      */
     private class GetCollaborateesTask extends AsyncTask<Void, Void, List<Partner>> {
         @Override
         protected List<Partner> doInBackground(Void... params) {
+
+            //get collaboratee stuff from the database
             Cursor cursor = getActivity().getContentResolver().query(
                     CRMContract.CollaborateeTable.CONTENT_URI,
                     new String[] {CRMContract.CollaborateeTable.PARTNER_ID, CRMContract.CollaborateeTable.PARTNER_NAME},
@@ -375,6 +401,7 @@ public class MainFragment extends android.support.v4.app.Fragment {
                     null
             );
 
+            //put query junk into a list
             List<Partner> collaboratees = new ArrayList<>();
             while(cursor.moveToNext()) {
                 Partner collaboratee = new Partner(cursor.getString(0));
