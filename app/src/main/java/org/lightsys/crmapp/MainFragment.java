@@ -391,13 +391,14 @@ public class MainFragment extends android.support.v4.app.Fragment {
     private class GetCollaborateesTask extends AsyncTask<Void, Void, List<Partner>> {
         @Override
         protected List<Partner> doInBackground(Void... params) {
+            String partnerId = AccountManager.get(getActivity()).getUserData(mAccount, "partnerId");
 
             //get collaboratee stuff from the database
             Cursor cursor = getActivity().getContentResolver().query(
                     CRMContract.CollaborateeTable.CONTENT_URI,
-                    new String[] {CRMContract.CollaborateeTable.PARTNER_ID, CRMContract.CollaborateeTable.PARTNER_NAME},
+                    new String[] { CRMContract.CollaborateeTable.PARTNER_ID, CRMContract.CollaborateeTable.PARTNER_NAME },
                     CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
-                    new String[] {AccountManager.get(getActivity()).getUserData(mAccount, "partnerId")},
+                    new String[] { partnerId },
                     null
             );
 
@@ -426,8 +427,7 @@ public class MainFragment extends android.support.v4.app.Fragment {
     /**
      * Searches through a list of profile names for a particular substring.
      */
-    public void search(String searchText){
-
+    public void search(String searchText) {
         ArrayList<Partner> profiles = new ArrayList<>();
         for(Partner profile : mProfiles) {
             if(profile.getPartnerName().toLowerCase().contains(searchText.toLowerCase())) {

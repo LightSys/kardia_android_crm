@@ -73,7 +73,7 @@ public class KardiaFetcher {
 
     //function that gets a list of staff members
     public List<Staff> getStaff(Account account) {
-        List<Staff> staff = new ArrayList<>();//empty list that will hold the staff members
+        List<Staff> staff = new ArrayList<>();
 
         try {
             //build url
@@ -86,10 +86,8 @@ public class KardiaFetcher {
             String jsonString = getUrlString(account, api);//get json string from network
             JSONObject jsonBody = new JSONObject(jsonString);//build json object from json string
             parseStaffJson(staff, jsonBody);//fills staff list with members
-        } catch (JSONException je) {
-            je.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return staff;

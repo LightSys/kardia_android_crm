@@ -50,7 +50,6 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-
             android:spinnerDropDownItemStyle="@style/customSpinnerDropDownItemStyle"
             android:entries="@array/name_spinner" />
 

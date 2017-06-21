@@ -3,10 +3,12 @@ package org.lightsys.crmapp;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.os.Bundle;
@@ -107,7 +109,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
     private void checkAccount(Account account) {
         if (mAccountManager.getUserData(account, "partnerId") != null) {
-            getContentResolver().setSyncAutomatically(account, CRMContract.providerAuthority, true);
+            ContentResolver.setSyncAutomatically(account, CRMContract.providerAuthority, true);
 
             Bundle bundle = new Bundle();
             bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
@@ -116,8 +118,14 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
             new GetCollaborateesTask().execute(account);
         } else {
-            // TODO don't remove account explicitly
-            mAccountManager.removeAccountExplicitly(account);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+            {
+                mAccountManager.removeAccount(account, this, null, null);
+            }
+            else
+            {
+                mAccountManager.removeAccount(account, null, null);
+            }
             View loginLayout = findViewById(R.id.loginLayout);
             Snackbar.make(loginLayout, "Connection to server failed", Snackbar.LENGTH_LONG).show();
         }
@@ -158,12 +166,12 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             }
             Cursor cursor = getContentResolver().query(
                     CRMContract.StaffTable.CONTENT_URI,
-                    new String[] {CRMContract.StaffTable.PARTNER_ID},
+                    new String[] { CRMContract.StaffTable.PARTNER_ID },
                     CRMContract.StaffTable.KARDIA_LOGIN + " = ?",
-                    new String[] {accounts[0].name},
+                    new String[] { accounts[0].name },
                     null
             );
-            String partnerId = null;
+
             if(cursor.moveToFirst()) {
                 mAccountManager.setUserData(accounts[0], "partnerId", cursor.getString(0));
             }

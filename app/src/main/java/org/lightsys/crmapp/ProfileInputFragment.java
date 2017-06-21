@@ -31,7 +31,7 @@ import org.lightsys.crmapp.data.PatchJson;
  * ToDo find a way to patch to an object that doesn't yet exist
  * ToDo find a way to add a new partner without trashing everything
  */
-public class ProfileInputFragment extends Fragment {
+public class ProfileInputFragment extends Fragment implements AdapterView.OnItemSelectedListener {
     private static final String LOG_TAG = ProfileInputFragment.class.getName();
     private static final String DATA_ARRAY_KEY = "DATA_ARRAY_KEY";
     private static final int[] VIEW_IDS = new int[]{
@@ -93,7 +93,7 @@ public class ProfileInputFragment extends Fragment {
     private String mPartnerJsonId;
 
     Spinner phoneType; // Switches between home and cell.
-
+    boolean initializedView = false;
 
     private String[] mEditTextData;
 
@@ -176,47 +176,7 @@ public class ProfileInputFragment extends Fragment {
         phoneType = (Spinner)rootView.findViewById(R.id.profile_input_phone_spinner);
 
         //Used to switch between home and mobile.
-        phoneType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String type = (String)phoneType.getSelectedItem();
-                if (type.equals("Home")){
-
-                    String[] phoneBits = mPhone.split(" ");//split up phone into its parts
-
-                    mCountryCode = phoneBits[0].replaceAll("[^0-9.]", "");//get country code and remove non numbers
-                    mAreaCode = phoneBits[1].replaceAll("[^0-9.]", "");//get area code and remove non numbers
-                    mPhoneNumber = phoneBits[2].replaceAll("[^0-9.]", "");//get phone number and remove non numbers
-
-                    //set phone number values to views
-                    phone.setText(mPhoneNumber);
-                    countryCode.setText(mCountryCode);
-                    areaCode.setText(mAreaCode);
-
-                    selectedPhone = "home";//used to determine which type of phone to patch to
-                }
-                else if (type.equals("Mobile")){
-
-                    String[] phoneBits = mCell.split(" ");//split phone into its parts
-
-                    mCountryCode = phoneBits[0].replaceAll("[^0-9.]", "");//get country code and remove non numbers
-                    mAreaCode = phoneBits[1].replaceAll("[^0-9.]", "");//get area code and remove non numbers
-                    mPhoneNumber = phoneBits[2].replaceAll("[^0-9.]", "");//get phone number and remove non numbers
-
-                    //set phone number values to views
-                    phone.setText(mPhoneNumber);
-                    countryCode.setText(mCountryCode);
-                    areaCode.setText(mAreaCode);
-
-                    selectedPhone = "mobile";//used to determine which type of phone to patch to
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {//default method
-                // your code here
-            }
-        });
+        phoneType.setOnItemSelectedListener(this);
 
         //Set values to views
         firstName.setText(mGivenName);
@@ -320,4 +280,55 @@ public class ProfileInputFragment extends Fragment {
         return -1;
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
+    {
+        if (!initializedView)
+        {
+            initializedView = true;
+            return;
+        }
+        String type = (String)phoneType.getSelectedItem();
+        if (type.equals("Home")){
+
+            if (mPhone == null) return;
+
+            String[] phoneBits = mPhone.split(" ");//split up phone into its parts
+
+            mCountryCode = phoneBits[0].replaceAll("[^0-9.]", "");//get country code and remove non numbers
+            mAreaCode = phoneBits[1].replaceAll("[^0-9.]", "");//get area code and remove non numbers
+            mPhoneNumber = phoneBits[2].replaceAll("[^0-9.]", "");//get phone number and remove non numbers
+
+            //set phone number values to views
+            phone.setText(mPhoneNumber);
+            countryCode.setText(mCountryCode);
+            areaCode.setText(mAreaCode);
+
+            selectedPhone = "home";//used to determine which type of phone to patch to
+        }
+        else if (type.equals("Mobile")){
+
+            if (mCell == null)
+                return;
+
+            String[] phoneBits = mCell.split(" ");//split phone into its parts
+
+            mCountryCode = phoneBits[0].replaceAll("[^0-9.]", "");//get country code and remove non numbers
+            mAreaCode = phoneBits[1].replaceAll("[^0-9.]", "");//get area code and remove non numbers
+            mPhoneNumber = phoneBits[2].replaceAll("[^0-9.]", "");//get phone number and remove non numbers
+
+            //set phone number values to views
+            phone.setText(mPhoneNumber);
+            countryCode.setText(mCountryCode);
+            areaCode.setText(mAreaCode);
+
+            selectedPhone = "mobile";//used to determine which type of phone to patch to
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView)
+    {
+
+    }
 }
