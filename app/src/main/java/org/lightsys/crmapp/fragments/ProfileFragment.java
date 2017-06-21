@@ -177,7 +177,7 @@ public class ProfileFragment extends Fragment {
         Account[] accounts = accountManager.getAccountsByType(CRMContract.accountType);
         if(accounts.length > 0) {
             mAccount = accounts[0];
-            new getTimelineTask().execute();
+            new getTimelineTask(rootView.findViewById(R.id.cardview_timeline)).execute();
         }
 
         return rootView;
@@ -248,7 +248,7 @@ public class ProfileFragment extends Fragment {
 
             String[] from = {"item"};//stuff for the adapter
             int[] to = {R.id.timeline_item};//more stuff for the adapter
-            if (mItems != null) {
+            if (mItems.size() > 0) {
                 //if we have comments, set them to the adapter
                 TimeLineAdapter adapter = new TimeLineAdapter(getActivity(), items, R.layout.timeline_item_layout, from, to);
 
@@ -262,6 +262,14 @@ public class ProfileFragment extends Fragment {
      * Fetches timeline info from Kardia.
      */
     private class getTimelineTask extends AsyncTask<Void, Void, List<TimelineItem>> {
+
+        View timelineCardView;
+
+        public getTimelineTask(View timelinecardview)
+        {
+            timelineCardView = timelinecardview;
+        }
+
         @Override
         protected List<TimelineItem> doInBackground(Void... params) {
             KardiaFetcher fetcher = new KardiaFetcher(getContext());
@@ -317,6 +325,11 @@ public class ProfileFragment extends Fragment {
         protected void onPostExecute(List<TimelineItem> items) {
             mItems = sortByDate(items);
             setupAdapter();
+            if (mItems.size() == 0)
+            {
+                timelineCardView.setEnabled(false);
+                timelineCardView.setVisibility(View.INVISIBLE);
+            }
         }
 
     }
@@ -335,11 +348,10 @@ public class ProfileFragment extends Fragment {
             super(context, data, resource, from, to);
 
             this.context = context;
-            this.views = new ArrayList<View>();
+            this.views = new ArrayList<>();
             this.data = data;
             this.from = from;
             this.to = to;
-
         }
 
         /**
@@ -365,10 +377,7 @@ public class ProfileFragment extends Fragment {
             views.add(rowView);
 
             return rowView;
-
         }
-
-
     }
 
     //layout for the timeline items
