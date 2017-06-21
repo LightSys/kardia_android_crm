@@ -1,4 +1,4 @@
-package org.lightsys.crmapp;
+package org.lightsys.crmapp.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -17,6 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import org.lightsys.crmapp.fragments.MainFragment;
+import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
 
 
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String s) {
                 // TODO execute query and repopulate
+                //Does the API contain this logic. I'll need to ask Greg - Tim
                 Snackbar.make(findViewById(R.id.coordinatorlayout_main),
                         "TODO execute query and repopulate",
                         Snackbar.LENGTH_LONG).show();

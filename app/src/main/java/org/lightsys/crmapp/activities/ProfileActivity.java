@@ -1,13 +1,15 @@
-package org.lightsys.crmapp;
+package org.lightsys.crmapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import org.lightsys.crmapp.fragments.ProfileFragment;
+import org.lightsys.crmapp.R;
 
 /**
  * Created by cubemaster on 3/10/16.

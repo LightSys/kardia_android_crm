@@ -20,7 +20,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/fragment_profiles"
-                android:name="org.lightsys.crmapp.MainFragment"
+                android:name="org.lightsys.crmapp.fragments.MainFragment"
                 tools:layout="@android:layout/list_content" />
 
         </FrameLayout>

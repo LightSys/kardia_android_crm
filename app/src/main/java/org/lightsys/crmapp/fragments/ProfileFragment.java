@@ -1,4 +1,4 @@
-package org.lightsys.crmapp;
+package org.lightsys.crmapp.fragments;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -12,19 +12,20 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import org.lightsys.crmapp.Formatter;
+import org.lightsys.crmapp.R;
+import org.lightsys.crmapp.activities.ProfileActivity;
+import org.lightsys.crmapp.activities.TimelineItemDetailActivity;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
-import org.lightsys.crmapp.data.Partner;
 import org.lightsys.crmapp.data.TimelineItem;
 
 import java.util.ArrayList;
@@ -73,7 +74,6 @@ public class ProfileFragment extends Fragment {
 
     private Account mAccount;
     private List<TimelineItem> mItems = new ArrayList<>();
-
 
     private RecyclerView mRecyclerView;
 
@@ -167,7 +167,7 @@ public class ProfileFragment extends Fragment {
         mTextView3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = "http://maps.google.co.in/maps?q=" + mFullAddress;
+                String url = "https://www.google.com/maps/search/?api=1&query=" + mAddress + "%2C+" + mCity + "%2C+" + mState + "%2C+" + mPostalCode;
                 Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 startActivity(i);
             }
@@ -320,7 +320,6 @@ public class ProfileFragment extends Fragment {
         }
 
     }
-
 
     //adapter for the timeline items
     private class TimeLineAdapter extends SimpleAdapter{

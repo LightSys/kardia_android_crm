@@ -1,4 +1,4 @@
-package org.lightsys.crmapp.data;
+package org.lightsys.crmapp.adapters;
 
 /**
  * Created by nathan on 3/10/16.
@@ -16,6 +16,11 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.RemoteException;
+
+import org.lightsys.crmapp.data.CRMContract;
+import org.lightsys.crmapp.data.KardiaFetcher;
+import org.lightsys.crmapp.data.Partner;
+import org.lightsys.crmapp.data.Staff;
 
 import java.util.List;
 

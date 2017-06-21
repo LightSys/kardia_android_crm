@@ -107,7 +107,9 @@ public class PatchJson extends AsyncTask<String, Void, String> {
 
 
             }
-        } catch (Exception e) {e.printStackTrace();}
+        } catch (Exception e) {
+            e.printStackTrace();}
+
 
         return null;
     }
@@ -147,7 +149,7 @@ public class PatchJson extends AsyncTask<String, Void, String> {
             //set creds and cookies
             conn.setRequestProperty("Authorization", "Basic " +
                     Base64.encodeToString(auth.getBytes(), Base64.NO_WRAP));
-            conn.setRequestProperty("Cookie", "CXID=" + cookies.getCookies().get(0).getValue() + "; path=/");
+//            conn.setRequestProperty("Cookie", "CXID=" + cookies.getCookies().get(0).getValue() + "; path=/");
             conn.setRequestProperty("Content-Type", "application/json");
 
             //get json object ready to send

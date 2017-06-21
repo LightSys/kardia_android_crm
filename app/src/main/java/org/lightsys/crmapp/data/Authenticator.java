@@ -9,7 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import org.lightsys.crmapp.LoginActivity;
+import org.lightsys.crmapp.activities.LoginActivity;
 
 /**
  * Created by nathan on 3/10/16.

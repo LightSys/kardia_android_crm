@@ -1,4 +1,4 @@
-package org.lightsys.crmapp;
+package org.lightsys.crmapp.fragments;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -7,10 +7,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +19,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.lightsys.crmapp.R;
+import org.lightsys.crmapp.activities.ProfileActivity;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.Partner;

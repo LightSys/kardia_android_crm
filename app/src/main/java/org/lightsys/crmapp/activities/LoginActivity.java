@@ -1,4 +1,4 @@
-package org.lightsys.crmapp;
+package org.lightsys.crmapp.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.Partner;

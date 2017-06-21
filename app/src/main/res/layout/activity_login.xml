@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/loginLayout"
-    tools:context="org.lightsys.crmapp.LoginActivity">
+    tools:context="org.lightsys.crmapp.activities.LoginActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/loginToolbar"

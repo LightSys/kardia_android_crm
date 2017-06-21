@@ -1,4 +1,4 @@
-package org.lightsys.crmapp;
+package org.lightsys.crmapp.fragments;
 
 
 import android.accounts.Account;
@@ -19,6 +19,9 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONObject;
+import org.lightsys.crmapp.R;
+import org.lightsys.crmapp.activities.EditProfileActivity;
+import org.lightsys.crmapp.activities.ProfileActivity;
 import org.lightsys.crmapp.data.PatchJson;
 
 

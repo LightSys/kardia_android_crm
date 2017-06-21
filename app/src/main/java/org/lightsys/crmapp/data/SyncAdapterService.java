@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import org.lightsys.crmapp.adapters.SyncAdapter;
+
 public class SyncAdapterService extends Service {
 
     private static SyncAdapter sSyncAdapter = null;

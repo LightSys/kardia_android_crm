@@ -4,14 +4,21 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.net.Uri;
+import android.os.StrictMode;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -19,11 +26,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import static java.lang.System.in;
 
 /**
  * Created by nathan on 3/9/16.
  *
  * Edited by Ca2br and Judah on 7/19/16
+ *
+ * Edited by Tim on 6/21/2017
  *
  * This is the thing that fetches stuffs from kardia
  */
@@ -31,10 +43,13 @@ import java.util.List;
 public class KardiaFetcher {
     private Context mContext;
     private AccountManager mAccountManager;
+    static final String COOKIES_HEADER = "Set-Cookie";
+    static CookieManager cookieManager = new CookieManager();
 
     public KardiaFetcher(Context context) {
         mContext = context;
         mAccountManager = AccountManager.get(context);
+        CookieHandler.setDefault(cookieManager);
     }
 
     //this thing gets a json object as a string from the network
@@ -48,27 +63,35 @@ public class KardiaFetcher {
 
         //the url to get stuff from
         URL url = new URL("http://" + mAccountManager.getUserData(account, "server") + ":800" + api);
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();//the thing that does the GET stuff
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 
-        try {//try statement because the network can cause code to break
-            // TODO Change to buffered streams?
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            InputStream in = connection.getInputStream();
+        try {
 
-            if(connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new IOException(connection.getResponseMessage() + ": with " + mAccountManager.getUserData(account, "server"));
+            InputStream inputStream = connection.getInputStream();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            try {
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line).append("\n");
+                }
+                return sb.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally
+            {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
-            int bytesRead = 0;
-            byte[] buffer = new byte[1024];
-            while ((bytesRead = in.read(buffer)) > 0) {
-                out.write(buffer, 0, bytesRead);
-            }
-            out.close();
-            return out.toString();
         } finally {
             connection.disconnect();
         }
+        return "";
     }
 
     //function that gets a list of staff members
@@ -287,7 +310,6 @@ public class KardiaFetcher {
             }
         }
     }
-
 
     //function that fills a list of timelitems based on a json object
     private void parseTimelineItemsJson(List<TimelineItem> timelineItems, JSONObject timelineJsonBody) throws IOException, JSONException {
