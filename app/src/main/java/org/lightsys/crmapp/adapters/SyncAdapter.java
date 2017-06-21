@@ -19,8 +19,8 @@ import android.os.RemoteException;
 
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
-import org.lightsys.crmapp.data.Partner;
-import org.lightsys.crmapp.data.Staff;
+import org.lightsys.crmapp.models.Partner;
+import org.lightsys.crmapp.models.Staff;
 
 import java.util.List;
 

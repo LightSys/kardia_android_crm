@@ -1,4 +1,4 @@
-package org.lightsys.crmapp.data;
+package org.lightsys.crmapp.models;
 
 /**
  * Created by ca2br on 7/13/16.

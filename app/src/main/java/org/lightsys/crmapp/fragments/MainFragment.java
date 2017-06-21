@@ -23,7 +23,7 @@ import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.activities.ProfileActivity;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
-import org.lightsys.crmapp.data.Partner;
+import org.lightsys.crmapp.models.Partner;
 
 import java.util.ArrayList;
 import java.util.List;
