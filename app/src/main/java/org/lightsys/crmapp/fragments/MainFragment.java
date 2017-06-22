@@ -397,8 +397,8 @@ public class MainFragment extends android.support.v4.app.Fragment {
             Cursor cursor = getActivity().getContentResolver().query(
                     CRMContract.CollaborateeTable.CONTENT_URI,
                     new String[] { CRMContract.CollaborateeTable.PARTNER_ID, CRMContract.CollaborateeTable.PARTNER_NAME },
-                    CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
-                    new String[] { partnerId },
+                    null,//CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
+                    null,//new String[] { partnerId },
                     null
             );
 

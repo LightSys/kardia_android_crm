@@ -4,7 +4,6 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -15,7 +14,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.*;
+import java.net.Authenticator;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.HttpURLConnection;
+import java.net.PasswordAuthentication;
+import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -24,7 +28,7 @@ import javax.net.ssl.HttpsURLConnection;
  *
  * This class takes a json object a url and an account and patches the json object to the server
  *
- * ToDo replace httpClient with httpUrlConnection
+ * Edited by Tim Parr on 6/22/2017
  */
 public class PatchJson extends AsyncTask<String, Void, String> {
 
@@ -51,15 +55,14 @@ public class PatchJson extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... params) {
 
-        performPostCall(url, jsonObject);
-
-        /*java.net.Authenticator.setDefault(new java.net.Authenticator() {
+        java.net.Authenticator.setDefault(new java.net.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
             }
         });
 
         InputStream inputStream;
+        String result;
         try {
             //url used to retrieve the access token
             URL getUrl = new URL("http://" + mAccountManager.getUserData(account, "server") + ":800/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
@@ -73,12 +76,16 @@ public class PatchJson extends AsyncTask<String, Void, String> {
 
             //get access token
             if (inputStream != null) {
+                result = convertInputStreamToString(inputStream);
+                JSONObject token = new JSONObject(result);
+
+                url += "&cx__akey=" + token.getString("akey");
 
                 //post json object
                 performPostCall(url, jsonObject);
             }
         } catch (Exception e) {
-            e.printStackTrace();}*/
+            e.printStackTrace();}
 
         return null;
     }
@@ -98,8 +105,7 @@ public class PatchJson extends AsyncTask<String, Void, String> {
         function that posts a json object to the server
     */
     private String performPostCall(String requestURL, JSONObject jsonObject) {
-
-        java.net.Authenticator.setDefault(new java.net.Authenticator() {
+        Authenticator.setDefault(new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
             }
@@ -108,7 +114,6 @@ public class PatchJson extends AsyncTask<String, Void, String> {
         URL url;
         String response = "";
         try {
-
             url = new URL(requestURL);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -117,7 +122,6 @@ public class PatchJson extends AsyncTask<String, Void, String> {
             conn.setRequestMethod("PATCH");
             conn.setDoInput(true);
             conn.setDoOutput(true);
-
             conn.setRequestProperty("Content-Type", "application/json");
 
             //get json object ready to send
@@ -133,15 +137,8 @@ public class PatchJson extends AsyncTask<String, Void, String> {
             //if the things were sent properly, get the response code
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 Log.e(TAG, "HTTP_OK");
-
+                response = convertInputStreamToString(conn.getInputStream());
                 success = true;
-
-                String line;
-                BufferedReader br = new BufferedReader(new InputStreamReader(
-                        conn.getInputStream()));
-                while ((line = br.readLine()) != null) {
-                    response += line;
-                }
             } else {
                 Log.e(TAG, "False - HTTP_OK");//send failed :(
                 response = "";
@@ -153,61 +150,6 @@ public class PatchJson extends AsyncTask<String, Void, String> {
 
         return response;
     }
-
-    //unfinished attempt to switch usage of http client to url connection
-    /*public JSONObject getAccessToken(HttpURLConnection connection, String tokenUrl, Account account){
-
-        String response = "";
-
-        try {
-
-            URL url = new URL(tokenUrl);
-            connection = (HttpURLConnection) url.openConnection();
-
-            String auth = account.getAccountName() + ":" + account.getAccountPassword();
-
-
-            connection.setReadTimeout(15000);//15 second time out
-            connection.setConnectTimeout(15000);
-            connection.setRequestMethod("GET");
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            connection.setRequestProperty("Authorization", "Basic " +
-                    Base64.encodeToString(auth.getBytes(), Base64.NO_WRAP));
-            connection.setRequestProperty("Content-Type", "application/json");
-
-            InputStream is = connection.getInputStream();
-            is.read();
-
-            int responseCode = connection.getResponseCode();
-
-            Log.e(TAG, "responseCode : " + responseCode);
-
-            //if the thing was sent properly, get the response code
-            if (responseCode == HttpsURLConnection.HTTP_OK) {
-                Log.e(TAG, "HTTP_OK");
-                String line;
-                BufferedReader br = new BufferedReader(new InputStreamReader(
-                        connection.getInputStream()));
-                while ((line = br.readLine()) != null) {
-                    response += line;
-                }
-
-                JSONObject token = new JSONObject(response);
-
-
-            } else {
-                Log.e(TAG, "False - HTTP_OK");//send failed
-                response = "";
-            }
-
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        return new JSONObject();
-
-    }*/
 
     @Override
     protected void onPostExecute(String params) {

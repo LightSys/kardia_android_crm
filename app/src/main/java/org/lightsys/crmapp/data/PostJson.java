@@ -25,7 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.HttpURLConnection;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.Calendar;
 
@@ -36,7 +39,7 @@ import javax.net.ssl.HttpsURLConnection;
  *
  * This class takes a json object a url and an account and posts the json object to the server
  *
- * ToDo replace httpClient with httpUrlConnection
+ * Edited by Tim Parr on 6/22/2017
  */
 public class PostJson extends AsyncTask<String, Void, String> {
 
@@ -48,6 +51,7 @@ public class PostJson extends AsyncTask<String, Void, String> {
     private JSONObject jsonObject;
     private Context context;
     private boolean success = false;
+    private static CookieManager cookieManager = new CookieManager();
 
     public PostJson(Context context, String Url, JSONObject jsonPost, Account userAccount){
         url = Url;
@@ -56,58 +60,44 @@ public class PostJson extends AsyncTask<String, Void, String> {
         account = userAccount;
         this.context = context;
         mAccountManager = AccountManager.get(context);
+        CookieHandler.setDefault(cookieManager);
     }
 
 
     @Override
     protected String doInBackground(String... params) {
 
-        //the get request for the access token is done in httpClient
-        //the post request was done in httpUrlConnection
-        //it was discovered that httpClient is deprecated so the second part used httpUrlConnection
-        //this needs to be fixed eventually
+        java.net.Authenticator.setDefault(new java.net.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
+            }
+        });
 
         InputStream inputStream;
         String result;
         try {
-            // Set the user credentials to allow access to API information
-            CredentialsProvider credProvider = new BasicCredentialsProvider();
-
-            credProvider.setCredentials(new AuthScope(mAccountManager.getUserData(account, "server"), 800),
-                    new UsernamePasswordCredentials(account.name, mAccountManager.getPassword(account)));
-
             //url used to retrieve the access token
-            String getUrl = "http://" + mAccountManager.getUserData(account, "server") + ":800/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor";
+            URL getUrl = new URL("http://" + mAccountManager.getUserData(account, "server") + ":800/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
 
-            //set up http connection
-            HttpParams HttpParams = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(HttpParams, 10000);
-            HttpConnectionParams.setSoTimeout(HttpParams, 10000);
+            HttpURLConnection connection;
+            connection = (HttpURLConnection) getUrl.openConnection();
+            connection.setReadTimeout(10000);
+            connection.setConnectTimeout(10000);
 
-            DefaultHttpClient client = new DefaultHttpClient(HttpParams);
-
-            client.setCredentialsProvider(credProvider);
-
-            HttpResponse response = client.execute(new HttpGet(getUrl));
-
-            inputStream = response.getEntity().getContent();
+            inputStream = connection.getInputStream();
 
             //get access token
             if (inputStream != null) {
                 result = convertInputStreamToString(inputStream);
                 JSONObject token = new JSONObject(result);
 
-                //store cookies for use later by the httpUrlConnection
-                org.apache.http.client.CookieStore cookies = client.getCookieStore();
-
                 url += "&cx__akey=" + token.getString("akey");
 
                 //post json object
-                performPostCall(cookies, url, jsonObject);
-
-
+                performPostCall(url, jsonObject);
             }
-        } catch (Exception e) {e.printStackTrace();}
+        } catch (Exception e) {
+            e.printStackTrace();}
 
         return null;
     }
@@ -126,16 +116,12 @@ public class PostJson extends AsyncTask<String, Void, String> {
     /*
         function that posts a json object to the server
     */
-    private String performPostCall(org.apache.http.client.CookieStore cookies, String requestURL, JSONObject jsonObject) {
+    private String performPostCall(String requestURL, JSONObject jsonObject) {
 
         URL url;
         String response = "";
         try {
-
             url = new URL(requestURL);
-
-            //credentials
-            String auth = account.name + ":" + mAccountManager.getPassword(account);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(15000);//15 second time out
@@ -143,11 +129,6 @@ public class PostJson extends AsyncTask<String, Void, String> {
             conn.setRequestMethod("POST");
             conn.setDoInput(true);
             conn.setDoOutput(true);
-
-            //set creds and cookies
-            conn.setRequestProperty("Authorization", "Basic " +
-                    Base64.encodeToString(auth.getBytes(), Base64.NO_WRAP));
-            conn.setRequestProperty("Cookie", "CXID=" + cookies.getCookies().get(0).getValue() + "; path=/");
             conn.setRequestProperty("Content-Type", "application/json");
 
             //get json object ready to send
@@ -163,15 +144,8 @@ public class PostJson extends AsyncTask<String, Void, String> {
             //if the things were sent properly, get the response code
             if (responseCode == HttpsURLConnection.HTTP_CREATED) {
                 Log.e(TAG, "HTTP_OK");
-
+                response = convertInputStreamToString(conn.getInputStream());
                 success = true;
-
-                String line;
-                BufferedReader br = new BufferedReader(new InputStreamReader(
-                        conn.getInputStream()));
-                while ((line = br.readLine()) != null) {
-                    response += line;
-                }
             } else {
                 Log.e(TAG, "False - HTTP_OK");//send failed :(
                 response = "";
@@ -183,61 +157,6 @@ public class PostJson extends AsyncTask<String, Void, String> {
 
         return response;
     }
-
-    //unfinished attempt to switch usage of http client to url connection
-    /*public JSONObject getAccessToken(HttpURLConnection connection, String tokenUrl, Account account){
-
-        String response = "";
-
-        try {
-
-            URL url = new URL(tokenUrl);
-            connection = (HttpURLConnection) url.openConnection();
-
-            String auth = account.getAccountName() + ":" + account.getAccountPassword();
-
-
-            connection.setReadTimeout(15000);//15 second time out
-            connection.setConnectTimeout(15000);
-            connection.setRequestMethod("GET");
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            connection.setRequestProperty("Authorization", "Basic " +
-                    Base64.encodeToString(auth.getBytes(), Base64.NO_WRAP));
-            connection.setRequestProperty("Content-Type", "application/json");
-
-            InputStream is = connection.getInputStream();
-            is.read();
-
-            int responseCode = connection.getResponseCode();
-
-            Log.e(TAG, "responseCode : " + responseCode);
-
-            //if the thing was sent properly, get the response code
-            if (responseCode == HttpsURLConnection.HTTP_OK) {
-                Log.e(TAG, "HTTP_OK");
-                String line;
-                BufferedReader br = new BufferedReader(new InputStreamReader(
-                        connection.getInputStream()));
-                while ((line = br.readLine()) != null) {
-                    response += line;
-                }
-
-                JSONObject token = new JSONObject(response);
-
-
-            } else {
-                Log.e(TAG, "False - HTTP_OK");//send failed
-                response = "";
-            }
-
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        return new JSONObject();
-
-    }*/
 
     @Override
     protected void onPostExecute(String params) {

@@ -41,7 +41,6 @@ import static java.lang.System.in;
 public class KardiaFetcher {
     private Context mContext;
     private AccountManager mAccountManager;
-    static final String COOKIES_HEADER = "Set-Cookie";
     private static CookieManager cookieManager = new CookieManager();
 
     public KardiaFetcher(Context context) {

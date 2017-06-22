@@ -231,11 +231,11 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                     emailJson.put("contact_data", email.getText().toString());
 
                     //urls for patching to kardia
-                    String partnerUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/" + mPartnerJsonId + "&cx__res_type=element";
-                    String addressUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/" + mAddressJsonId + "&cx__res_type=element";
-                    String phoneUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/" + mPhoneJsonId + "&cx__res_type=element";
-                    String cellUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/" + mCellJsonId + "&cx__res_type=element";
-                    String emailUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/" + mEmailJsonId + "&cx__res_type=element";
+                    String partnerUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mPartnerJsonId + "&cx__res_type=element";
+                    String addressUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mAddressJsonId + "&cx__res_type=element";
+                    String phoneUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mPhoneJsonId + "&cx__res_type=element";
+                    String cellUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mCellJsonId + "&cx__res_type=element";
+                    String emailUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mEmailJsonId + "&cx__res_type=element";
 
                     //set up patch json objects for patching
                     PatchJson patchJson1 = new PatchJson(getContext(), partnerUrl, partnerJson, mAccount);
