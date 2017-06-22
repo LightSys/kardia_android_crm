@@ -212,6 +212,29 @@ public class KardiaFetcher {
         return timelineItems;
     }
 
+    public String getNextPartnerKey(Account account) {
+        String partnerKey = null;
+
+        try {
+            //build partnerkey url
+            String partnerKeyApi = Uri.parse("/apps/kardia/api/partner/NextPartnerKey")
+                    .buildUpon()
+                    .appendQueryParameter("cx__mode", "rest")
+                    .appendQueryParameter("cx__res_format", "attrs")
+                    .appendQueryParameter("cx__res_attrs", "basic")
+                    .appendQueryParameter("cx__res_type", "element")
+                    .build().toString();
+            String partnerKeyJsonString = getUrlString(account, partnerKeyApi);//get partnerKey Json string from network
+            JSONObject partnerKeyJsonBody = new JSONObject(partnerKeyJsonString);//build json object
+            partnerKey = partnerKeyJsonBody.getString("partner_id");
+        } catch (JSONException | IOException je)
+        {
+            je.printStackTrace();
+        }
+
+        return partnerKey;
+    }
+
     //function that fills a list of collaboratees based on a json string
     private void parseCollaborateesJson(List<Partner> collaboratees, JSONObject crmJsonBody) throws IOException, JSONException {
         Iterator<String> crmKeys = crmJsonBody.keys();
@@ -337,5 +360,4 @@ public class KardiaFetcher {
             }
         }
     }
-
 }
