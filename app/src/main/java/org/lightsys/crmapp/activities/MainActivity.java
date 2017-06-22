@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    /**
+    /*
      * Provides option to select something within the Menu.
      */
     @Override

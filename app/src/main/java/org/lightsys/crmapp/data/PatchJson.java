@@ -1,5 +1,6 @@
 package org.lightsys.crmapp.data;
 
+import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -7,27 +8,14 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.json.JSONObject;
-import android.accounts.Account;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Calendar;
+import java.net.*;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -48,6 +36,7 @@ public class PatchJson extends AsyncTask<String, Void, String> {
     private JSONObject jsonObject;
     private Context context;
     private boolean success = false;
+    private static CookieManager cookieManager = new CookieManager();
 
     public PatchJson(Context context, String Url, JSONObject jsonPost, Account userAccount){
         url = Url;
@@ -56,60 +45,40 @@ public class PatchJson extends AsyncTask<String, Void, String> {
         account = userAccount;
         this.context = context;
         mAccountManager = AccountManager.get(context);
+        CookieHandler.setDefault(cookieManager);
     }
-
 
     @Override
     protected String doInBackground(String... params) {
 
-        //the get request for the access token is done in httpClient
-        //the patch request was done in httpUrlConnection
-        //it was discovered that httpClient is deprecated so the second part used httpUrlConnection
-        //this needs to be fixed eventually
+        performPostCall(url, jsonObject);
+
+        /*java.net.Authenticator.setDefault(new java.net.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
+            }
+        });
 
         InputStream inputStream;
-        String result;
         try {
-            // Set the user credentials to allow access to API information
-            CredentialsProvider credProvider = new BasicCredentialsProvider();
-
-            credProvider.setCredentials(new AuthScope(mAccountManager.getUserData(account, "server"), 800),
-                    new UsernamePasswordCredentials(account.name, mAccountManager.getPassword(account)));
-
             //url used to retrieve the access token
-            String getUrl = "http://" + mAccountManager.getUserData(account, "server") + ":800/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor";
+            URL getUrl = new URL("http://" + mAccountManager.getUserData(account, "server") + ":800/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
 
-            //set up http connection
-            HttpParams HttpParams = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(HttpParams, 10000);
-            HttpConnectionParams.setSoTimeout(HttpParams, 10000);
+            HttpURLConnection connection;
+            connection = (HttpURLConnection) getUrl.openConnection();
+            connection.setReadTimeout(10000);
+            connection.setConnectTimeout(10000);
 
-            DefaultHttpClient client = new DefaultHttpClient(HttpParams);
-
-            client.setCredentialsProvider(credProvider);
-
-            HttpResponse response = client.execute(new HttpGet(getUrl));
-
-            inputStream = response.getEntity().getContent();
+            inputStream = connection.getInputStream();
 
             //get access token
             if (inputStream != null) {
-                result = convertInputStreamToString(inputStream);
-                JSONObject token = new JSONObject(result);
-
-                //store cookies for use later by the httpUrlConnection
-                org.apache.http.client.CookieStore cookies = client.getCookieStore();
-
-                url += "&cx__akey=" + token.getString("akey");
 
                 //post json object
-                performPostCall(cookies, url, jsonObject);
-
-
+                performPostCall(url, jsonObject);
             }
         } catch (Exception e) {
-            e.printStackTrace();}
-
+            e.printStackTrace();}*/
 
         return null;
     }
@@ -128,16 +97,19 @@ public class PatchJson extends AsyncTask<String, Void, String> {
     /*
         function that posts a json object to the server
     */
-    private String performPostCall(org.apache.http.client.CookieStore cookies, String requestURL, JSONObject jsonObject) {
+    private String performPostCall(String requestURL, JSONObject jsonObject) {
+
+        java.net.Authenticator.setDefault(new java.net.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
+            }
+        });
 
         URL url;
         String response = "";
         try {
 
             url = new URL(requestURL);
-
-            //credentials
-            String auth = account.name + ":" + mAccountManager.getPassword(account);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(15000);//15 second time out
@@ -146,10 +118,6 @@ public class PatchJson extends AsyncTask<String, Void, String> {
             conn.setDoInput(true);
             conn.setDoOutput(true);
 
-            //set creds and cookies
-            conn.setRequestProperty("Authorization", "Basic " +
-                    Base64.encodeToString(auth.getBytes(), Base64.NO_WRAP));
-//            conn.setRequestProperty("Cookie", "CXID=" + cookies.getCookies().get(0).getValue() + "; path=/");
             conn.setRequestProperty("Content-Type", "application/json");
 
             //get json object ready to send

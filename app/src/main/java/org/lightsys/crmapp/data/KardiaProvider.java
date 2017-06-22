@@ -13,6 +13,8 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.util.Objects;
+
 /**
  * Created by nathan on 3/10/16.
  *
@@ -109,7 +111,7 @@ public class KardiaProvider extends ContentProvider {
                 break;
         }
 
-        mDatabase.insert(table, null, values);
+        mDatabase.replace(table, null, values);
 
         return ContentUris.withAppendedId(uri, id);
     }

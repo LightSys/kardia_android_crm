@@ -7,8 +7,10 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.support.v7.app.AppCompatCallback;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -103,7 +106,14 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         }
 
         Account newAccount = new Account(addAccountName, CRMContract.accountType);
-        mAccountManager.addAccountExplicitly(newAccount, addAccountPassword, null);
+        Bundle bundle = new Bundle();
+        bundle.putString(AccountManager.KEY_ACCOUNT_NAME, addAccountName);
+        bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, CRMContract.accountType);
+        boolean success = mAccountManager.addAccountExplicitly(newAccount, addAccountPassword, bundle);
+        if (!success)
+        {
+            Log.d("LoginActivity", "Adding Acount Failed");
+        }
         mAccountManager.setUserData(newAccount, "server", addServerAddress);
         new GetPartnerIdTask().execute(newAccount);
     }

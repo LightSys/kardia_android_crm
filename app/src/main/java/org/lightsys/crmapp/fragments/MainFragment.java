@@ -404,13 +404,16 @@ public class MainFragment extends android.support.v4.app.Fragment {
 
             //put query junk into a list
             List<Partner> collaboratees = new ArrayList<>();
-            while(cursor.moveToNext()) {
-                Partner collaboratee = new Partner(cursor.getString(0));
-                collaboratee.setPartnerName(cursor.getString(1));
-                collaboratees.add(collaboratee);
-            }
-            cursor.close();
 
+            if (cursor != null)
+            {
+                while (cursor.moveToNext())
+                {
+                    Partner collaboratee = new Partner(cursor.getString(cursor.getColumnIndex(CRMContract.CollaborateeTable.PARTNER_ID)), cursor.getString(cursor.getColumnIndex(CRMContract.CollaborateeTable.PARTNER_NAME)));
+                    collaboratees.add(collaboratee);
+                }
+                cursor.close();
+            }
             return collaboratees;
         }
 

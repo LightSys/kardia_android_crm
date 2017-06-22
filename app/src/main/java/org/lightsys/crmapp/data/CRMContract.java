@@ -53,6 +53,10 @@ public class CRMContract {
         public static final String EMAIL_JSON_ID = "emailJsonId";
         public static final String ADDRESS_JSON_ID = "addressJsonId";
         public static final String PARTNER_JSON_ID = "partnerJsonId";
+        public static final String[] ALL_COLUMNS = {
+                COLLABORATER_ID, PARTNER_ID, PARTNER_NAME, EMAIL, PHONE, ADDRESS_1, CITY, STATE_PROVINCE,
+                POSTAL_CODE, CELL, SURNAME, GIVEN_NAMES, PHONE_ID, CELL_ID, EMAIL_ID, PHONE_JSON_ID,
+                CELL_JSON_ID, EMAIL_JSON_ID, ADDRESS_JSON_ID, PARTNER_JSON_ID };
 
         public static final String CREATE_TABLE = "CREATE TABLE " + CRMContract.CollaborateeTable.TABLE_NAME + "(" +
                         CRMContract.CollaborateeTable.COLLABORATER_ID + ", " +
