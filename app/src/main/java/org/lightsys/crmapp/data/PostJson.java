@@ -3,20 +3,9 @@ package org.lightsys.crmapp.data;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.json.JSONObject;
 import android.accounts.Account;
 
@@ -30,32 +19,32 @@ import java.net.CookieManager;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.URL;
-import java.util.Calendar;
+import java.text.MessageFormat;
 
 import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by Judah Sistrunk on 7/7/2016.
  *
- * This class takes a json object a url and an account and posts the json object to the server
+ * This class takes a json object a baseUrl and an account and posts the json object to the server
  *
  * Edited by Tim Parr on 6/22/2017
  */
 public class PostJson extends AsyncTask<String, Void, String> {
 
-    private static final String TAG = "post JSon";
+    private static final String TAG = "POST Json";
     private Account account;
     private AccountManager mAccountManager;
-    private String url = "";
+    private String baseUrl = "";
     private String backupUrl = "";
     private JSONObject jsonObject;
     private Context context;
     private boolean success = false;
     private static CookieManager cookieManager = new CookieManager();
 
-    public PostJson(Context context, String Url, JSONObject jsonPost, Account userAccount){
-        url = Url;
-        backupUrl = Url;
+    public PostJson(Context context, String baseUrl, JSONObject jsonPost, Account userAccount){
+        this.baseUrl = baseUrl;
+        backupUrl = baseUrl;
         jsonObject = jsonPost;
         account = userAccount;
         this.context = context;
@@ -76,7 +65,7 @@ public class PostJson extends AsyncTask<String, Void, String> {
         InputStream inputStream;
         String result;
         try {
-            //url used to retrieve the access token
+            //baseUrl used to retrieve the access token
             URL getUrl = new URL("http://" + mAccountManager.getUserData(account, "server") + ":800/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
 
             HttpURLConnection connection;
@@ -91,10 +80,10 @@ public class PostJson extends AsyncTask<String, Void, String> {
                 result = convertInputStreamToString(inputStream);
                 JSONObject token = new JSONObject(result);
 
-                url += "&cx__akey=" + token.getString("akey");
+                baseUrl += "&cx__akey=" + token.getString("akey");
 
                 //post json object
-                performPostCall(url, jsonObject);
+                performPostCall(baseUrl, jsonObject);
             }
         } catch (Exception e) {
             e.printStackTrace();}
@@ -146,8 +135,10 @@ public class PostJson extends AsyncTask<String, Void, String> {
                 Log.e(TAG, "HTTP_OK");
                 response = convertInputStreamToString(conn.getInputStream());
                 success = true;
-            } else {
+            } else
+            {
                 Log.e(TAG, "False - HTTP_OK");//send failed :(
+                String s = convertInputStreamToString(conn.getErrorStream());
                 response = "";
                 success = false;
             }

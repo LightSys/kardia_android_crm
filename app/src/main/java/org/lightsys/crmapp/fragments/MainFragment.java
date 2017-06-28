@@ -161,9 +161,7 @@ public class MainFragment extends android.support.v4.app.Fragment {
                             CRMContract.CollaborateeTable.PARTNER_JSON_ID},
                     CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
                     new String[] {AccountManager.get(getActivity()).getUserData(mAccount, "partnerId")},
-                    null
-            );
-
+                    null);
 
             //turn raw query stuffs into a partner
             while(cursor.moveToNext()) {
@@ -292,16 +290,13 @@ public class MainFragment extends android.support.v4.app.Fragment {
                     }
                 }
 
-
                 cursor2.close();
 
                 mPartner2 = collaboratee;
-
             }
             else {
                 mPartner2 = collaboratee;
             }
-
 
             return collaboratee;
         }
@@ -344,7 +339,6 @@ public class MainFragment extends android.support.v4.app.Fragment {
             i.putExtra(ProfileActivity.TWITTER_KEY, mPartner2.getTwitter());
             i.putExtra(ProfileActivity.WEBSITE_KEY, mPartner2.getWebsite());
 
-
             startActivity(i);
         }
 
@@ -381,7 +375,6 @@ public class MainFragment extends android.support.v4.app.Fragment {
             return mCollaboratees.size();
         }
     }
-
 
     /**
      * Fetches a list of collaboratee IDs and names.
@@ -442,5 +435,4 @@ public class MainFragment extends android.support.v4.app.Fragment {
         setupAdapter(profiles);
 
     }
-
 }

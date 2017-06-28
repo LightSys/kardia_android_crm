@@ -35,7 +35,8 @@
         android:ellipsize="start"
         android:layout_gravity="center_horizontal"
         android:layout_marginLeft="64dp"
-        android:layout_marginRight="64dp">
+        android:layout_marginRight="64dp"
+        android:text="tparr">
         <requestFocus/>
     </EditText>
 
@@ -57,7 +58,8 @@
         android:textColorHint="@color/accent"
         android:layout_marginLeft="64dp"
         android:layout_marginRight="64dp"
-        android:fontFamily="sans-serif"/>
+        android:fontFamily="sans-serif"
+        android:text="fudge000"/>
 
     <TextView
         android:id="@+id/loginPasswordError"
@@ -77,7 +79,8 @@
         android:textColorHint="@color/accent"
         android:ellipsize="start"
         android:layout_marginLeft="64dp"
-        android:layout_marginRight="64dp" />
+        android:layout_marginRight="64dp"
+        android:text="10.5.10.176"/>
 
     <TextView
         android:id="@+id/loginServerError"
