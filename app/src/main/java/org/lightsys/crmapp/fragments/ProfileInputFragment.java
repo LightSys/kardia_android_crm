@@ -2,9 +2,19 @@ package org.lightsys.crmapp.fragments;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,8 +36,11 @@ import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.PatchJson;
 import org.lightsys.crmapp.data.PostJson;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -80,6 +93,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     TextView city;
     TextView state;
     TextView postalCode;
+    ImageView photo;
 
     private String selectedPhone = "mobile";
 
@@ -99,6 +113,9 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     private String nextPartnerKey;
     boolean mNewProfile = true;
     JSONObject jsonDate;
+
+    Uri outputFileUri;
+    Uri selectedImageUri;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -150,10 +167,12 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
 
         System.out.println(mNewProfile ? "Creating a new profile!" : "Editing an existing profile!");
 
+        photo = (ImageView) rootView.findViewById(R.id.profile_input_photo);
+
         //sets up profile picture
         Picasso.with(getActivity())
                 .load(R.drawable.persona)
-                .into(((ImageView) rootView.findViewById(R.id.profile_input_photo)));
+                .into(photo);
 
         // Sets up views.
         final ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
@@ -184,12 +203,54 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         state.setText(mState);
         postalCode.setText(mPostalCode);
 
+        AppCompatButton photoButton = (AppCompatButton) rootView.findViewById(R.id.profile_input_photo_button);
+        photoButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                // Determine Uri of camera image to save.
+                final File root = new File(Environment.getExternalStorageDirectory() + File.separator + "MyDir" + File.separator);
+                root.mkdirs();
+                final String fname = "img_" + System.currentTimeMillis() + ".jpg";
+                final File sdImageMainDirectory = new File(root, fname);
+                outputFileUri = Uri.fromFile(sdImageMainDirectory);
+
+                // Camera.
+                final List<Intent> cameraIntents = new ArrayList<>();
+                final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                final PackageManager packageManager = getContext().getPackageManager();
+                final List<ResolveInfo> listCam = packageManager.queryIntentActivities(captureIntent, 0);
+                for (ResolveInfo res : listCam)
+                {
+                    final String packageName = res.activityInfo.packageName;
+                    final Intent intent = new Intent(captureIntent);
+                    intent.setComponent(new ComponentName(packageName, res.activityInfo.name));
+                    intent.setPackage(packageName);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
+                    cameraIntents.add(intent);
+                }
+
+                // Filesystem.
+                final Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                galleryIntent.setType("image/*");
+                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+
+                // Chooser of filesystem options.
+                final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
+
+                // Add the camera options.
+                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
+
+                startActivityForResult(chooserIntent, 0);
+            }
+        });
+
         Button submit = (Button) rootView.findViewById(R.id.submit);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-
                     setCurrentDate();
 
                     AsyncTask<String, Void, String> uploadJson1;
@@ -520,6 +581,36 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         {
             super.onPostExecute(s);
             nextPartnerKey = s;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == -1)
+        {
+            if (requestCode == 0)
+            {
+                final boolean isCamera;
+                if (data == null)
+                {
+                    isCamera = true;
+                } else
+                {
+                    final String action = data.getAction();
+                    isCamera = action != null && action.equals(MediaStore.ACTION_IMAGE_CAPTURE);
+                }
+
+                if (isCamera)
+                {
+                    selectedImageUri = outputFileUri;
+                } else
+                {
+                    selectedImageUri = data.getData();
+                }
+
+                photo.setImageURI(selectedImageUri);
+                Log.d("NewProfileActivity", "isCamera: " + isCamera + " selectedImageUri: " + selectedImageUri);
+            }
         }
     }
 }
