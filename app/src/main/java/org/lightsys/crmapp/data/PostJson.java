@@ -66,7 +66,7 @@ public class PostJson extends AsyncTask<String, Void, String> {
         String result;
         try {
             //baseUrl used to retrieve the access token
-            URL getUrl = new URL("http://" + mAccountManager.getUserData(account, "server") + ":800/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
+            URL getUrl = new URL(mAccountManager.getUserData(account, "server") + "/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
 
             HttpURLConnection connection;
             connection = (HttpURLConnection) getUrl.openConnection();

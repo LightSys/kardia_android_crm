@@ -18,27 +18,32 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/abc_text_size_large_material"
-        android:text="Login to use the Kardia CRM app."
+        android:text="@string/login_message"
         android:textColor="#000000"
         android:gravity="center"
         android:padding="10dp"/>
 
-    <EditText
-        android:id="@+id/loginUsername"
-        android:hint="@string/username"
-        android:layout_width="fill_parent"
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:imeOptions="actionNext"
-        android:textColor="#000000"
-        android:textColorHint="@color/accent"
-        android:inputType="text"
-        android:ellipsize="start"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginLeft="64dp"
-        android:layout_marginRight="64dp"
-        android:text="tparr">
-        <requestFocus/>
-    </EditText>
+        android:textColorHint="@color/accent">
+
+        <EditText
+            android:id="@+id/loginUsername"
+            android:hint="@string/username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+            android:textColor="#000000"
+            android:inputType="text"
+            android:ellipsize="start"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="64dp"
+            android:layout_marginRight="64dp"
+            android:text="tparr">
+        </EditText>
+
+    </android.support.design.widget.TextInputLayout>
 
     <TextView
         android:id="@+id/loginUsernameError"
@@ -47,19 +52,26 @@
         android:textColor="#FF0000"
         android:layout_marginLeft="64dp" />
 
-    <EditText
-        android:id="@+id/loginPassword"
-        android:hint="@string/password"
-        android:imeOptions="actionNext"
-        android:inputType="textPassword"
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#000000"
-        android:textColorHint="@color/accent"
-        android:layout_marginLeft="64dp"
-        android:layout_marginRight="64dp"
-        android:fontFamily="sans-serif"
-        android:text="fudge000"/>
+        android:textColorHint="@color/accent">
+
+        <EditText
+            android:id="@+id/loginPassword"
+            android:hint="@string/password"
+            android:imeOptions="actionNext"
+            android:inputType="textPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:layout_marginLeft="64dp"
+            android:layout_marginRight="64dp"
+            android:fontFamily="sans-serif"
+            android:text="fudge000"/>
+
+    </android.support.design.widget.TextInputLayout>
+
 
     <TextView
         android:id="@+id/loginPasswordError"
@@ -68,22 +80,79 @@
         android:textColor="#FF0000"
         android:layout_marginLeft="64dp" />
 
-    <EditText
-        android:id="@+id/loginServer"
-        android:hint="@string/serverName"
-        android:imeOptions="actionGo"
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Spinner
+            android:id="@+id/protocolSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/protocol_options"
+            android:layout_marginLeft="64dp"
+            android:layout_marginRight="64dp" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/protocolError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FF0000"
+        android:layout_marginLeft="64dp" />
+
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text"
-        android:textColor="#000000"
-        android:textColorHint="@color/accent"
-        android:ellipsize="start"
-        android:layout_marginLeft="64dp"
-        android:layout_marginRight="64dp"
-        android:text="10.5.10.176"/>
+        android:textColorHint="@color/accent">
+
+        <EditText
+            android:id="@+id/loginServer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="64dp"
+            android:layout_marginRight="64dp"
+            android:ellipsize="start"
+            android:hint="@string/serverName"
+            android:imeOptions="actionGo"
+            android:inputType="text"
+            android:text="10.5.10.176"
+            android:textColor="#000000" />
+
+    </android.support.design.widget.TextInputLayout>
+
 
     <TextView
         android:id="@+id/loginServerError"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FF0000"
+        android:layout_marginLeft="64dp" />
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColorHint="@color/accent">
+
+        <EditText
+            android:id="@+id/loginPort"
+            android:hint="@string/portNumber"
+            android:imeOptions="actionGo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:textColor="#000000"
+            android:ellipsize="start"
+            android:layout_marginLeft="64dp"
+            android:layout_marginRight="64dp"
+            android:text="800"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+
+    <TextView
+        android:id="@+id/loginPortError"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textColor="#FF0000"
@@ -95,6 +164,6 @@
         android:layout_height="wrap_content"
         android:text="Submit"
         android:layout_marginTop="10dp"
-        android:layout_gravity="center_horizontal"/>
+        android:layout_gravity="center_horizontal" />
 
 </LinearLayout>

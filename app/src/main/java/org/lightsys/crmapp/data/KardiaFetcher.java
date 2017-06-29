@@ -59,7 +59,7 @@ public class KardiaFetcher {
         });
 
         //the url to get stuff from
-        URL url = new URL("http://" + mAccountManager.getUserData(account, "server") + ":800" + api);
+        URL url = new URL(mAccountManager.getUserData(account, "server") + api);
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 
         try {
