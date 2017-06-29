@@ -218,11 +218,11 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         JSONObject cellJson = createCellJson();
                         System.out.println(cellJson);
                         //set up POST json objects for patching
-                        uploadJson1 = new PostJson(getContext(), partnerUrl, createPartnerJson(), mAccount);
-                        uploadJson2 = new PostJson(getContext(), addressUrl, createAddressJson(), mAccount);
-                        uploadJson3 = new PostJson(getContext(), phoneUrl, createPhoneJson(), mAccount);
-                        uploadJson4 = new PostJson(getContext(), cellUrl, cellJson, mAccount);
-                        uploadJson5 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount);
+                        uploadJson1 = new PostJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
+                        uploadJson2 = new PostJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
+                        uploadJson3 = new PostJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
+                        uploadJson4 = new PostJson(getContext(), cellUrl, cellJson, mAccount, false);
+                        uploadJson5 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, true);
                     }
                     else
                     {
@@ -464,7 +464,6 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
     {
-
         if (!initializedView)
         {
             initializedView = true;
@@ -474,18 +473,21 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         String type = (String)phoneType.getSelectedItem();
         String[] phoneBits = null;//split up phone into its parts
 
+        selectedPhone = type.toLowerCase();
+
         if (type.equals("Home"))
         {
-            phoneBits = mPhone.split(" ");
-            selectedPhone = "home";//used to determine which type of phone to patch to
+            if (mPhone != null)
+                phoneBits = mPhone.split(" ");
         }
         else if (type.equals("Mobile"))
         {
-            phoneBits = mCell.split(" ");//split phone into its parts
-            selectedPhone = "mobile";//used to determine which type of phone to patch to
+            if (mCell != null)
+                phoneBits = mCell.split(" ");//split phone into its parts
         }
 
-        if (phoneBits == null) return;
+        if (phoneBits == null || phoneBits.length != 3)
+            return;
 
         mCountryCode = phoneBits[0].replaceAll("[^0-9.]", "");//get country code and remove non numbers
         mAreaCode = phoneBits[1].replaceAll("[^0-9.]", "");//get area code and remove non numbers
