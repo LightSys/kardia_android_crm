@@ -258,6 +258,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                     AsyncTask<String, Void, String> uploadJson3;
                     AsyncTask<String, Void, String> uploadJson4;
                     AsyncTask<String, Void, String> uploadJson5;
+                    AsyncTask<String, Void, String> uploadJson6;
 
                     if (mNewProfile)
                     {
@@ -275,6 +276,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                                 ? "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection"
                                 : null;
                         String emailUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+                        String photoUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/apps/kardia/api/crm/Partners/" + nextPartnerKey + "/ProfilePicture?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
 
                         JSONObject cellJson = createCellJson();
                         System.out.println(cellJson);
@@ -282,8 +284,9 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         uploadJson1 = new PostJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
                         uploadJson2 = new PostJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
                         uploadJson3 = new PostJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
-                        uploadJson4 = new PostJson(getContext(), cellUrl, cellJson, mAccount, false);
-                        uploadJson5 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, true);
+                        uploadJson4 = new PostJson(getContext(), cellUrl, createCellJson(), mAccount, false);
+                        uploadJson5 = new PostJson(getContext(), photoUrl, createPhotoJson(), mAccount, false);
+                        uploadJson6 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, true);
                     }
                     else
                     {
@@ -299,7 +302,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         uploadJson2 = new PatchJson(getContext(), addressUrl, createAddressJson(), mAccount);
                         uploadJson3 = new PatchJson(getContext(), phoneUrl, createPhoneJson(), mAccount);
                         uploadJson4 = new PatchJson(getContext(), cellUrl, createCellJson(), mAccount);
-                        uploadJson5 = new PatchJson(getContext(), emailUrl, createEmailJson(), mAccount);
+                        uploadJson5 = null;
+                        uploadJson6 = new PatchJson(getContext(), emailUrl, createEmailJson(), mAccount);
                     }
 
                     uploadJson1.execute();
@@ -312,8 +316,11 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         System.out.println("POST Mobile info");
                         uploadJson4.execute();
                     }
-                    System.out.println("POST Email info");
+                    System.out.println("Posting Profile Picture");
                     uploadJson5.execute();
+
+                    System.out.println("POST Email info");
+                    uploadJson6.execute();
                 }
                 catch(Exception e) {
                     e.printStackTrace();
@@ -443,6 +450,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         catch (JSONException ex) {
             ex.printStackTrace();
         }
+
         return phoneJson;
     }
 
@@ -478,7 +486,30 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         catch (JSONException ex) {
             ex.printStackTrace();
         }
+
         return addressJson;
+    }
+
+    private JSONObject createPhotoJson()
+    {
+        JSONObject photoJson = new JSONObject();
+
+        try
+        {
+            if (mNewProfile)
+            {
+                photoJson.put("name", "ProfilePicture");
+            } else
+            {
+
+            }
+        }catch (JSONException ex)
+        {
+            ex.printStackTrace();
+        }
+
+        return photoJson;
+
     }
 
     private JSONObject createPartnerJson()
@@ -511,6 +542,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         {
             ex.printStackTrace();
         }
+
         return partnerJson;
     }
 
@@ -610,6 +642,23 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
 
                 photo.setImageURI(selectedImageUri);
                 Log.d("NewProfileActivity", "isCamera: " + isCamera + " selectedImageUri: " + selectedImageUri);
+                /*{
+                    "@id":"/apps/kardia/api/crm/Partners/100054/ProfilePicture?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic"
+                    ,"Profile-18d23fe5e458.jpg":{
+                    "@id":"/apps/kardia/api/crm/Partners/100054/ProfilePicture/Profile-18d23fe5e458.jpg?cx__mode=rest&cx__res_format=attrs",
+                    "owner":"tparr",
+                    "group":"kardia_src",
+                    "last_modification":{ "year":2017, "month":6, "day":29, "hour":16, "minute":59, "second":21 },
+                    "last_access":{ "year":2017, "month":6, "day":29, "hour":16, "minute":59, "second":21 },
+                    "last_change":{ "year":2017, "month":6, "day":29, "hour":16, "minute":59, "second":21 },
+                    "permissions":33184,
+                    "size":22499,
+                    "name":"Profile-18d23fe5e458.jpg",
+                    "annotation":"",
+                    "inner_type":"image/jpeg",
+                    "outer_type":"system/file"
+                    }
+                }*/
             }
         }
     }
