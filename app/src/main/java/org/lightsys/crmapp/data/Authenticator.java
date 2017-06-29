@@ -31,6 +31,14 @@ public class Authenticator extends AbstractAccountAuthenticator {
     }
 
     @Override
+    public Bundle getAccountRemovalAllowed(AccountAuthenticatorResponse response, Account account) throws NetworkErrorException
+    {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, true);
+        return bundle;
+    }
+
+    @Override
     public Bundle addAccount(
             AccountAuthenticatorResponse r,
             String s,

@@ -60,7 +60,7 @@ public class CRMContract {
 
         public static final String CREATE_TABLE = "CREATE TABLE " + CRMContract.CollaborateeTable.TABLE_NAME + "(" +
                         CRMContract.CollaborateeTable.COLLABORATER_ID + ", " +
-                        CRMContract.CollaborateeTable.PARTNER_ID + ", " +
+                        CRMContract.CollaborateeTable.PARTNER_ID + " INTEGER PRIMARY KEY, " +
                         CRMContract.CollaborateeTable.PARTNER_NAME + ", " +
                         CRMContract.CollaborateeTable.SURNAME + ", " +
                         CRMContract.CollaborateeTable.GIVEN_NAMES + ", " +

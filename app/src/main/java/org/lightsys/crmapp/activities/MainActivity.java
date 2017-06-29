@@ -4,8 +4,11 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 
 import android.content.Intent;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -13,6 +16,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +26,8 @@ import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
+{
 
     private AccountManager mAccountManager;
 
@@ -33,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("Main Activity", "Created");
 
         mAccountManager = AccountManager.get(this);
         Account[] accounts = mAccountManager.getAccountsByType(CRMContract.accountType);
@@ -116,7 +122,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupNavigationView(){
-        // TODO create navigation view
+        NavigationView navigationView = (NavigationView) findViewById(R.id.mainNavigation);
+        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item)
+    {
+        int itemId = item.getItemId();
+        switch (itemId)
+        {
+            case R.id.action_logout:
+                Account[] accounts = mAccountManager.getAccountsByType(CRMContract.accountType);
+                Log.d("Main Activity", "# of Accounts: " + accounts.length);
+                Account account = accounts[0];
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+                {
+                    mAccountManager.removeAccountExplicitly(account);
+                }
+                else
+                {
+                    mAccountManager.removeAccount(account, null, null);
+                }
+                mAccountManager.addAccount(CRMContract.accountType, null, null, null, this, null, null);
+                finish();
+                return true;
+        }
+
+        return true;
     }
 
     private void setupFAB() {

@@ -464,6 +464,13 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
     {
+
+        if (!initializedView)
+        {
+            initializedView = true;
+            return;
+        }
+
         String type = (String)phoneType.getSelectedItem();
         String[] phoneBits = null;//split up phone into its parts
 

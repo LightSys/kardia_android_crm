@@ -4,4 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activities.MainActivity">
 
+    <item android:id="@+id/action_logout"
+          android:title="@string/logout"
+          app:showAsAction="ifRoom"
+          android:icon="@drawable/ic_logout_white"/>
+
 </menu>

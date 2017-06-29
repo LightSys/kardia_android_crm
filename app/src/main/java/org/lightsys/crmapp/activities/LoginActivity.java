@@ -42,6 +42,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("Login Activity", "Created");
 
         mAccountManager = AccountManager.get(this);
 
@@ -204,7 +205,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             for (Partner collaboratee : collaboratees) {
                 ContentValues values = new ContentValues();
                 values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, mAccountManager.getUserData(accounts[0], "partnerId"));
-                values.put(CRMContract.CollaborateeTable.PARTNER_ID, collaboratee.getPartnerId());
+                values.put(CRMContract.CollaborateeTable.PARTNER_ID, Integer.parseInt(collaboratee.getPartnerId()));
                 values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.getPartnerName());
                 getContentResolver().insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
             }
