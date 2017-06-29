@@ -5,7 +5,6 @@ import android.accounts.AccountManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +15,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.gson.JsonIOException;
-import com.hbb20.CountryCodePicker;
 import com.squareup.picasso.Picasso;
-
-import net.rimoto.intlphoneinput.IntlPhoneInput;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,22 +26,16 @@ import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.PatchJson;
 import org.lightsys.crmapp.data.PostJson;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-import java.util.Objects;
 
 
 /**
  * Created by cubemaster on 3/11/16.
  * Edited by Ca2br and Judah on 7/19/16
  *
- * Allows a user to edit a profile.
+ * Allows a user to edit/create a profile.
  *
- * ToDo find a way to patch to an object that doesn't yet exist
  */
 public class ProfileInputFragment extends Fragment implements AdapterView.OnItemSelectedListener {
     private static final String LOG_TAG = ProfileInputFragment.class.getName();
@@ -85,7 +74,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     TextView lastName;
     TextView phone; //displays the main part of the phone number
     TextView countryCode; //displays country code
-    TextView areaCode; //displays area code. phone is split like this because kardia tables. look at them, you'll understand.
+    TextView areaCode; //displays area code. phone is split like this to match kardia tables.
     TextView email;
     TextView address;
     TextView city;
@@ -94,14 +83,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
 
     private String selectedPhone = "mobile";
 
-    //These values were thought to be needed, but then it was realized that they were unnecessary.
-    //They are still here in case they are needed in the future.
-    private String mPhoneId;
-    private String mCellId;
-    private String mEmailId;
-
     //These store the url id for phone, email, address, and partner.
-    //They are used for patching specific json objects.
+    //They are used for posting specific json objects.
     private String mPhoneJsonId;
     private String mCellJsonId;
     private String mEmailJsonId;
@@ -147,9 +130,6 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             mCity = arguments.getString(EditProfileActivity.CITY_KEY);
             mState = arguments.getString(EditProfileActivity.STATE_KEY);
             mPostalCode = arguments.getString(EditProfileActivity.POSTALCODE_KEY);
-            mPhoneId = arguments.getString(EditProfileActivity.PHONE_ID_KEY);
-            mCellId = arguments.getString(EditProfileActivity.CELL_ID_KEY);
-            mEmailId = arguments.getString(EditProfileActivity.EMAIL_ID_KEY);
             mPhoneJsonId = arguments.getString(EditProfileActivity.PHONE_JSON_ID_KEY);
             mCellJsonId = arguments.getString(EditProfileActivity.CELL_JSON_ID_KEY);
             mEmailJsonId = arguments.getString(EditProfileActivity.EMAIL_JSON_ID_KEY);
@@ -158,12 +138,6 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             mNewProfile = false;
         }
         else {
-            //TODO Fill in JsonId variables
-            mPartnerJsonId = "";
-            mAddressJsonId = "";
-            mPhoneJsonId = "";
-            mCellJsonId = "";
-            mEmailJsonId = "";
             mNewProfile = true;
         }
 
@@ -253,11 +227,11 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                     else
                     {
                         //urls for patching to kardia
-                        String partnerUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/" + mPartnerJsonId + "&cx__res_type=element";
-                        String addressUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/" + mAddressJsonId + "&cx__res_type=element";
-                        String phoneUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/" + mPhoneJsonId + "&cx__res_type=element";
-                        String cellUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/" + mCellJsonId + "&cx__res_type=element";
-                        String emailUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/" + mEmailJsonId + "&cx__res_type=element";
+                        String partnerUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mPartnerJsonId + "&cx__res_type=element";
+                        String addressUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mAddressJsonId + "&cx__res_type=element";
+                        String phoneUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mPhoneJsonId + "&cx__res_type=element";
+                        String cellUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mCellJsonId + "&cx__res_type=element";
+                        String emailUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mEmailJsonId + "&cx__res_type=element";
 
                         //set up patch json objects for patching
                         uploadJson1 = new PatchJson(getContext(), partnerUrl, createPartnerJson(), mAccount);
@@ -490,47 +464,30 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
     {
-        if (!initializedView)
-        {
-            initializedView = true;
-            return;
-        }
         String type = (String)phoneType.getSelectedItem();
-        if (type.equals("Home")){
+        String[] phoneBits = null;//split up phone into its parts
 
-            if (mPhone == null) return;
-
-            String[] phoneBits = mPhone.split(" ");//split up phone into its parts
-
-            mCountryCode = phoneBits[0].replaceAll("[^0-9.]", "");//get country code and remove non numbers
-            mAreaCode = phoneBits[1].replaceAll("[^0-9.]", "");//get area code and remove non numbers
-            mPhoneNumber = phoneBits[2].replaceAll("[^0-9.]", "");//get phone number and remove non numbers
-
-            //set phone number values to views
-            phone.setText(mPhoneNumber);
-//            countryCode.setCountryForPhoneCode(Integer.parseInt(mCountryCode));
-            areaCode.setText(mAreaCode);
-
+        if (type.equals("Home"))
+        {
+            phoneBits = mPhone.split(" ");
             selectedPhone = "home";//used to determine which type of phone to patch to
         }
-        else if (type.equals("Mobile")){
-
-            if (mCell == null)
-                return;
-
-            String[] phoneBits = mCell.split(" ");//split phone into its parts
-
-            mCountryCode = phoneBits[0].replaceAll("[^0-9.]", "");//get country code and remove non numbers
-            mAreaCode = phoneBits[1].replaceAll("[^0-9.]", "");//get area code and remove non numbers
-            mPhoneNumber = phoneBits[2].replaceAll("[^0-9.]", "");//get phone number and remove non numbers
-
-            //set phone number values to views
-            phone.setText(mPhoneNumber);
-//            countryCode.setCountryForPhoneCode(Integer.parseInt(mCountryCode));
-            areaCode.setText(mAreaCode);
-
+        else if (type.equals("Mobile"))
+        {
+            phoneBits = mCell.split(" ");//split phone into its parts
             selectedPhone = "mobile";//used to determine which type of phone to patch to
         }
+
+        if (phoneBits == null) return;
+
+        mCountryCode = phoneBits[0].replaceAll("[^0-9.]", "");//get country code and remove non numbers
+        mAreaCode = phoneBits[1].replaceAll("[^0-9.]", "");//get area code and remove non numbers
+        mPhoneNumber = phoneBits[2].replaceAll("[^0-9.]", "");//get phone number and remove non numbers
+
+        //set phone number values to views
+        phone.setText(mPhoneNumber);
+        countryCode.setText(mCountryCode);
+        areaCode.setText(mAreaCode);
     }
 
     @Override

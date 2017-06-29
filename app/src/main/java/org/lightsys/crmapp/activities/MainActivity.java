@@ -62,8 +62,7 @@ public class MainActivity extends AppCompatActivity {
             // Runs when a search is submitted.
             @Override
             public boolean onQueryTextSubmit(String s) {
-                // TODO execute query and repopulate
-                //Does the API contain this logic. I'll need to ask Greg - Tim
+
                 Snackbar.make(findViewById(R.id.coordinatorlayout_main),
                         "TODO execute query and repopulate",
                         Snackbar.LENGTH_LONG).show();
@@ -81,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                     mainFrag.search(s);
                 }
 
-                return false;
+                return true;
             }
         });
         return true;

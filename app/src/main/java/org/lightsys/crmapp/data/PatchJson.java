@@ -20,8 +20,21 @@ import java.net.CookieManager;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
+import okhttp3.Credentials;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.Route;
 
 /**
  * Created by Judah Sistrunk on 7/7/2016.
@@ -41,6 +54,7 @@ public class PatchJson extends AsyncTask<String, Void, String> {
     private Context context;
     private boolean success = false;
     private static CookieManager cookieManager = new CookieManager();
+    OkHttpClient client;
 
     public PatchJson(Context context, String Url, JSONObject jsonPost, Account userAccount){
         url = Url;
@@ -64,19 +78,34 @@ public class PatchJson extends AsyncTask<String, Void, String> {
         InputStream inputStream;
         String result;
         try {
+
             //url used to retrieve the access token
             URL getUrl = new URL("http://" + mAccountManager.getUserData(account, "server") + ":800/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
 
-            HttpURLConnection connection;
-            connection = (HttpURLConnection) getUrl.openConnection();
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(10000);
+            client = new OkHttpClient.Builder()
+                    .cookieJar(new MyCookieJar())
+                    .authenticator(new okhttp3.Authenticator()
+                    {
+                        @Override
+                        public Request authenticate(Route route, Response response) throws IOException
+                        {
+                            String credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
+                            return response.request().newBuilder()
+                                    .header("Authorization", credential)
+                                    .build();
+                        }
+                    }).build();
 
-            inputStream = connection.getInputStream();
+            Request request = new Request.Builder()
+                    .url(getUrl)
+                    .get()
+                    .build();
+
+            Response response = client.newCall(request).execute();
 
             //get access token
-            if (inputStream != null) {
-                result = convertInputStreamToString(inputStream);
+            if (response.body() != null) {
+                result = response.body().string();
                 JSONObject token = new JSONObject(result);
 
                 url += "&cx__akey=" + token.getString("akey");
@@ -112,43 +141,40 @@ public class PatchJson extends AsyncTask<String, Void, String> {
         });
 
         URL url;
-        String response = "";
+        String result = "";
         try {
             url = new URL(requestURL);
 
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(15000);//15 second time out
-            conn.setConnectTimeout(15000);
-            conn.setRequestMethod("PATCH");
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            conn.setRequestProperty("Content-Type", "application/json");
+            if (client == null)
+                client = new OkHttpClient();
 
-            //get json object ready to send
-            String str = jsonObject.toString();
-            byte[] outputBytes = str.getBytes("UTF-8");
-            OutputStream os = conn.getOutputStream();
-            os.write(outputBytes);//send json object
+            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+            Request request = new Request.Builder()
+                    .url(url)
+                    .patch(body)
+                    .build();
 
-            int responseCode = conn.getResponseCode();
+            Response response = client.newCall(request).execute();
+
+            int responseCode = response.code();
 
             Log.e(TAG, "responseCode : " + responseCode);
 
-            //if the things were sent properly, get the response code
-            if (responseCode == HttpsURLConnection.HTTP_OK) {
+            //if the things were sent properly, get the result code
+            if (responseCode == HttpsURLConnection.HTTP_OK && response.isSuccessful()) {
                 Log.e(TAG, "HTTP_OK");
-                response = convertInputStreamToString(conn.getInputStream());
+                result = response.body().string();
                 success = true;
             } else {
                 Log.e(TAG, "False - HTTP_OK");//send failed :(
-                response = "";
+                result = "";
                 success = false;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return response;
+        return result;
     }
 
     @Override
@@ -163,6 +189,22 @@ public class PatchJson extends AsyncTask<String, Void, String> {
 
         }
     }
+}
 
+class MyCookieJar implements CookieJar {
 
+    private List<Cookie> cookies;
+
+    @Override
+    public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+        this.cookies =  cookies;
+    }
+
+    @Override
+    public List<Cookie> loadForRequest(HttpUrl url) {
+        if (cookies != null)
+            return cookies;
+        return new ArrayList<>();
+
+    }
 }
