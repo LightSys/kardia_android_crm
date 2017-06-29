@@ -2,11 +2,15 @@ package org.lightsys.crmapp.data;
 
 import android.accounts.AccountManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONObject;
+import org.lightsys.crmapp.activities.LoginActivity;
+import org.lightsys.crmapp.activities.MainActivity;
+
 import android.accounts.Account;
 
 import java.io.BufferedReader;
@@ -19,7 +23,6 @@ import java.net.CookieManager;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.URL;
-import java.text.MessageFormat;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -41,8 +44,9 @@ public class PostJson extends AsyncTask<String, Void, String> {
     private Context context;
     private boolean success = false;
     private static CookieManager cookieManager = new CookieManager();
+    private boolean finalTask;
 
-    public PostJson(Context context, String baseUrl, JSONObject jsonPost, Account userAccount){
+    public PostJson(Context context, String baseUrl, JSONObject jsonPost, Account userAccount, boolean finalAsyncTask){
         this.baseUrl = baseUrl;
         backupUrl = baseUrl;
         jsonObject = jsonPost;
@@ -50,12 +54,11 @@ public class PostJson extends AsyncTask<String, Void, String> {
         this.context = context;
         mAccountManager = AccountManager.get(context);
         CookieHandler.setDefault(cookieManager);
+        finalTask = finalAsyncTask;
     }
-
 
     @Override
     protected String doInBackground(String... params) {
-
         java.net.Authenticator.setDefault(new java.net.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
@@ -154,11 +157,15 @@ public class PostJson extends AsyncTask<String, Void, String> {
 
         if (success) {
             Toast.makeText(context, "Data posted successfully!", Toast.LENGTH_SHORT).show();
-
+            if (finalTask)
+            {
+                Intent intent = new Intent(context, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            }
         }
         else {
             Toast.makeText(context, "Network Issues: Your data is waiting to be sent", Toast.LENGTH_SHORT).show();
-
         }
     }
 
