@@ -7,9 +7,11 @@
     <string name="action_clear_search">Clear Search</string>
     <string name="action_edit_profile">Edit Profile</string>
     <string name="title_activity_login">LoginActivity</string>
+    <string name="login_message">Login to use the Kardia CRM app.</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
-    <string name="serverName">Server name or address</string>
+    <string name="serverName">Server Name or Address</string>
+    <string name="portNumber">Port Number</string>
     <string name="title_activity_profile">ProfileActivity</string>
     <string name="search_hint">Search</string>
     <string name="contact">Contact</string>
@@ -35,6 +37,10 @@
     <string-array name="name_spinner">
         <item>Mobile</item>
         <item>Home</item>
+    </string-array>
+    <string-array name="protocol_options">
+        <item>http</item>
+        <item>https</item>
     </string-array>
 
 </resources>

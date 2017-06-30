@@ -25,6 +25,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Spinner;
 
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
@@ -80,11 +81,32 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         EditText accountName = (EditText) findViewById(R.id.loginUsername);
         EditText accountPassword = (EditText) findViewById(R.id.loginPassword);
         EditText serverAddress = (EditText) findViewById(R.id.loginServer);
+        EditText portNumber = (EditText) findViewById(R.id.loginPort);
+        Spinner protocol = (Spinner) findViewById(R.id.protocolSpinner);
 
         String addAccountName = accountName.getText().toString();
         String addAccountPassword = accountPassword.getText().toString();
         String addServerAddress = serverAddress.getText().toString();
+        String addPortNumber = portNumber.getText().toString();
+        String addProtocol;
 
+        //Set protocol with spinner
+        //Other options can easily be added by adding items in strings.xml
+        switch (protocol.getSelectedItemPosition()){
+            case 0:
+                addProtocol = "http";
+                break;
+            case 1:
+                addProtocol = "https";
+                break;
+            default:
+                addProtocol = "http";
+                break;
+        }
+
+
+
+        //If any field is left blank, display error message
         if (addAccountName.equals("")) {
             ((TextView) findViewById(R.id.loginUsernameError)).setText("Enter a username.");
             return;
@@ -105,6 +127,18 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         else {
             ((TextView) findViewById(R.id.loginServerError)).setText("");
         }
+        if (addPortNumber.equals("")) {
+            ((TextView) findViewById(R.id.loginPortError)).setText("Enter a port number.");
+            return;
+        }
+        else {
+            ((TextView) findViewById(R.id.loginPortError)).setText("");
+        }
+
+
+        //Concatenate server info into full address
+        String addFullServerAddress = addProtocol + "://" + addServerAddress + ":" + addPortNumber;
+
 
         Account newAccount = new Account(addAccountName, CRMContract.accountType);
         Bundle bundle = new Bundle();
@@ -115,7 +149,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         {
             Log.d("LoginActivity", "Adding Acount Failed");
         }
-        mAccountManager.setUserData(newAccount, "server", addServerAddress);
+        mAccountManager.setUserData(newAccount, "server", addFullServerAddress);
         new GetPartnerIdTask().execute(newAccount);
     }
 

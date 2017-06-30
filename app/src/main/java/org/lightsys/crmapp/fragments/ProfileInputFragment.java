@@ -266,16 +266,17 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         System.out.println("Retrieved New Partner Key: " + nextPartnerKey);
 
                         //urls for Posting to kardia
-                        String partnerUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/apps/kardia/api/partner/Partners?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
+                        String partnerUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
 
-                        String addressUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/Addresses?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+                        String addressUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/Addresses?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
                         String phoneUrl = selectedPhone.equals("home")
-                                ? "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic"
+                                ? mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic"
                                 : null;
                         String cellUrl = selectedPhone.equals("mobile")
-                                ? "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection"
+                                ? mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection"
                                 : null;
-                        String emailUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+
+                        String emailUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
                         String photoUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/apps/kardia/api/crm/Partners/" + nextPartnerKey + "/ProfilePicture?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
 
                         JSONObject cellJson = createCellJson();
@@ -291,11 +292,11 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                     else
                     {
                         //urls for patching to kardia
-                        String partnerUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mPartnerJsonId + "&cx__res_type=element";
-                        String addressUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mAddressJsonId + "&cx__res_type=element";
-                        String phoneUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mPhoneJsonId + "&cx__res_type=element";
-                        String cellUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mCellJsonId + "&cx__res_type=element";
-                        String emailUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800" + mEmailJsonId + "&cx__res_type=element";
+                        String partnerUrl = mAccountManager.getUserData(mAccount, "server") + mPartnerJsonId + "&cx__res_type=element";
+                        String addressUrl = mAccountManager.getUserData(mAccount, "server") + mAddressJsonId + "&cx__res_type=element";
+                        String phoneUrl = mAccountManager.getUserData(mAccount, "server") + mPhoneJsonId + "&cx__res_type=element";
+                        String cellUrl = mAccountManager.getUserData(mAccount, "server") + mCellJsonId + "&cx__res_type=element";
+                        String emailUrl = mAccountManager.getUserData(mAccount, "server") + mEmailJsonId + "&cx__res_type=element";
 
                         //set up patch json objects for patching
                         uploadJson1 = new PatchJson(getContext(), partnerUrl, createPartnerJson(), mAccount);

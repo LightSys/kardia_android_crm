@@ -16,12 +16,11 @@
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <fragment
+            <android.support.v7.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/fragment_profiles"
-                android:name="org.lightsys.crmapp.fragments.MainFragment"
-                tools:layout="@android:layout/list_content" />
+                android:id="@+id/recyclerview_profiles"
+                android:divider="@null" />
 
         </FrameLayout>
         
