@@ -50,7 +50,11 @@
         <FrameLayout
             android:id="@+id/fragment_profile_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent" >
+
+            <include layout="@layout/fragment_profile"/>
+
+            </FrameLayout>
 
     </android.support.v4.widget.NestedScrollView>
 
