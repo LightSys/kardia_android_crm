@@ -23,6 +23,7 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 
@@ -114,7 +115,8 @@ public class KardiaFetcher {
     }
 
     //function that gets a list of collaboratees
-    public List<Partner> getCollaboratees(Account account) {
+    public List<Partner> getCollaboratees(Account account) throws IOException
+    {
         List<Partner> collaboratees = new ArrayList<>();//empty list of collaboratees
 
         try {
@@ -129,10 +131,23 @@ public class KardiaFetcher {
             JSONObject crmJsonBody = new JSONObject(crmJsonString);//build json object form string
 
             parseCollaborateesJson(collaboratees, crmJsonBody);//fill collaboratees list with collaboratees
+
+            for (Partner collaboratee : collaboratees)
+            {
+                String profilePictureApi = Uri.parse("/apps/kardia/api/crm/Partners/" + collaboratee.getPartnerId() + "/ProfilePicture")
+                        .buildUpon()
+                        .appendQueryParameter("cx__mode", "rest")
+                        .appendQueryParameter("cx__res_type", "element")
+                        .appendQueryParameter("cx__res_format", "attrs")
+                        .appendQueryParameter("cx__res_attrs", "basic")
+                        .build().toString();
+                String pictureJsonString = getUrlString(account, profilePictureApi);
+                JSONObject pictureJsonBody = new JSONObject(pictureJsonString);//build json object
+                collaboratee.setProfilePictureFilename(pictureJsonBody.getString("photo_folder") + "/" + pictureJsonBody.getString("photo_filename"));
+            }
+
         } catch (JSONException je) {
             je.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
         }
 
         return collaboratees;
@@ -176,8 +191,18 @@ public class KardiaFetcher {
             String contactJsonString = getUrlString(account, contactApi);//get json string from network
             JSONObject contactJsonBody = new JSONObject(contactJsonString);//build json object
 
+            String profilePictureApi = Uri.parse("/apps/kardia/api/crm/Partners/" + collaboratee.getPartnerId() + "/ProfilePicture")
+                    .buildUpon()
+                    .appendQueryParameter("cx__mode", "rest")
+                    .appendQueryParameter("cx__res_type", "element")
+                    .appendQueryParameter("cx__res_format", "attrs")
+                    .appendQueryParameter("cx__res_attrs", "basic")
+                    .build().toString();
+            String pictureJsonString = getUrlString(account, profilePictureApi);
+            JSONObject pictureJsonBody = new JSONObject(pictureJsonString);//build json object
+
             //build an object based on a combination of all the json objects
-            parseCollaborateeInfoJson(collaboratee, partnerJsonBody, addressJsonBody, contactJsonBody);
+            parseCollaborateeInfoJson(collaboratee, partnerJsonBody, addressJsonBody, contactJsonBody, pictureJsonBody);
         } catch (JSONException je) {
             je.printStackTrace();
         } catch (IOException ioe) {
@@ -249,14 +274,13 @@ public class KardiaFetcher {
                 collaboratee.setPartnerId(jsonPartner.getString("partner_id"));
                 collaboratee.setPartnerName(jsonPartner.getString("partner_name"));
 
-
                 collaboratees.add(collaboratee);
             }
         }
     }
 
     //function that fills a partner with information based on a json object
-    private Partner parseCollaborateeInfoJson(Partner collaboratee, JSONObject partnerJsonBody, JSONObject addressJsonBody, JSONObject contactJsonBody) throws IOException, JSONException {
+    private Partner parseCollaborateeInfoJson(Partner collaboratee, JSONObject partnerJsonBody, JSONObject addressJsonBody, JSONObject contactJsonBody, JSONObject profilePictureJsonBody) throws IOException, JSONException {
         //TODO Use contact provider
         collaboratee.setSurname(partnerJsonBody.getString("surname"));
         collaboratee.setGivenNames(partnerJsonBody.getString("given_names"));
@@ -304,10 +328,10 @@ public class KardiaFetcher {
                     collaboratee.setPhoneJsonId(jsonContact.getString("@id"));
 
                 }
-
-
             }
         }
+
+        collaboratee.setProfilePictureFilename(profilePictureJsonBody.getString("photo_folder") + "/" + profilePictureJsonBody.getString("photo_filename"));
 
         return collaboratee;
     }

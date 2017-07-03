@@ -7,13 +7,11 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.SystemClock;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatCallback;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.view.ActionMode;
@@ -24,8 +22,9 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
@@ -33,6 +32,7 @@ import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.Staff;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -232,24 +232,46 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
     }
 
     private class GetCollaborateesTask extends AsyncTask<Account, Void, Void> {
+        Exception error;
         @Override
         protected Void doInBackground(Account... accounts) {
             KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
-            List<Partner> collaboratees = fetcher.getCollaboratees(accounts[0]);
-            for (Partner collaboratee : collaboratees) {
-                ContentValues values = new ContentValues();
-                values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, mAccountManager.getUserData(accounts[0], "partnerId"));
-                values.put(CRMContract.CollaborateeTable.PARTNER_ID, Integer.parseInt(collaboratee.getPartnerId()));
-                values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.getPartnerName());
-                getContentResolver().insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
-            }
 
+            try
+            {
+                List<Partner> collaboratees = fetcher.getCollaboratees(accounts[0]);
+
+                for (Partner collaboratee : collaboratees) {
+                    ContentValues values = new ContentValues();
+                    values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, mAccountManager.getUserData(accounts[0], "partnerId"));
+                    values.put(CRMContract.CollaborateeTable.PARTNER_ID, Integer.parseInt(collaboratee.getPartnerId()));
+                    values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.getPartnerName());
+                    values.put(CRMContract.CollaborateeTable.PROFILE_PICTURE, collaboratee.getProfilePictureFilename());
+                    getContentResolver().insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
+
+                    ProfileActivity.saveImageFromUrl(
+                            mAccountManager.getUserData(accounts[0], "server"),
+                            getApplicationContext(),
+                            collaboratee.getProfilePictureFilename(),
+                            collaboratee.getPartnerId()
+                    );
+                }
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+                error = e;
+            }
             return null;
         }
 
         @Override
         protected void onPostExecute(Void nothing) {
-            mainActivity();
+            if (error == null)
+                mainActivity();
+            else
+            {
+                Toast.makeText(getApplicationContext(), "Network Issues: Server rejected request.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

@@ -24,8 +24,8 @@ public class CRMContract {
         public static final String KARDIA_LOGIN = "kardiaLogin";
 
         public static final String CREATE_TABLE = "CREATE TABLE " + CRMContract.StaffTable.TABLE_NAME + "(" +
-                        CRMContract.StaffTable.PARTNER_ID + ", " +
-                        CRMContract.StaffTable.KARDIA_LOGIN +
+                        PARTNER_ID + ", " +
+                        KARDIA_LOGIN +
                         ")";
     }
 
@@ -53,32 +53,35 @@ public class CRMContract {
         public static final String EMAIL_JSON_ID = "emailJsonId";
         public static final String ADDRESS_JSON_ID = "addressJsonId";
         public static final String PARTNER_JSON_ID = "partnerJsonId";
+        public static final String PROFILE_PICTURE = "profilePicture";
+        
         public static final String[] ALL_COLUMNS = {
                 COLLABORATER_ID, PARTNER_ID, PARTNER_NAME, EMAIL, PHONE, ADDRESS_1, CITY, STATE_PROVINCE,
                 POSTAL_CODE, CELL, SURNAME, GIVEN_NAMES, PHONE_ID, CELL_ID, EMAIL_ID, PHONE_JSON_ID,
                 CELL_JSON_ID, EMAIL_JSON_ID, ADDRESS_JSON_ID, PARTNER_JSON_ID };
 
-        public static final String CREATE_TABLE = "CREATE TABLE " + CRMContract.CollaborateeTable.TABLE_NAME + "(" +
-                        CRMContract.CollaborateeTable.COLLABORATER_ID + ", " +
-                        CRMContract.CollaborateeTable.PARTNER_ID + " INTEGER PRIMARY KEY, " +
-                        CRMContract.CollaborateeTable.PARTNER_NAME + ", " +
-                        CRMContract.CollaborateeTable.SURNAME + ", " +
-                        CRMContract.CollaborateeTable.GIVEN_NAMES + ", " +
-                        CRMContract.CollaborateeTable.PHONE + ", " +
-                        CRMContract.CollaborateeTable.PHONE_ID + ", " +
-                        CRMContract.CollaborateeTable.CELL + ", " +
-                        CRMContract.CollaborateeTable.CELL_ID + ", " +
-                        CRMContract.CollaborateeTable.EMAIL + ", " +
-                        CRMContract.CollaborateeTable.EMAIL_ID + ", " +
-                        CRMContract.CollaborateeTable.ADDRESS_1 + ", " +
-                        CRMContract.CollaborateeTable.CITY + ", " +
-                        CRMContract.CollaborateeTable.STATE_PROVINCE + ", " +
-                        CRMContract.CollaborateeTable.POSTAL_CODE + ", " +
-                        CRMContract.CollaborateeTable.PHONE_JSON_ID + ", " +
-                        CRMContract.CollaborateeTable.CELL_JSON_ID + ", " +
-                        CRMContract.CollaborateeTable.EMAIL_JSON_ID + ", " +
-                        CRMContract.CollaborateeTable.ADDRESS_JSON_ID + ", " +
-                        CRMContract.CollaborateeTable.PARTNER_JSON_ID + ")";
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" +
+                COLLABORATER_ID + ", " +
+                PARTNER_ID + " INTEGER PRIMARY KEY, " +
+                PARTNER_NAME + ", " +
+                SURNAME + ", " +
+                GIVEN_NAMES + ", " +
+                PHONE + ", " +
+                PHONE_ID + ", " +
+                CELL + ", " +
+                CELL_ID + ", " +
+                EMAIL + ", " +
+                EMAIL_ID + ", " +
+                ADDRESS_1 + ", " +
+                CITY + ", " +
+                STATE_PROVINCE + ", " +
+                POSTAL_CODE + ", " +
+                PHONE_JSON_ID + ", " +
+                CELL_JSON_ID + ", " +
+                EMAIL_JSON_ID + ", " +
+                ADDRESS_JSON_ID + ", " +
+                PARTNER_JSON_ID + ", " +
+                PROFILE_PICTURE + ")";
     }
 
     public static final class TimelineTable {
@@ -96,14 +99,14 @@ public class CRMContract {
         public static final String DATE = "date";
 
         public static final String CREATE_TABLE = "CREATE TABLE " + TimelineTable.TABLE_NAME + "("  +
-                TimelineTable.CONTACT_ID + "," +
-                TimelineTable.PARTNER_ID + "," +
-                TimelineTable.COLLABORATEE_ID + "," +
-                TimelineTable.COLLABORATEE_NAME + "," +
-                TimelineTable.CONTACT_HISTORY_ID + "," +
-                TimelineTable.CONTACT_HISTORY_TYPE + "," +
-                TimelineTable.SUBJECT + "," +
-                TimelineTable.NOTES + "," +
-                TimelineTable.DATE + ")";
+                CONTACT_ID + "," +
+                PARTNER_ID + "," +
+                COLLABORATEE_ID + "," +
+                COLLABORATEE_NAME + "," +
+                CONTACT_HISTORY_ID + "," +
+                CONTACT_HISTORY_TYPE + "," +
+                SUBJECT + "," +
+                NOTES + "," +
+                DATE + ")";
     }
 }

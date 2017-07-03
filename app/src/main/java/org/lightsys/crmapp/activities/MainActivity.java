@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -38,11 +39,13 @@ import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.models.Partner;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.lightsys.crmapp.activities.ProfileActivity.PARTNER_ID_KEY;
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
+import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PROFILE_PICTURE;
 
 
 /**
@@ -215,10 +218,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
          * Binds profile information to the view.
          */
         public void bindProfile(Partner partner) {
-            Picasso.with(getApplication())
-                    .load(partner.getProfilePictureFilename())
-                    .placeholder(R.drawable.john_smith)
-                    .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
+            if (partner.getProfilePictureFilename() == null || partner.getProfilePictureFilename().equals(""))
+            {
+                Picasso.with(getApplication())
+                        .load(R.drawable.ic_person_black_24dp)
+                        .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
+            }
+            else
+            {
+                File directory = getDir("imageDir", Context.MODE_PRIVATE);
+                int indexoffileName = partner.getProfilePictureFilename().lastIndexOf("/");
+                String finalPath = directory + "/" + partner.getProfilePictureFilename().substring(indexoffileName + 1);
+
+                Picasso.with(getApplication())
+                        .load(new File(finalPath))
+                        .placeholder(R.drawable.ic_person_black_24dp)
+                        .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
+            }
             ((TextView) mLinearLayout.findViewById(R.id.profile_name)).setText(partner.getPartnerName());
 
             mPartner = partner;
@@ -491,9 +507,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //get collaboratee stuff from the database
             Cursor cursor = getContentResolver().query(
                     CRMContract.CollaborateeTable.CONTENT_URI,
-                    new String[] { CRMContract.CollaborateeTable.PARTNER_ID, PARTNER_NAME },
-                    CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
-                    new String[] { partnerId },
+                    new String[] {
+                            CRMContract.CollaborateeTable.PARTNER_ID,
+                            CRMContract.CollaborateeTable.PARTNER_NAME,
+                            CRMContract.CollaborateeTable.PROFILE_PICTURE },
+                    null,//CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
+                    null,//new String[] { partnerId },
                     null
             );
 
@@ -502,9 +521,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             if (cursor != null)
             {
+                int partnerIdIndex = cursor.getColumnIndex(CRMContract.CollaborateeTable.PARTNER_ID);
+                int partnerNameIndex = cursor.getColumnIndex(PARTNER_NAME);
+                int profilePictureIndex = cursor.getColumnIndex(PROFILE_PICTURE);
+
                 while (cursor.moveToNext())
                 {
-                    Partner collaboratee = new Partner(cursor.getString(cursor.getColumnIndex(CRMContract.CollaborateeTable.PARTNER_ID)), cursor.getString(cursor.getColumnIndex(PARTNER_NAME)));
+                    Partner collaboratee = new Partner();
+                    collaboratee.setPartnerId(cursor.getString(partnerIdIndex));
+                    collaboratee.setPartnerName(cursor.getString(partnerNameIndex));
+                    collaboratee.setProfilePictureFilename(cursor.getString(profilePictureIndex));
                     collaboratees.add(collaboratee);
                 }
                 cursor.close();
@@ -531,11 +557,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if(profile.getPartnerName().toLowerCase().contains(searchText.toLowerCase())) {
                 profiles.add(profile);
             }
-
         }
-
         setupAdapter(profiles);
-
     }
 
     /**
@@ -544,5 +567,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void setupAdapter(List<Partner> profiles) {
         mRecyclerView.setAdapter(new ProfileAdapter(profiles));
     }
-
 }

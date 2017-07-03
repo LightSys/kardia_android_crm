@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -18,10 +19,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import org.lightsys.crmapp.Formatter;
 import org.lightsys.crmapp.data.CRMContract;
@@ -30,10 +34,18 @@ import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.TimelineItem;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
 
@@ -120,7 +132,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     Partner mPartner2 = new Partner();
 
-    AccountManager acct;
+    AccountManager mAccountManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -174,9 +186,9 @@ public class ProfileActivity extends AppCompatActivity {
             mCollapsingToolbarLayout.setTitle(mName);
         }
 
-        acct = AccountManager.get(getApplicationContext());
+        mAccountManager = AccountManager.get(getApplicationContext());
 
-        Account[] accounts = acct.getAccountsByType(CRMContract.accountType);
+        Account[] accounts = mAccountManager.getAccountsByType(CRMContract.accountType);
         if(accounts.length > 0) {
             mAccount = accounts[0];
             new getCollaborateeInfoTask().execute();
@@ -355,7 +367,7 @@ public class ProfileActivity extends AppCompatActivity {
         protected List<TimelineItem> doInBackground(Void... params) {
             KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
             List<TimelineItem> items;
-            acct.setUserData(mAccount, "collabId", mPartnerId);
+            mAccountManager.setUserData(mAccount, "collabId", mPartnerId);
             items = fetcher.getTimelineItems(mAccount);
 
             for(TimelineItem item : items) {
@@ -380,7 +392,7 @@ public class ProfileActivity extends AppCompatActivity {
                             CRMContract.TimelineTable.SUBJECT, CRMContract.TimelineTable.NOTES,
                             CRMContract.TimelineTable.DATE},
                     CRMContract.TimelineTable.CONTACT_ID + " = ?",
-                    new String[] {acct.getUserData(mAccount, "partnerId")},
+                    new String[] {mAccountManager.getUserData(mAccount, "partnerId")},
                     null
             );
 
@@ -505,14 +517,14 @@ public class ProfileActivity extends AppCompatActivity {
      * Gets detailed collaboratee information.
      *
      */
-    private class getCollaborateeInfoTask extends AsyncTask<Void, Void, Partner> {
+    private class getCollaborateeInfoTask extends AsyncTask<Void, Void, Void> {
 
         /**
          * Background thread that fetches info from the server.
          * This where the magic happens.
          */
         @Override
-        protected Partner doInBackground(Void... params) {
+        protected Void doInBackground(Void... params) {
             Partner collaboratee = new Partner(mPartnerId, mName);
 
             //get collaboratee from the database
@@ -526,12 +538,12 @@ public class ProfileActivity extends AppCompatActivity {
                             CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID, CRMContract.CollaborateeTable.ADDRESS_JSON_ID,
                             CRMContract.CollaborateeTable.PARTNER_JSON_ID},
                     CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
-                    new String[] {acct.getUserData(mAccount, "partnerId")},
+                    new String[] {mAccountManager.getUserData(mAccount, "partnerId")},
                     null);
 
             //turn raw query stuffs into a partner
             while(cursor.moveToNext()) {
-                if (cursor.getString(0).equals(mPartner2.getPartnerId())) {
+                if (cursor.getString(0).equals(mPartnerId)) {
                     collaboratee.setPartnerName(cursor.getString(1));
                     collaboratee.setEmail(cursor.getString(2));
                     collaboratee.setPhone(cursor.getString(3));
@@ -560,14 +572,14 @@ public class ProfileActivity extends AppCompatActivity {
                     || collaboratee.getCity() == null || collaboratee.getStateProvince() == null || collaboratee.getPostalCode() == null ||
                     collaboratee.getCell() == null) {
 
-                //get all the collaboratee junk from the server
+                //get all the collaboratee info from the server
                 KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
                 collaboratee = fetcher.getCollaborateeInfo(mAccount, collaboratee);
 
-                mPartner2 = collaboratee;
+                if (collaboratee.getProfilePictureFilename() != null)
+                    saveImageFromUrl(mAccountManager.getUserData(mAccount, "server"), getApplicationContext(), collaboratee.getProfilePictureFilename(), mPartnerId);
 
-                //get new stuff ready to go into the database, but don't add blank things
-                //blank things break things
+                //puts all non null collaboratee values into database
                 ContentValues values = new ContentValues();
                 if (collaboratee.getPartnerId() != null) {
                     values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, collaboratee.getPartnerId());
@@ -609,11 +621,9 @@ public class ProfileActivity extends AppCompatActivity {
                     values.put(CRMContract.CollaborateeTable.PARTNER_JSON_ID, collaboratee.getPartnerJsonId());
                 }
 
-                //put new stuff into database
+                //put new collaboratee info into database
                 getApplicationContext().getContentResolver().update(CRMContract.CollaborateeTable.CONTENT_URI, values,
                         CRMContract.CollaborateeTable.PARTNER_ID + " = ?", new String[] {collaboratee.getPartnerId()});
-
-                mPartner2 = collaboratee;
 
                 //pull stuff back out of the database
                 //this gets the original data back in case kardia returned nothing
@@ -628,13 +638,13 @@ public class ProfileActivity extends AppCompatActivity {
                                 CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID,
                                 CRMContract.CollaborateeTable.ADDRESS_JSON_ID, CRMContract.CollaborateeTable.PARTNER_JSON_ID},
                         CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
-                        new String[]{acct.getUserData(mAccount, "partnerId")},
+                        new String[]{mAccountManager.getUserData(mAccount, "partnerId")},
                         null
                 );
 
                 //smash query data into the general shape of a partner
                 while(cursor2.moveToNext()) {
-                    if (cursor2.getString(0).equals(mPartner2.getPartnerId())) {
+                    if (cursor2.getString(0).equals(mPartnerId)) {
                         collaboratee.setPartnerName(cursor2.getString(1));
                         collaboratee.setEmail(cursor2.getString(2));
                         collaboratee.setPhone(cursor2.getString(3));
@@ -664,16 +674,14 @@ public class ProfileActivity extends AppCompatActivity {
             else {
                 mPartner2 = collaboratee;
             }
-
-            return collaboratee;
+            return null;
         }
-
 
         /**
          * Places info into an intent after Async task has finished
          */
         @Override
-        protected void onPostExecute(Partner collaboratee) {
+        protected void onPostExecute(Void params) {
 
             mName = mPartner2.getPartnerName();
 
@@ -705,6 +713,25 @@ public class ProfileActivity extends AppCompatActivity {
             mSkype = mPartner2.getSkype();
             mTwitter = mPartner2.getTwitter();
             mWebsite = mPartner2.getWebsite();
+
+            File directory = getDir("imageDir", Context.MODE_PRIVATE);
+
+            String profilePictureFilename = mPartner2.getProfilePictureFilename();
+            if (profilePictureFilename == null || profilePictureFilename.equals(""))
+            {
+                Picasso.with(getApplication())
+                        .load(R.drawable.ic_person_black_24dp)
+                        .into(((ImageView) findViewById(R.id.backdrop_profile)));
+            }
+            else
+            {
+                int indexoffileName = profilePictureFilename.lastIndexOf("/");
+                String finalPath = directory + "/" + profilePictureFilename.substring(indexoffileName + 1);
+                Picasso.with(getApplication())
+                        .load(new File(finalPath))
+                        .placeholder(R.drawable.ic_person_black_24dp)
+                        .into(((ImageView) findViewById(R.id.backdrop_profile)));
+            }
 
             TextView mTextView = (TextView) findViewById(R.id.e_address);
             mTextView.setText(mEmail);
@@ -751,4 +778,36 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
+    public static void saveImageFromUrl(String server, Context context, String profilePictureFilename, String partnerId)
+    {
+        if (profilePictureFilename == null || profilePictureFilename.equals(""))
+            return;
+
+        URL url;
+        String finalPath;
+        InputStream input;
+        try {
+            url = new URL(server + profilePictureFilename);
+            File directory = context.getDir("imageDir", Context.MODE_PRIVATE);
+            int indexoffileName = profilePictureFilename.lastIndexOf("/");
+
+            finalPath = directory + "/"+ profilePictureFilename.substring(indexoffileName + 1);
+
+            if (new File(finalPath).exists())
+                return;
+
+            input = url.openStream();
+            FileOutputStream output = new FileOutputStream(finalPath);
+
+            byte[] buffer = new byte[2048];
+            int bytesRead;
+            while ((bytesRead = input.read(buffer, 0, buffer.length)) >= 0)
+            {
+                output.write(buffer, 0, bytesRead);
+            }
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
 }
