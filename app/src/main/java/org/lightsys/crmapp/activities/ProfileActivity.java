@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.COLLABORATER_ID;
+import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_ID;
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
 
 /**
@@ -45,7 +47,7 @@ import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAM
  * This class pretty much just gets a bunch of info and sends it to the profile fragment
  */
 public class ProfileActivity extends AppCompatActivity {
-    //constants for retrieving junk from intents
+    //constants for retrieving stuff from intents
     public static final String LOG_TAG = ProfileActivity.class.getName();
     public static final String NAME_KEY = "EXTRA_NAME";
     public static final String PARTNER_ID_KEY = "EXTRA_PARTNER_ID";
@@ -70,7 +72,6 @@ public class ProfileActivity extends AppCompatActivity {
     public static final String EMAIL_JSON_ID_KEY = "EXTRA_EMAIL_JSON_ID";
     public static final String ADDRESS_JSON_ID_KEY = "EXTRA_ADDRESS_JSON_ID";
     public static final String PARTNER_JSON_ID_KEY = "EXTRA_PARTNER_JSON_ID";
-
 
     public static final String BLOG_KEY = "EXTRA_BLOG";
     public static final String FAX_KEY = "EXTRA_FAX";
@@ -163,7 +164,6 @@ public class ProfileActivity extends AppCompatActivity {
             mSkype = savedInstanceState.getString(SKYPE_KEY);
             mTwitter = savedInstanceState.getString(TWITTER_KEY);
             mWebsite = savedInstanceState.getString(WEBSITE_KEY);
-
         }
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar_profile);
@@ -567,6 +567,11 @@ public class ProfileActivity extends AppCompatActivity {
 
                 mPartner2 = collaboratee;
 
+                //set partner ID to match account ID
+                //this fixes an issue where a profile disappeared from the main list after being clicked
+                collaboratee.setPartnerId(acct.getUserData(mAccount, "partnerId"));
+
+
                 //get new stuff ready to go into the database, but don't add blank things
                 //blank things break things
                 ContentValues values = new ContentValues();
@@ -620,41 +625,39 @@ public class ProfileActivity extends AppCompatActivity {
                 //this gets the original data back in case kardia returned nothing
                 Cursor cursor2 = getContentResolver().query(
                         CRMContract.CollaborateeTable.CONTENT_URI,
-                        new String[]{CRMContract.CollaborateeTable.PARTNER_ID, PARTNER_NAME,
-                                CRMContract.CollaborateeTable.EMAIL, CRMContract.CollaborateeTable.PHONE, CRMContract.CollaborateeTable.ADDRESS_1,
-                                CRMContract.CollaborateeTable.CITY, CRMContract.CollaborateeTable.STATE_PROVINCE,
-                                CRMContract.CollaborateeTable.POSTAL_CODE, CRMContract.CollaborateeTable.CELL, CRMContract.CollaborateeTable.SURNAME,
-                                CRMContract.CollaborateeTable.GIVEN_NAMES, CRMContract.CollaborateeTable.PHONE_ID, CRMContract.CollaborateeTable.CELL_ID,
-                                CRMContract.CollaborateeTable.EMAIL_ID, CRMContract.CollaborateeTable.PHONE_JSON_ID,
-                                CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID,
-                                CRMContract.CollaborateeTable.ADDRESS_JSON_ID, CRMContract.CollaborateeTable.PARTNER_JSON_ID},
+                        new String[] {CRMContract.CollaborateeTable.PARTNER_ID, PARTNER_NAME, CRMContract.CollaborateeTable.EMAIL,
+                                CRMContract.CollaborateeTable.PHONE, CRMContract.CollaborateeTable.ADDRESS_1, CRMContract.CollaborateeTable.CITY,
+                                CRMContract.CollaborateeTable.STATE_PROVINCE, CRMContract.CollaborateeTable.POSTAL_CODE, CRMContract.CollaborateeTable.CELL,
+                                CRMContract.CollaborateeTable.SURNAME, CRMContract.CollaborateeTable.GIVEN_NAMES, CRMContract.CollaborateeTable.PHONE_ID,
+                                CRMContract.CollaborateeTable.CELL_ID, CRMContract.CollaborateeTable.EMAIL_ID, CRMContract.CollaborateeTable.PHONE_JSON_ID,
+                                CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID, CRMContract.CollaborateeTable.ADDRESS_JSON_ID,
+                                CRMContract.CollaborateeTable.PARTNER_JSON_ID},
                         CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
-                        new String[]{acct.getUserData(mAccount, "partnerId")},
-                        null
-                );
+                        new String[] {acct.getUserData(mAccount, "partnerId")},
+                        null);
 
-                //smash query data into the general shape of a partner
+                //turn raw query stuff into a partner
                 while(cursor2.moveToNext()) {
                     if (cursor2.getString(0).equals(mPartner2.getPartnerId())) {
-                        collaboratee.setPartnerName(cursor2.getString(1));
-                        collaboratee.setEmail(cursor2.getString(2));
-                        collaboratee.setPhone(cursor2.getString(3));
-                        collaboratee.setAddress1(cursor2.getString(4));
-                        collaboratee.setCity(cursor2.getString(5));
-                        collaboratee.setStateProvince(cursor2.getString(6));
-                        collaboratee.setPostalCode(cursor2.getString(7));
-                        collaboratee.setFullAddress(cursor2.getString(4), cursor2.getString(5), cursor2.getString(6), cursor2.getString(7));
-                        collaboratee.setCell(cursor2.getString(8));
-                        collaboratee.setSurname(cursor2.getString(9));
-                        collaboratee.setGivenNames(cursor2.getString(10));
-                        collaboratee.setPhoneId(cursor2.getString(11));
-                        collaboratee.setCellId(cursor2.getString(12));
-                        collaboratee.setEmailId(cursor2.getString(13));
-                        collaboratee.setPhoneJsonId(cursor2.getString(14));
-                        collaboratee.setCellJsonId(cursor2.getString(15));
-                        collaboratee.setEmailJsonId(cursor2.getString(16));
-                        collaboratee.setAddressJsonId(cursor2.getString(17));
-                        collaboratee.setPartnerJsonId(cursor2.getString(18));
+                        collaboratee.setPartnerName(cursor.getString(1));
+                        collaboratee.setEmail(cursor.getString(2));
+                        collaboratee.setPhone(cursor.getString(3));
+                        collaboratee.setAddress1(cursor.getString(4));
+                        collaboratee.setCity(cursor.getString(5));
+                        collaboratee.setStateProvince(cursor.getString(6));
+                        collaboratee.setPostalCode(cursor.getString(7));
+                        collaboratee.setFullAddress(cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7));
+                        collaboratee.setCell(cursor.getString(8));
+                        collaboratee.setSurname(cursor.getString(9));
+                        collaboratee.setGivenNames(cursor.getString(10));
+                        collaboratee.setPhoneId(cursor.getString(11));
+                        collaboratee.setCellId(cursor.getString(12));
+                        collaboratee.setEmailId(cursor.getString(13));
+                        collaboratee.setPhoneJsonId(cursor.getString(14));
+                        collaboratee.setCellJsonId(cursor.getString(15));
+                        collaboratee.setEmailJsonId(cursor.getString(16));
+                        collaboratee.setAddressJsonId(cursor.getString(17));
+                        collaboratee.setPartnerJsonId(cursor.getString(18));
                     }
                 }
 

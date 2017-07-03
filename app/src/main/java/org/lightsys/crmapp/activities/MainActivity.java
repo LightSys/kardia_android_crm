@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public void bindProfile(Partner partner) {
             Picasso.with(getApplication())
                     .load(partner.getProfilePictureFilename())
-                    .placeholder(R.drawable.john_smith)
+                    .placeholder(R.drawable.persona)
                     .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
             ((TextView) mLinearLayout.findViewById(R.id.profile_name)).setText(partner.getPartnerName());
 
@@ -234,7 +234,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             i.putExtra(PARTNER_ID_KEY, mPartner2.getPartnerId());
             i.putExtra(PARTNER_NAME, mPartner2.getPartnerName());
             startActivity(i);
-            //new getCollaborateeInfoTask().execute();
         }
     }
 
@@ -287,14 +286,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     null
             );
 
-            //put query junk into a list
+            //put query stuff into a list
             List<Partner> collaboratees = new ArrayList<>();
-
             if (cursor != null)
             {
                 while (cursor.moveToNext())
                 {
-                    Partner collaboratee = new Partner(cursor.getString(cursor.getColumnIndex(CRMContract.CollaborateeTable.PARTNER_ID)), cursor.getString(cursor.getColumnIndex(PARTNER_NAME)));
+                    Partner collaboratee = new Partner(cursor.getString(cursor.getColumnIndex(CRMContract.CollaborateeTable.PARTNER_ID)),
+                    cursor.getString(cursor.getColumnIndex(PARTNER_NAME)));
                     collaboratees.add(collaboratee);
                 }
                 cursor.close();
