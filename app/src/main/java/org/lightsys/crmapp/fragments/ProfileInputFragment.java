@@ -3,14 +3,19 @@ package org.lightsys.crmapp.fragments;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatButton;
@@ -35,8 +40,12 @@ import org.lightsys.crmapp.activities.ProfileActivity;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.PatchJson;
 import org.lightsys.crmapp.data.PostJson;
+import org.lightsys.crmapp.data.PostProfilePicture;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -257,7 +266,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                     AsyncTask<String, Void, String> uploadJson2;
                     AsyncTask<String, Void, String> uploadJson3;
                     AsyncTask<String, Void, String> uploadJson4;
-                    AsyncTask<String, Void, String> uploadJson5;
+                    PostProfilePicture postProfilePicture;
                     AsyncTask<String, Void, String> uploadJson6;
 
                     if (mNewProfile)
@@ -277,16 +286,16 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                                 : null;
 
                         String emailUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
-                        String photoUrl = "http://" + mAccountManager.getUserData(mAccount, "server") + ":800/apps/kardia/api/crm/Partners/" + nextPartnerKey + "/ProfilePicture?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+                        String photoUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/files?";
 
-                        JSONObject cellJson = createCellJson();
-                        System.out.println(cellJson);
                         //set up POST json objects for patching
                         uploadJson1 = new PostJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
                         uploadJson2 = new PostJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
                         uploadJson3 = new PostJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
                         uploadJson4 = new PostJson(getContext(), cellUrl, createCellJson(), mAccount, false);
-                        uploadJson5 = new PostJson(getContext(), photoUrl, createPhotoJson(), mAccount, false);
+                        System.out.println(selectedImageUri);
+                        String realPathFromURI = getRealPathFromURI(selectedImageUri, getContext());
+                        postProfilePicture = new PostProfilePicture(getContext(), photoUrl, new File(realPathFromURI), mAccount);
                         uploadJson6 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, true);
                     }
                     else
@@ -303,25 +312,24 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         uploadJson2 = new PatchJson(getContext(), addressUrl, createAddressJson(), mAccount);
                         uploadJson3 = new PatchJson(getContext(), phoneUrl, createPhoneJson(), mAccount);
                         uploadJson4 = new PatchJson(getContext(), cellUrl, createCellJson(), mAccount);
-                        uploadJson5 = null;
+                        postProfilePicture = null;
                         uploadJson6 = new PatchJson(getContext(), emailUrl, createEmailJson(), mAccount);
                     }
 
-                    uploadJson1.execute();
-                    uploadJson2.execute();
+                    //uploadJson1.execute();
+                    //uploadJson2.execute();
                     if(selectedPhone.equals("home")) {//if home phone is selected, patch home
                         System.out.println("POST Phone info");
-                        uploadJson3.execute();
+                        //uploadJson3.execute();
                     }
                     else if(selectedPhone.equals("mobile")) {//if mobile phone is selected, patch mobile
                         System.out.println("POST Mobile info");
-                        uploadJson4.execute();
+                        //uploadJson4.execute();
                     }
                     System.out.println("Posting Profile Picture");
-                    uploadJson5.execute();
-
+                    String result = postProfilePicture.execute().get();
                     System.out.println("POST Email info");
-                    uploadJson6.execute();
+                    //uploadJson6.execute();
                 }
                 catch(Exception e) {
                     e.printStackTrace();
@@ -643,24 +651,16 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
 
                 photo.setImageURI(selectedImageUri);
                 Log.d("NewProfileActivity", "isCamera: " + isCamera + " selectedImageUri: " + selectedImageUri);
-                /*{
-                    "@id":"/apps/kardia/api/crm/Partners/100054/ProfilePicture?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic"
-                    ,"Profile-18d23fe5e458.jpg":{
-                    "@id":"/apps/kardia/api/crm/Partners/100054/ProfilePicture/Profile-18d23fe5e458.jpg?cx__mode=rest&cx__res_format=attrs",
-                    "owner":"tparr",
-                    "group":"kardia_src",
-                    "last_modification":{ "year":2017, "month":6, "day":29, "hour":16, "minute":59, "second":21 },
-                    "last_access":{ "year":2017, "month":6, "day":29, "hour":16, "minute":59, "second":21 },
-                    "last_change":{ "year":2017, "month":6, "day":29, "hour":16, "minute":59, "second":21 },
-                    "permissions":33184,
-                    "size":22499,
-                    "name":"Profile-18d23fe5e458.jpg",
-                    "annotation":"",
-                    "inner_type":"image/jpeg",
-                    "outer_type":"system/file"
-                    }
-                }*/
             }
         }
+    }
+
+    public String getRealPathFromURI(Uri contentUri, Context context)
+    {
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, null); //Since manageQuery is deprecated
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
     }
 }

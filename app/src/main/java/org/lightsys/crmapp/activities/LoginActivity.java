@@ -247,6 +247,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
                     values.put(CRMContract.CollaborateeTable.PARTNER_ID, Integer.parseInt(collaboratee.getPartnerId()));
                     values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.getPartnerName());
                     values.put(CRMContract.CollaborateeTable.PROFILE_PICTURE, collaboratee.getProfilePictureFilename());
+
                     getContentResolver().insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
 
                     ProfileActivity.saveImageFromUrl(

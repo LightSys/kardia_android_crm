@@ -9,22 +9,18 @@ import android.widget.Toast;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.Authenticator;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.PasswordAuthentication;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
 import okhttp3.Credentials;
-import okhttp3.HttpUrl;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -32,29 +28,24 @@ import okhttp3.Response;
 import okhttp3.Route;
 
 /**
- * Created by Judah Sistrunk on 7/7/2016.
- *
- * This class takes a json object a url and an account and patches the json object to the server
- *
- * Edited by Tim Parr on 6/22/2017
+ * Created by tparr on 7/5/2017.
  */
-public class PatchJson extends AsyncTask<String, Void, String> {
 
-    private static final String TAG = "Post Json";
+public class PostProfilePicture extends AsyncTask<String, Void, String>
+{
+    private static final String TAG = "Post Profile Picture";
+    private String url;
+    private File image;
     private Account account;
-    private AccountManager mAccountManager;
-    private String url = "";
-    private String backupUrl = "";
-    private JSONObject jsonObject;
     private Context context;
-    private boolean success = false;
-    private static CookieManager cookieManager = new CookieManager();
-    OkHttpClient client;
+    private AccountManager mAccountManager;
+    private CookieHandler cookieManager = new CookieManager();
+    private OkHttpClient client;
+    private boolean success;
 
-    public PatchJson(Context context, String Url, JSONObject jsonPost, Account userAccount){
+    public PostProfilePicture(Context context, String Url, File image, Account userAccount){
         url = Url;
-        backupUrl = Url;
-        jsonObject = jsonPost;
+        this.image = image;
         account = userAccount;
         this.context = context;
         mAccountManager = AccountManager.get(context);
@@ -62,9 +53,9 @@ public class PatchJson extends AsyncTask<String, Void, String> {
     }
 
     @Override
-    protected String doInBackground(String... params) {
-
-        Authenticator.setDefault(new java.net.Authenticator() {
+    protected String doInBackground(String... objects)
+    {
+        java.net.Authenticator.setDefault(new java.net.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
             }
@@ -72,7 +63,6 @@ public class PatchJson extends AsyncTask<String, Void, String> {
 
         String result;
         try {
-
             //url used to retrieve the access token
             URL getUrl = new URL(mAccountManager.getUserData(account, "server") + "/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
 
@@ -102,10 +92,10 @@ public class PatchJson extends AsyncTask<String, Void, String> {
                 result = response.body().string();
                 JSONObject token = new JSONObject(result);
 
-                url += "&cx__akey=" + token.getString("akey");
+                url += "cx__akey=" + token.getString("akey");
 
-                //post json object
-                performPatchCall(url, jsonObject);
+                //post profile picture
+                performPostCall();
             }
         } catch (Exception e) {
             e.printStackTrace();}
@@ -113,21 +103,28 @@ public class PatchJson extends AsyncTask<String, Void, String> {
         return null;
     }
 
-    //function that posts a json object to the server
-    private String performPatchCall(String requestURL, JSONObject jsonObject)
-    {
-        URL url;
+    private String performPostCall() {
         String result = "";
         try {
-            url = new URL(requestURL);
-
             if (client == null)
                 client = new OkHttpClient();
 
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+            String imageName = image.getName();
+            int indexOfImageType = imageName.lastIndexOf(".");
+            String tmpContentType = imageName.substring(indexOfImageType + 1);
+            if (tmpContentType.equals("jpg"))
+                tmpContentType = "jpeg";
+            String contentType = "image/".concat(tmpContentType);
+            MultipartBody body = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("profile", imageName, RequestBody.create(MediaType.parse(contentType), image))
+                    .build();
+
+            url += "&target=/apps/kardia/files/";
+
             Request request = new Request.Builder()
                     .url(url)
-                    .patch(body)
+                    .post(body)
                     .build();
 
             Response response = client.newCall(request).execute();
@@ -164,23 +161,5 @@ public class PatchJson extends AsyncTask<String, Void, String> {
             Toast.makeText(context, "Network Issues: Your data was not properly sent.", Toast.LENGTH_SHORT).show();
 
         }
-    }
-}
-
-class MyCookieJar implements CookieJar {
-
-    private List<Cookie> cookies;
-
-    @Override
-    public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-        this.cookies =  cookies;
-    }
-
-    @Override
-    public List<Cookie> loadForRequest(HttpUrl url) {
-        if (cookies != null)
-            return cookies;
-        return new ArrayList<>();
-
     }
 }
