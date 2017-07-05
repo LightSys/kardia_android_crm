@@ -111,9 +111,33 @@ public class KardiaProvider extends ContentProvider {
                 break;
         }
 
-        mDatabase.replace(table, null, values);
+        long insert = mDatabase.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 
         return ContentUris.withAppendedId(uri, id);
+    }
+
+    //insert or replace row in database
+    public long insertWithOnConflict(Uri uri, String nullColumnHack, ContentValues values){
+        String table;
+
+        //determine what table we are dealing with
+        switch (sUriMatcher.match(uri)) {
+            case 1:
+                table = CRMContract.StaffTable.TABLE_NAME;
+                break;
+            case 2:
+                table = CRMContract.CollaborateeTable.TABLE_NAME;
+                break;
+            case 3:
+                table = CRMContract.TimelineTable.TABLE_NAME;
+                break;
+            default:
+                table = "";
+                break;
+        }
+
+        return mDatabase.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
     }
 
     //function that deletes stuffs from the database

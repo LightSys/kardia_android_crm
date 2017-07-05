@@ -6,11 +6,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
@@ -36,8 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.COLLABORATER_ID;
-import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_ID;
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
 
 /**
@@ -45,6 +44,9 @@ import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAM
  *
  * Commented by Judah on 7/26/16.
  * This class pretty much just gets a bunch of info and sends it to the profile fragment
+ *
+ * Edited by Daniel Garcia on 05/July/2017.
+ * Added functionality to save contact info so that it can be accessed offline
  */
 public class ProfileActivity extends AppCompatActivity {
     //constants for retrieving stuff from intents
@@ -268,7 +270,7 @@ public class ProfileActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    //sorts items by date
+    //sorts timeline items by date
     //puts newest items first
     private ArrayList<TimelineItem> sortByDate(List<TimelineItem> items) {
 
@@ -313,9 +315,7 @@ public class ProfileActivity extends AppCompatActivity {
         return dateInt;
     }
 
-    /**
-     * Sets up adapter for list of timeline items.
-     */
+    //Sets up adapter for list of timeline items.
     private void setupAdapter() {
             ArrayList<HashMap<String,String>> items = new ArrayList<HashMap<String, String>>();
             for (TimelineItem item : mItems){
@@ -340,9 +340,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
     }
 
-    /**
-     * Fetches timeline info from Kardia.
-     */
+    //Fetches timeline info from Kardia.
     private class getTimelineTask extends AsyncTask<Void, Void, List<TimelineItem>> {
 
         View timelineCardView;
@@ -502,10 +500,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * Gets detailed collaboratee information.
-     *
-     */
+    //Gets detailed collaboratee information.
     private class getCollaborateeInfoTask extends AsyncTask<Void, Void, Partner> {
 
         /**
@@ -526,46 +521,50 @@ public class ProfileActivity extends AppCompatActivity {
                             CRMContract.CollaborateeTable.CELL_ID, CRMContract.CollaborateeTable.EMAIL_ID, CRMContract.CollaborateeTable.PHONE_JSON_ID,
                             CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID, CRMContract.CollaborateeTable.ADDRESS_JSON_ID,
                             CRMContract.CollaborateeTable.PARTNER_JSON_ID},
-                    CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
-                    new String[] {acct.getUserData(mAccount, "partnerId")},
+                    CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
+                    new String[] {mPartnerId},
                     null);
 
+            //TODO
+            boolean what = cursor.moveToFirst();
+
+
             //turn raw query stuffs into a partner
-            while(cursor.moveToNext()) {
-                if (cursor.getString(0).equals(mPartner2.getPartnerId())) {
-                    collaboratee.setPartnerName(cursor.getString(1));
-                    collaboratee.setEmail(cursor.getString(2));
-                    collaboratee.setPhone(cursor.getString(3));
-                    collaboratee.setAddress1(cursor.getString(4));
-                    collaboratee.setCity(cursor.getString(5));
-                    collaboratee.setStateProvince(cursor.getString(6));
-                    collaboratee.setPostalCode(cursor.getString(7));
-                    collaboratee.setFullAddress(cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7));
-                    collaboratee.setCell(cursor.getString(8));
-                    collaboratee.setSurname(cursor.getString(9));
-                    collaboratee.setGivenNames(cursor.getString(10));
-                    collaboratee.setPhoneId(cursor.getString(11));
-                    collaboratee.setCellId(cursor.getString(12));
-                    collaboratee.setEmailId(cursor.getString(13));
-                    collaboratee.setPhoneJsonId(cursor.getString(14));
-                    collaboratee.setCellJsonId(cursor.getString(15));
-                    collaboratee.setEmailJsonId(cursor.getString(16));
-                    collaboratee.setAddressJsonId(cursor.getString(17));
-                    collaboratee.setPartnerJsonId(cursor.getString(18));
-                }
+            if(cursor.moveToFirst()) {
+                collaboratee.setPartnerId(cursor.getString(0));
+                collaboratee.setPartnerName(cursor.getString(1));
+                collaboratee.setEmail(cursor.getString(2));
+                collaboratee.setPhone(cursor.getString(3));
+                collaboratee.setAddress1(cursor.getString(4));
+                collaboratee.setCity(cursor.getString(5));
+                collaboratee.setStateProvince(cursor.getString(6));
+                collaboratee.setPostalCode(cursor.getString(7));
+                collaboratee.setFullAddress(cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7));
+                collaboratee.setCell(cursor.getString(8));
+                collaboratee.setSurname(cursor.getString(9));
+                collaboratee.setGivenNames(cursor.getString(10));
+                collaboratee.setPhoneId(cursor.getString(11));
+                collaboratee.setCellId(cursor.getString(12));
+                collaboratee.setEmailId(cursor.getString(13));
+                collaboratee.setPhoneJsonId(cursor.getString(14));
+                collaboratee.setCellJsonId(cursor.getString(15));
+                collaboratee.setEmailJsonId(cursor.getString(16));
+                collaboratee.setAddressJsonId(cursor.getString(17));
+                collaboratee.setPartnerJsonId(cursor.getString(18));
             }
             cursor.close();
 
-            //if the collaboratee is missing any information, pull it down from the server
-            if(collaboratee.getEmail() == null || collaboratee.getPhone() == null || collaboratee.getAddress1() == null
-                    || collaboratee.getCity() == null || collaboratee.getStateProvince() == null || collaboratee.getPostalCode() == null ||
-                    collaboratee.getCell() == null) {
+            //if the collaboratee is missing any information,
+            // and there is a network connection available,
+            // pull info down from the server
 
-                //get all the collaboratee junk from the server
+            if(networkConnected() && (collaboratee.getEmail() == null || collaboratee.getPhone() == null || collaboratee.getAddress1() == null
+                    || collaboratee.getCity() == null || collaboratee.getStateProvince() == null || collaboratee.getPostalCode() == null ||
+                    collaboratee.getCell() == null)) {
+
+                //get all the collaboratee stuff from the server
                 KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
                 collaboratee = fetcher.getCollaborateeInfo(mAccount, collaboratee);
-
-                mPartner2 = collaboratee;
 
                 //set partner ID to match account ID
                 //this fixes an issue where a profile disappeared from the main list after being clicked
@@ -617,9 +616,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                 //put new stuff into database
                 getApplicationContext().getContentResolver().update(CRMContract.CollaborateeTable.CONTENT_URI, values,
-                        CRMContract.CollaborateeTable.PARTNER_ID + " = ?", new String[] {collaboratee.getPartnerId()});
-
-                mPartner2 = collaboratee;
+                        CRMContract.CollaborateeTable.PARTNER_ID + "= ?", new String[] {mPartnerId});
 
                 //pull stuff back out of the database
                 //this gets the original data back in case kardia returned nothing
@@ -632,33 +629,32 @@ public class ProfileActivity extends AppCompatActivity {
                                 CRMContract.CollaborateeTable.CELL_ID, CRMContract.CollaborateeTable.EMAIL_ID, CRMContract.CollaborateeTable.PHONE_JSON_ID,
                                 CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID, CRMContract.CollaborateeTable.ADDRESS_JSON_ID,
                                 CRMContract.CollaborateeTable.PARTNER_JSON_ID},
-                        CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
-                        new String[] {acct.getUserData(mAccount, "partnerId")},
+                        CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
+                        new String[] {mPartnerId},
                         null);
 
                 //turn raw query stuff into a partner
-                while(cursor2.moveToNext()) {
-                    if (cursor2.getString(0).equals(mPartner2.getPartnerId())) {
-                        collaboratee.setPartnerName(cursor.getString(1));
-                        collaboratee.setEmail(cursor.getString(2));
-                        collaboratee.setPhone(cursor.getString(3));
-                        collaboratee.setAddress1(cursor.getString(4));
-                        collaboratee.setCity(cursor.getString(5));
-                        collaboratee.setStateProvince(cursor.getString(6));
-                        collaboratee.setPostalCode(cursor.getString(7));
-                        collaboratee.setFullAddress(cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7));
-                        collaboratee.setCell(cursor.getString(8));
-                        collaboratee.setSurname(cursor.getString(9));
-                        collaboratee.setGivenNames(cursor.getString(10));
-                        collaboratee.setPhoneId(cursor.getString(11));
-                        collaboratee.setCellId(cursor.getString(12));
-                        collaboratee.setEmailId(cursor.getString(13));
-                        collaboratee.setPhoneJsonId(cursor.getString(14));
-                        collaboratee.setCellJsonId(cursor.getString(15));
-                        collaboratee.setEmailJsonId(cursor.getString(16));
-                        collaboratee.setAddressJsonId(cursor.getString(17));
-                        collaboratee.setPartnerJsonId(cursor.getString(18));
-                    }
+                if(cursor2.moveToFirst()) {
+                    collaboratee.setPartnerId(cursor2.getString(0));
+                    collaboratee.setPartnerName(cursor2.getString(1));
+                    collaboratee.setEmail(cursor2.getString(2));
+                    collaboratee.setPhone(cursor2.getString(3));
+                    collaboratee.setAddress1(cursor2.getString(4));
+                    collaboratee.setCity(cursor2.getString(5));
+                    collaboratee.setStateProvince(cursor2.getString(6));
+                    collaboratee.setPostalCode(cursor2.getString(7));
+                    collaboratee.setFullAddress(cursor2.getString(4), cursor2.getString(5), cursor2.getString(6), cursor2.getString(7));
+                    collaboratee.setCell(cursor2.getString(8));
+                    collaboratee.setSurname(cursor2.getString(9));
+                    collaboratee.setGivenNames(cursor2.getString(10));
+                    collaboratee.setPhoneId(cursor2.getString(11));
+                    collaboratee.setCellId(cursor2.getString(12));
+                    collaboratee.setEmailId(cursor2.getString(13));
+                    collaboratee.setPhoneJsonId(cursor2.getString(14));
+                    collaboratee.setCellJsonId(cursor2.getString(15));
+                    collaboratee.setEmailJsonId(cursor2.getString(16));
+                    collaboratee.setAddressJsonId(cursor2.getString(17));
+                    collaboratee.setPartnerJsonId(cursor2.getString(18));
                 }
 
                 cursor2.close();
@@ -755,4 +751,14 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
+    //checks if app is connected to a network
+    private boolean networkConnected(){
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
+
 }
+
+
