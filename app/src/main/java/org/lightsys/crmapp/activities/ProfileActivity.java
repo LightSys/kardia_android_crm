@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
 
@@ -46,10 +47,10 @@ import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAM
  * This class pretty much just gets a bunch of info and sends it to the profile fragment
  *
  * Edited by Daniel Garcia on 05/July/2017.
- * Added functionality to save contact info so that it can be accessed offline
+ * Added functionality that saves contact info so that it can be accessed offline
  */
 public class ProfileActivity extends AppCompatActivity {
-    //constants for retrieving stuff from intents
+    //Constants for retrieving stuff from intents
     public static final String LOG_TAG = ProfileActivity.class.getName();
     public static final String NAME_KEY = "EXTRA_NAME";
     public static final String PARTNER_ID_KEY = "EXTRA_PARTNER_ID";
@@ -64,7 +65,7 @@ public class ProfileActivity extends AppCompatActivity {
     public static final String SURNAME_KEY = "EXTRA_SURNAME";
     public static final String GIVEN_NAMES_KEY = "EXTRA_GIVEN_NAMES";
 
-    //these might not be necessary, but they are still here just in case
+    //These might not be necessary, but they are still here just in case
     public static final String PHONE_ID_KEY = "EXTRA_PHONE_ID";
     public static final String CELL_ID_KEY = "EXTRA_CELL_ID";
     public static final String EMAIL_ID_KEY = "EXTRA_EMAIL_ID";
@@ -82,7 +83,7 @@ public class ProfileActivity extends AppCompatActivity {
     public static final String TWITTER_KEY = "EXTRA_TWITTER";
     public static final String WEBSITE_KEY = "EXTRA_WEBSITE";
 
-    //variables that hold the stuff retrieved from the intent
+    //Variables that hold the stuff retrieved from the intent
     public String mName;
     public String mPartnerId;
 
@@ -270,8 +271,8 @@ public class ProfileActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    //sorts timeline items by date
-    //puts newest items first
+    //Sorts timeline items by date
+    //and puts newest items first
     private ArrayList<TimelineItem> sortByDate(List<TimelineItem> items) {
 
         TimelineItem highestItem = null;//this will hold the newest item for each pass
@@ -306,16 +307,7 @@ public class ProfileActivity extends AppCompatActivity {
         return sortedItems;//return sorted list of items
     }
 
-    private int[] parseStringDate(String date) {
-        int[] dateInt = new int[3];
-        String[] dateSplitStr = date.split("-");
-        for (int i = 0; i < 3; i++) {
-            dateInt[i] = Integer.parseInt(dateSplitStr[i]);
-        }
-        return dateInt;
-    }
-
-    //Sets up adapter for list of timeline items.
+    //Sets up adapter for list of timeline items
     private void setupAdapter() {
             ArrayList<HashMap<String,String>> items = new ArrayList<HashMap<String, String>>();
             for (TimelineItem item : mItems){
@@ -340,7 +332,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
     }
 
-    //Fetches timeline info from Kardia.
+    //Fetches timeline info from Kardia
     private class getTimelineTask extends AsyncTask<Void, Void, List<TimelineItem>> {
 
         View timelineCardView;
@@ -352,11 +344,16 @@ public class ProfileActivity extends AppCompatActivity {
 
         @Override
         protected List<TimelineItem> doInBackground(Void... params) {
-            KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
+
             List<TimelineItem> items;
+
+            //Use KardiaFetcher to get fetch new timeline items from the server
+            KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
             acct.setUserData(mAccount, "collabId", mPartnerId);
             items = fetcher.getTimelineItems(mAccount);
 
+            //Create each item from the server and add it to the partner's database
+            //(Primary key will prevent any duplicate from being added)
             for(TimelineItem item : items) {
                 ContentValues values = new ContentValues();
                 values.put(CRMContract.TimelineTable.CONTACT_ID, item.getContactId());
@@ -371,6 +368,8 @@ public class ProfileActivity extends AppCompatActivity {
                 getContentResolver().insert(CRMContract.TimelineTable.CONTENT_URI, values);
             }
 
+            //Open the partner's database to get items stored in it
+            //Since new items are added above, both old and new items will be returned
             Cursor cursor = getContentResolver().query(
                     CRMContract.TimelineTable.CONTENT_URI,
                     new String[] {CRMContract.TimelineTable.CONTACT_ID, CRMContract.TimelineTable.PARTNER_ID,
@@ -378,12 +377,17 @@ public class ProfileActivity extends AppCompatActivity {
                             CRMContract.TimelineTable.CONTACT_HISTORY_ID, CRMContract.TimelineTable.CONTACT_HISTORY_TYPE,
                             CRMContract.TimelineTable.SUBJECT, CRMContract.TimelineTable.NOTES,
                             CRMContract.TimelineTable.DATE},
-                    CRMContract.TimelineTable.CONTACT_ID + " = ?",
-                    new String[] {acct.getUserData(mAccount, "partnerId")},
+                    CRMContract.TimelineTable.PARTNER_ID + " = ?",
+                    new String[] {mPartnerId},
                     null
             );
 
-            while(cursor.moveToNext()) {
+            //Clear the items list and place in everything from the database
+            //(This allows for offline functionality, since new things get added to
+            //the database without the risk of duplicates, but if nothing gets added,
+            //the old items are still shown)
+            items.clear();
+            while (cursor.moveToNext()) {
                 TimelineItem item = new TimelineItem(cursor.getString(0));
                 item.setPartnerId(cursor.getString(1));
                 item.setCollaborateeId(cursor.getString(2));
@@ -397,10 +401,12 @@ public class ProfileActivity extends AppCompatActivity {
             }
             cursor.close();
 
+
             return items;
         }
 
 
+        //Sort items and, if there are none, hide timeline bar
         @Override
         protected void onPostExecute(List<TimelineItem> items) {
             mItems = sortByDate(items);
@@ -414,7 +420,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
-    //adapter for the timeline items
+    //Adapter for the timeline items
     private class TimeLineAdapter extends SimpleAdapter {
 
         Context context;
@@ -460,7 +466,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    //layout for the timeline items
+    //Layout for the timeline items
     private class TimelineLayout extends RelativeLayout {
 
         TextView itemView = new TextView(getContext());
@@ -500,7 +506,17 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
-    //Gets detailed collaboratee information.
+    //Splits date into {year, month, day}
+    private int[] parseStringDate(String date) {
+        int[] dateInt = new int[3];
+        String[] dateSplitStr = date.split("-");
+        for (int i = 0; i < 3; i++) {
+            dateInt[i] = Integer.parseInt(dateSplitStr[i]);
+        }
+        return dateInt;
+    }
+
+    //Gets detailed collaboratee information
     private class getCollaborateeInfoTask extends AsyncTask<Void, Void, Partner> {
 
         /**
@@ -524,10 +540,6 @@ public class ProfileActivity extends AppCompatActivity {
                     CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
                     new String[] {mPartnerId},
                     null);
-
-            //TODO
-            boolean what = cursor.moveToFirst();
-
 
             //turn raw query stuffs into a partner
             if(cursor.moveToFirst()) {
@@ -751,7 +763,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
-    //checks if app is connected to a network
+    //Checks if app is connected to a network
     private boolean networkConnected(){
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
