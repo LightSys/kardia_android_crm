@@ -16,6 +16,7 @@
     <string name="search_hint">Search</string>
     <string name="contact">Contact</string>
     <string name="timeline">Timeline</string>
+    <string name="role">Role</string>
 
     <string name="hint_first_name">First Name</string>
     <string name="hint_last_name">Last Name</string>
@@ -41,6 +42,10 @@
     <string-array name="protocol_options">
         <item>http</item>
         <item>https</item>
+    </string-array>
+    <string-array name="role_options">
+        <item>None</item>
+        <item>Mobilizer</item>
     </string-array>
 
 </resources>
