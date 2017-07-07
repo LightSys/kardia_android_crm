@@ -41,6 +41,7 @@ import okhttp3.Route;
 public class PatchJson extends AsyncTask<String, Void, String> {
 
     private static final String TAG = "Post Json";
+    private String credential;
     private Account account;
     private AccountManager mAccountManager;
     private String url = "";
@@ -49,7 +50,7 @@ public class PatchJson extends AsyncTask<String, Void, String> {
     private Context context;
     private boolean success = false;
     private static CookieManager cookieManager = new CookieManager();
-    OkHttpClient client;
+    private OkHttpClient client;
 
     public PatchJson(Context context, String Url, JSONObject jsonPost, Account userAccount){
         url = Url;
@@ -59,6 +60,7 @@ public class PatchJson extends AsyncTask<String, Void, String> {
         this.context = context;
         mAccountManager = AccountManager.get(context);
         CookieHandler.setDefault(cookieManager);
+        credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
     }
 
     @Override
@@ -92,6 +94,7 @@ public class PatchJson extends AsyncTask<String, Void, String> {
 
             Request request = new Request.Builder()
                     .url(getUrl)
+                    .header("Authorization", credential)
                     .get()
                     .build();
 
@@ -127,6 +130,7 @@ public class PatchJson extends AsyncTask<String, Void, String> {
             RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
             Request request = new Request.Builder()
                     .url(url)
+                    .header("Authorization", credential)
                     .patch(body)
                     .build();
 

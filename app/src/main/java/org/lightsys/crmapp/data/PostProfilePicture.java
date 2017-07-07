@@ -7,18 +7,22 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.CookieHandler;
-import java.net.CookieManager;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.net.ssl.HttpsURLConnection;
 
 import okhttp3.Credentials;
+import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -36,35 +40,43 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
     private static final String TAG = "Post Profile Picture";
     private String url;
     private File image;
-    private Account account;
+    private Account mAccount;
     private Context context;
     private AccountManager mAccountManager;
-    private CookieHandler cookieManager = new CookieManager();
     private OkHttpClient client;
     private boolean success;
+    private String credential;
+    private JSONObject jsonDate;
+    private String nextPartnerKey;
+    private String tokenParam;
+    private Calendar cal;
 
-    public PostProfilePicture(Context context, String Url, File image, Account userAccount){
+    public PostProfilePicture(Context context, String Url, File image, Account userAccount, String nextpartnerkey){
         url = Url;
         this.image = image;
-        account = userAccount;
+        mAccount = userAccount;
         this.context = context;
         mAccountManager = AccountManager.get(context);
-        CookieHandler.setDefault(cookieManager);
+        credential = Credentials.basic(mAccount.name, mAccountManager.getPassword(mAccount));
+        nextPartnerKey = nextpartnerkey;
     }
 
     @Override
     protected String doInBackground(String... objects)
     {
-        java.net.Authenticator.setDefault(new java.net.Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
+        java.net.Authenticator.setDefault(new java.net.Authenticator()
+        {
+            protected PasswordAuthentication getPasswordAuthentication()
+            {
+                return new PasswordAuthentication(mAccount.name, mAccountManager.getPassword(mAccount).toCharArray());
             }
         });
 
         String result;
-        try {
+        try
+        {
             //url used to retrieve the access token
-            URL getUrl = new URL(mAccountManager.getUserData(account, "server") + "/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
+            URL getUrl = new URL(mAccountManager.getUserData(mAccount, "server") + "/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
 
             client = new OkHttpClient.Builder()
                     .cookieJar(new MyCookieJar())
@@ -73,7 +85,6 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
                         @Override
                         public Request authenticate(Route route, Response response) throws IOException
                         {
-                            String credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
                             return response.request().newBuilder()
                                     .header("Authorization", credential)
                                     .build();
@@ -82,23 +93,29 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
 
             Request request = new Request.Builder()
                     .url(getUrl)
+                    .header("Authorization", credential)
                     .get()
                     .build();
 
             Response response = client.newCall(request).execute();
 
             //get access token
-            if (response.body() != null) {
+            if (response.body() != null)
+            {
                 result = response.body().string();
                 JSONObject token = new JSONObject(result);
 
-                url += "cx__akey=" + token.getString("akey");
+                tokenParam = "cx__akey=" + token.getString("akey");
+                url += tokenParam;
 
                 //post profile picture
-                performPostCall();
+                String imageLocation = performPostCall();
+                PostPictureMetadata(imageLocation);
             }
-        } catch (Exception e) {
-            e.printStackTrace();}
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
         return null;
     }
@@ -115,15 +132,17 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
             if (tmpContentType.equals("jpg"))
                 tmpContentType = "jpeg";
             String contentType = "image/".concat(tmpContentType);
+
             MultipartBody body = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("profile", imageName, RequestBody.create(MediaType.parse(contentType), image))
                     .build();
 
-            url += "&target=/apps/kardia/files/";
+            url += "&target=" + URLEncoder.encode("/apps/kardia/files", "utf-8");
 
             Request request = new Request.Builder()
                     .url(url)
+                    .header("Authorization", credential)
                     .post(body)
                     .build();
 
@@ -134,7 +153,7 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
             Log.e(TAG, "responseCode : " + responseCode);
 
             //if the things were sent properly, get the result code
-            if (responseCode == HttpsURLConnection.HTTP_OK && response.isSuccessful()) {
+            if (responseCode == HttpsURLConnection.HTTP_ACCEPTED && response.isSuccessful()) {
                 Log.e(TAG, "HTTP_OK");
                 result = response.body().string();
                 success = true;
@@ -150,6 +169,108 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
         return result;
     }
 
+    private String PostPictureMetadata(String imageLocation)
+    {
+        //Get current date
+        java.util.Date date = new Date();
+        cal = Calendar.getInstance();
+        cal.setTime(date);
+        jsonDate = new JSONObject();
+
+        String metadataUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/data/Kardia_DB/e_document/rows?" + tokenParam;
+
+        JSONObject metadata = new JSONObject();
+        try
+        {
+            jsonDate.put("month", cal.get(Calendar.MONTH));
+            jsonDate.put("year", cal.get(Calendar.YEAR));
+            jsonDate.put("day", cal.get(Calendar.DAY_OF_MONTH));
+            jsonDate.put("minute", cal.get(Calendar.MINUTE));
+            jsonDate.put("second", cal.get(Calendar.SECOND));
+
+            JSONArray result = new JSONArray(imageLocation);
+            JSONObject data = (JSONObject) result.get(0);
+            String uploadLocation = data.getString("up");
+            int indexOfImageName = uploadLocation.lastIndexOf("/");
+            String imageName = uploadLocation.substring(indexOfImageName + 1);
+            String originalName = data.getString("fn");
+
+            metadata.put("e_doc_type_id", 1);
+            metadata.put("e_current_folder", "/apps/kardia/files");
+            metadata.put("e_current_filename", imageName);
+            metadata.put("e_orig_filename", originalName);
+            metadata.put("s_created_by", mAccount.name);
+            metadata.put("s_modified_by", mAccount.name);
+            metadata.put("s_date_created", jsonDate);
+            metadata.put("s_date_modified", jsonDate);
+            metadata.put("e_uploading_collaborator", mAccountManager.getUserData(mAccount, "partnerId"));
+            metadata.put("e_title", "Profile Photo");
+
+        } catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+
+        RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), metadata.toString());
+
+        Request request = new Request.Builder()
+                .url(metadataUrl)
+                .header("Authorization", credential)
+                .post(body)
+                .build();
+
+        try
+        {
+            Response response = client.newCall(request).execute();
+
+            //get access token
+            if (response.body() != null)
+            {
+                JSONObject associationJson = new JSONObject();
+                associationJson.put("e_document_id", response.body());
+                associationJson.put("p_partner_key", nextPartnerKey);
+                associationJson.put("s_created_by", mAccount.name);
+                associationJson.put("s_modified_by", mAccount.name);
+                associationJson.put("s_date_created", jsonDate);
+                associationJson.put("s_date_modified", jsonDate);
+
+                String associationUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/data/Kardia_DB/e_partner_document/rows?" + tokenParam;
+                body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), metadata.toString());
+
+                request = new Request.Builder()
+                        .url(associationUrl)
+                        .header("Authorization", credential)
+                        .post(body)
+                        .build();
+
+                response = client.newCall(request).execute();
+
+                if (response.body() != null)
+                {
+                    System.out.println(response);
+                }
+            }
+
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    private String formatDateTime()
+    {
+        //Example Date: "7/7/2017 11:54:12"
+        String dateTime = "";
+        dateTime += cal.get(Calendar.DAY_OF_MONTH) + "/";
+        dateTime += (cal.get(Calendar.MONTH) + 1) + "/";
+        dateTime += cal.get(Calendar.YEAR) + " ";
+        dateTime += cal.get(Calendar.HOUR) + ":";
+        dateTime += cal.get(Calendar.MINUTE) + ":";
+        dateTime += cal.get(Calendar.SECOND);
+        return dateTime;
+    }
+
     @Override
     protected void onPostExecute(String params) {
 
@@ -159,7 +280,6 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
         }
         else {
             Toast.makeText(context, "Network Issues: Your data was not properly sent.", Toast.LENGTH_SHORT).show();
-
         }
     }
 }

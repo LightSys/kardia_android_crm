@@ -295,7 +295,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         uploadJson4 = new PostJson(getContext(), cellUrl, createCellJson(), mAccount, false);
                         System.out.println(selectedImageUri);
                         String realPathFromURI = getRealPathFromURI(selectedImageUri, getContext());
-                        postProfilePicture = new PostProfilePicture(getContext(), photoUrl, new File(realPathFromURI), mAccount);
+                        postProfilePicture = new PostProfilePicture(getContext(), photoUrl, new File(realPathFromURI), mAccount, nextPartnerKey);
                         uploadJson6 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, true);
                     }
                     else
@@ -327,7 +327,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         //uploadJson4.execute();
                     }
                     System.out.println("Posting Profile Picture");
-                    String result = postProfilePicture.execute().get();
+                    postProfilePicture.execute();
                     System.out.println("POST Email info");
                     //uploadJson6.execute();
                 }
@@ -371,8 +371,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             if (mNewProfile)
             {
                 emailJson.put("p_partner_key", nextPartnerKey);
-                emailJson.put("s_created_by", "tparr");
-                emailJson.put("s_modified_by", "tparr");
+                emailJson.put("s_created_by", mAccount.name);
+                emailJson.put("s_modified_by", mAccount.name);
                 emailJson.put("s_date_created", jsonDate);
                 emailJson.put("s_date_modified", jsonDate);
                 emailJson.put("p_contact_data", email.getText().toString());
@@ -402,8 +402,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             if (mNewProfile)
             {
                 cellJson.put("p_partner_key", nextPartnerKey);
-                cellJson.put("s_created_by", "tparr");
-                cellJson.put("s_modified_by", "tparr");
+                cellJson.put("s_created_by", mAccount.name);
+                cellJson.put("s_modified_by", mAccount.name);
                 cellJson.put("s_date_created", jsonDate);
                 cellJson.put("s_date_modified", jsonDate);
                 cellJson.put("p_contact_data", phone.getText().toString());
@@ -438,8 +438,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             if(mNewProfile)
             {
                 phoneJson.put("p_partner_key", nextPartnerKey);
-                phoneJson.put("s_created_by", "tparr");
-                phoneJson.put("s_modified_by", "tparr");
+                phoneJson.put("s_created_by", mAccount.name);
+                phoneJson.put("s_modified_by", mAccount.name);
                 phoneJson.put("s_date_created", jsonDate);
                 phoneJson.put("s_date_modified", jsonDate);
                 phoneJson.put("p_contact_data", phone.getText().toString());
@@ -471,8 +471,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             if (mNewProfile)
             {
                 addressJson.put("p_partner_key", nextPartnerKey);
-                addressJson.put("s_created_by", "tparr");
-                addressJson.put("s_modified_by", "tparr");
+                addressJson.put("s_created_by", mAccount.name);
+                addressJson.put("s_modified_by", mAccount.name);
                 addressJson.put("s_date_created", jsonDate);
                 addressJson.put("s_date_modified", jsonDate);
                 addressJson.put("p_location_id", 0);
@@ -530,8 +530,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             if (mNewProfile)
             {
                 partnerJson.put("p_partner_key", nextPartnerKey);
-                partnerJson.put("s_created_by", "tparr");
-                partnerJson.put("s_modified_by", "tparr");
+                partnerJson.put("s_created_by", mAccount.name);
+                partnerJson.put("s_modified_by", mAccount.name);
                 partnerJson.put("p_creating_office", "100054");
                 partnerJson.put("p_status_code", "A");
                 partnerJson.put("p_partner_class", "123");

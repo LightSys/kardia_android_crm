@@ -168,6 +168,4 @@ public class PostJson extends AsyncTask<String, Void, String> {
             Toast.makeText(context, "Network Issues: Your data is waiting to be sent", Toast.LENGTH_SHORT).show();
         }
     }
-
-
 }
