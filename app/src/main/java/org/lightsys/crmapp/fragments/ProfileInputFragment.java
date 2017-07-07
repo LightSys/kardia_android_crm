@@ -356,6 +356,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             jsonDate.put("day", cal.get(Calendar.DAY_OF_MONTH));
             jsonDate.put("minute", cal.get(Calendar.MINUTE));
             jsonDate.put("second", cal.get(Calendar.SECOND));
+            jsonDate.put("hour", cal.get(Calendar.HOUR));
         }
         catch (JSONException ex)
         {

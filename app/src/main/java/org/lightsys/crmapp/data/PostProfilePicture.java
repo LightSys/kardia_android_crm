@@ -177,7 +177,7 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
         cal.setTime(date);
         jsonDate = new JSONObject();
 
-        String metadataUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/data/Kardia_DB/e_document/rows?" + tokenParam;
+        String metadataUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/data/Kardia_DB/e_document/rows?" + tokenParam + "&cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
 
         JSONObject metadata = new JSONObject();
         try
@@ -187,6 +187,7 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
             jsonDate.put("day", cal.get(Calendar.DAY_OF_MONTH));
             jsonDate.put("minute", cal.get(Calendar.MINUTE));
             jsonDate.put("second", cal.get(Calendar.SECOND));
+            jsonDate.put("hour", cal.get(Calendar.HOUR));
 
             JSONArray result = new JSONArray(imageLocation);
             JSONObject data = (JSONObject) result.get(0);
@@ -227,16 +228,17 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
             if (response.body() != null)
             {
                 JSONObject associationJson = new JSONObject();
-                associationJson.put("e_document_id", response.body());
                 associationJson.put("p_partner_key", nextPartnerKey);
                 associationJson.put("s_created_by", mAccount.name);
                 associationJson.put("s_modified_by", mAccount.name);
                 associationJson.put("s_date_created", jsonDate);
                 associationJson.put("s_date_modified", jsonDate);
+                JSONObject metadataResult = new JSONObject(response.body().string());
+                associationJson.put("e_document_id", metadataResult.getInt("e_document_id"));
 
-                String associationUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/data/Kardia_DB/e_partner_document/rows?" + tokenParam;
-                body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), metadata.toString());
+                body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), associationJson.toString());
 
+                String associationUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/data/Kardia_DB/e_partner_document/rows?" + tokenParam + "&cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
                 request = new Request.Builder()
                         .url(associationUrl)
                         .header("Authorization", credential)
@@ -256,19 +258,6 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
             e.printStackTrace();
         }
         return "";
-    }
-
-    private String formatDateTime()
-    {
-        //Example Date: "7/7/2017 11:54:12"
-        String dateTime = "";
-        dateTime += cal.get(Calendar.DAY_OF_MONTH) + "/";
-        dateTime += (cal.get(Calendar.MONTH) + 1) + "/";
-        dateTime += cal.get(Calendar.YEAR) + " ";
-        dateTime += cal.get(Calendar.HOUR) + ":";
-        dateTime += cal.get(Calendar.MINUTE) + ":";
-        dateTime += cal.get(Calendar.SECOND);
-        return dateTime;
     }
 
     @Override
