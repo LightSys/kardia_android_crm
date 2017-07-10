@@ -46,6 +46,7 @@
     <string-array name="role_options">
         <item>None</item>
         <item>Mobilizer</item>
+        <item>NonMobilizer</item>
     </string-array>
 
 </resources>

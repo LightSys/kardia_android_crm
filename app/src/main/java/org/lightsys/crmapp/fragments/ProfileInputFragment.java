@@ -197,6 +197,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                     AsyncTask<String, Void, String> uploadJson3;
                     AsyncTask<String, Void, String> uploadJson4;
                     AsyncTask<String, Void, String> uploadJson5;
+                    AsyncTask<String, Void, String> uploadJson6;
+
 
                     if (mNewProfile)
                     {
@@ -205,7 +207,6 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
 
                         //urls for Posting to kardia
                         String partnerUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
-
                         String addressUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/Addresses?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
                         String phoneUrl = selectedPhone.equals("home")
                                 ? mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic"
@@ -214,6 +215,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                                 ? mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection"
                                 : null;
                         String emailUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+                        String typeUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/crm/Partners/" + nextPartnerKey + "/Collaboratees?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
 
                         JSONObject cellJson = createCellJson();
                         System.out.println(cellJson);
@@ -221,8 +223,9 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         uploadJson1 = new PostJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
                         uploadJson2 = new PostJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
                         uploadJson3 = new PostJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
-                        uploadJson4 = new PostJson(getContext(), cellUrl, cellJson, mAccount, false);
-                        uploadJson5 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, true);
+                        uploadJson4 = new PostJson(getContext(), cellUrl, createCellJson(), mAccount, false);
+                        uploadJson5 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, false);
+                        //uploadJson6 = new PostJson(getContext(), typeUrl, createTypeJson(), mAccount, false);
                     }
                     else
                     {
@@ -239,6 +242,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         uploadJson3 = new PatchJson(getContext(), phoneUrl, createPhoneJson(), mAccount);
                         uploadJson4 = new PatchJson(getContext(), cellUrl, createCellJson(), mAccount);
                         uploadJson5 = new PatchJson(getContext(), emailUrl, createEmailJson(), mAccount);
+                        //uploadJson6 = new PatchJson(getContext(), typeUrl, createTypeJson(), mAccount);
+
                     }
 
                     uploadJson1.execute();
@@ -451,6 +456,35 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             ex.printStackTrace();
         }
         return partnerJson;
+    }
+
+    private JSONObject createTypeJson()
+    {
+        JSONObject typeJson = new JSONObject();
+
+        try
+        {
+            if (mNewProfile)
+            {
+                typeJson.put("e_collaborator", "100202");
+                typeJson.put("p_partner_key", nextPartnerKey);
+                typeJson.put("e_collab_type_id", "1"); //TODO: GET THE INFOOOO
+                typeJson.put("e_is_automatic", "0");
+                typeJson.put("s_created_by", "dgarcia");
+                typeJson.put("s_modified_by", "dgarcia");
+                typeJson.put("s_date_created", jsonDate);
+                typeJson.put("s_date_modified", jsonDate);
+
+            } else
+            {
+                typeJson.put("collab_type_id", "2"); //TODO: FIX THIS TOOOOOO
+            }
+        }
+        catch (JSONException ex)
+        {
+            ex.printStackTrace();
+        }
+        return typeJson;
     }
 
     /**

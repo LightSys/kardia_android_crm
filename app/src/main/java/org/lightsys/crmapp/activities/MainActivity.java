@@ -106,10 +106,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Runs when a search is submitted.
             @Override
             public boolean onQueryTextSubmit(String s) {
-
-                Snackbar.make(findViewById(R.id.coordinatorlayout_main),
-                        "TODO execute query and repopulate",
-                        Snackbar.LENGTH_LONG).show();
                 return false;
             }
 
@@ -125,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    /*
+    /**
      * Provides option to select something within the Menu.
      */
     @Override

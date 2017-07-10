@@ -110,7 +110,7 @@ public class EditProfileActivity extends AppCompatActivity {
             arguments.putString(ADDRESS_JSON_ID_KEY, mAddressJsonId);
             arguments.putString(PARTNER_JSON_ID_KEY, mPartnerJsonId);
 
-            //start profinfrag and send it ALL THE THINGS!!!
+            //start profile input frag and send it everything
             ProfileInputFragment fragment = new ProfileInputFragment();
             fragment.setArguments(arguments);
 
