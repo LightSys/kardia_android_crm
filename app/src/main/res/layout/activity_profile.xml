@@ -20,12 +20,13 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             android:fitsSystemWindows="true"
             app:contentScrim="@color/primary"
-            app:expandedTitleMarginStart="48dp"
-            app:expandedTitleMarginEnd="64dp">
+            app:expandedTitleMarginStart="20dp"
+            app:expandedTitleMarginEnd="20dp"
+            app:expandedTitleGravity="center|bottom">
 
             <ImageView
                 android:id="@+id/backdrop_profile"
-                android:src="@drawable/ic_person_black_24dp"
+                android:src="@drawable/persona"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"

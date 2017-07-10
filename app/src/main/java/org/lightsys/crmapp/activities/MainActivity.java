@@ -109,10 +109,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Runs when a search is submitted.
             @Override
             public boolean onQueryTextSubmit(String s) {
-
-                Snackbar.make(findViewById(R.id.coordinatorlayout_main),
-                        "TODO execute query and repopulate",
-                        Snackbar.LENGTH_LONG).show();
                 return false;
             }
 
@@ -128,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    /*
+    /**
      * Provides option to select something within the Menu.
      */
     @Override
@@ -221,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (partner.getProfilePictureFilename() == null || partner.getProfilePictureFilename().equals(""))
             {
                 Picasso.with(getApplication())
-                        .load(R.drawable.ic_person_black_24dp)
+                        .load(R.drawable.persona)
                         .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
             }
             else
@@ -250,7 +246,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             i.putExtra(PARTNER_ID_KEY, mPartner2.getPartnerId());
             i.putExtra(PARTNER_NAME, mPartner2.getPartnerName());
             startActivity(i);
-            //new getCollaborateeInfoTask().execute();
         }
     }
 
@@ -306,9 +301,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     null
             );
 
-            //put query junk into a list
+            //put query stuff into a list
             List<Partner> collaboratees = new ArrayList<>();
-
             if (cursor != null)
             {
                 int partnerIdIndex = cursor.getColumnIndex(CRMContract.CollaborateeTable.PARTNER_ID);

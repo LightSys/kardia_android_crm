@@ -29,7 +29,7 @@ import javax.net.ssl.HttpsURLConnection;
 /**
  * Created by Judah Sistrunk on 7/7/2016.
  *
- * This class takes a json object a baseUrl and an account and posts the json object to the server
+ * This class takes a json object, a baseUrl, and an account, and posts the json object to the server
  *
  * Edited by Tim Parr on 6/22/2017
  */
@@ -59,6 +59,7 @@ public class PostJson extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... params) {
+
         java.net.Authenticator.setDefault(new java.net.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
@@ -68,6 +69,7 @@ public class PostJson extends AsyncTask<String, Void, String> {
         InputStream inputStream;
         String result;
         try {
+
             //baseUrl used to retrieve the access token
             URL getUrl = new URL(mAccountManager.getUserData(account, "server") + "/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
 

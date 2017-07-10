@@ -6,7 +6,7 @@
     <string name="action_search_person">Search</string>
     <string name="action_clear_search">Clear Search</string>
     <string name="action_edit_profile">Edit Profile</string>
-    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_login">Login</string>
     <string name="login_message">Login to use the Kardia CRM app.</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
@@ -16,6 +16,7 @@
     <string name="search_hint">Search</string>
     <string name="contact">Contact</string>
     <string name="timeline">Timeline</string>
+    <string name="role">Role</string>
 
     <string name="hint_first_name">First Name</string>
     <string name="hint_last_name">Last Name</string>
@@ -41,6 +42,11 @@
     <string-array name="protocol_options">
         <item>http</item>
         <item>https</item>
+    </string-array>
+    <string-array name="role_options">
+        <item>None</item>
+        <item>Mobilizer</item>
+        <item>NonMobilizer</item>
     </string-array>
 
 </resources>

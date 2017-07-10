@@ -31,7 +31,8 @@
         android:id="@+id/profile_input_photo_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/profile_input_photo_button"
-        android:textColorHint="@color/divider"/>
+        android:layout_marginTop="10dp"
+        android:textColorHint="@color/divider"
+        android:text="@string/profile_input_photo_button"/>
 
 </LinearLayout>

@@ -24,7 +24,6 @@ import java.util.Objects;
  * we are not sure if the problem is with this class or with something else
  * all we know is that when we call a query, it doesn't return anything
  *
- * ToDo figure out why queries aren't working properly
  *
  * this class holds methods for query, insert, delete, and update
  */
@@ -103,7 +102,7 @@ public class KardiaProvider extends ContentProvider {
                 break;
             case 3:
                 table = CRMContract.TimelineTable.TABLE_NAME;
-                id = values.getAsInteger(CRMContract.TimelineTable.CONTACT_ID);
+                id = values.getAsInteger(CRMContract.TimelineTable.CONTACT_HISTORY_ID);
                 break;
             default:
                 table = "";
@@ -111,7 +110,7 @@ public class KardiaProvider extends ContentProvider {
                 break;
         }
 
-        mDatabase.replace(table, null, values);
+        mDatabase.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 
         return ContentUris.withAppendedId(uri, id);
     }

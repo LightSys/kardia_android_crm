@@ -44,7 +44,7 @@ public class PatchJson extends AsyncTask<String, Void, String> {
     private String credential;
     private Account account;
     private AccountManager mAccountManager;
-    private String url = "";
+    private String baseUrl = "";
     private String backupUrl = "";
     private JSONObject jsonObject;
     private Context context;
@@ -53,7 +53,7 @@ public class PatchJson extends AsyncTask<String, Void, String> {
     private OkHttpClient client;
 
     public PatchJson(Context context, String Url, JSONObject jsonPost, Account userAccount){
-        url = Url;
+        baseUrl = Url;
         backupUrl = Url;
         jsonObject = jsonPost;
         account = userAccount;
@@ -75,7 +75,7 @@ public class PatchJson extends AsyncTask<String, Void, String> {
         String result;
         try {
 
-            //url used to retrieve the access token
+            //baseUrl used to retrieve the access token
             URL getUrl = new URL(mAccountManager.getUserData(account, "server") + "/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
 
             client = new OkHttpClient.Builder()
@@ -105,10 +105,10 @@ public class PatchJson extends AsyncTask<String, Void, String> {
                 result = response.body().string();
                 JSONObject token = new JSONObject(result);
 
-                url += "&cx__akey=" + token.getString("akey");
+                baseUrl += "&cx__akey=" + token.getString("akey");
 
                 //post json object
-                performPatchCall(url, jsonObject);
+                performPatchCall(baseUrl, jsonObject);
             }
         } catch (Exception e) {
             e.printStackTrace();}
