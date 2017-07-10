@@ -212,126 +212,142 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             @Override
             public void onClick(View view)
             {
-                // Determine Uri of camera image to save.
-                final File root = new File(Environment.getExternalStorageDirectory() + File.separator + "MyDir" + File.separator);
-                root.mkdirs();
-                final String fname = "img_" + System.currentTimeMillis() + ".jpg";
-                final File sdImageMainDirectory = new File(root, fname);
-                outputFileUri = Uri.fromFile(sdImageMainDirectory);
-
-                // Camera.
-                final List<Intent> cameraIntents = new ArrayList<>();
-                final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                final PackageManager packageManager = getContext().getPackageManager();
-                final List<ResolveInfo> listCam = packageManager.queryIntentActivities(captureIntent, 0);
-                for (ResolveInfo res : listCam)
-                {
-                    final String packageName = res.activityInfo.packageName;
-                    final Intent intent = new Intent(captureIntent);
-                    intent.setComponent(new ComponentName(packageName, res.activityInfo.name));
-                    intent.setPackage(packageName);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-                    cameraIntents.add(intent);
-                }
-
-                // Filesystem.
-                final Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                galleryIntent.setType("image/*");
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-
-                // Chooser of filesystem options.
-                final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
-
-                // Add the camera options.
-                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
-
-                startActivityForResult(chooserIntent, 0);
+                ProfilePictureOnClick();
             }
         });
 
         Button submit = (Button) rootView.findViewById(R.id.submit);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                try {
-                    setCurrentDate();
-
-                    AsyncTask<String, Void, String> uploadJson1;
-                    AsyncTask<String, Void, String> uploadJson2;
-                    AsyncTask<String, Void, String> uploadJson3;
-                    AsyncTask<String, Void, String> uploadJson4;
-                    AsyncTask<String, Void, String> uploadJson6;
-                    PostProfilePicture postProfilePicture;
-
-                    if (mNewProfile)
-                    {
-                        nextPartnerKey = new GetPartnerKey().execute().get();
-                        System.out.println("Retrieved New Partner Key: " + nextPartnerKey);
-
-                        //urls for Posting to kardia
-                        String partnerUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
-                        String addressUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/Addresses?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
-                        String phoneUrl = selectedPhone.equals("home")
-                                ? mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic"
-                                : null;
-                        String cellUrl = selectedPhone.equals("mobile")
-                                ? mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection"
-                                : null;
-                        
-                        String emailUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
-                        String photoUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/files?";
-                        String typeUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/crm/Partners/" + nextPartnerKey + "/Collaboratees?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
-
-                        //set up POST json objects for patching
-                        uploadJson1 = new PostJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
-                        uploadJson2 = new PostJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
-                        uploadJson3 = new PostJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
-                        uploadJson4 = new PostJson(getContext(), cellUrl, createCellJson(), mAccount, false);
-                        String realPathFromURI = getRealPathFromURI(selectedImageUri, getContext());
-                        postProfilePicture = new PostProfilePicture(getContext(), photoUrl, new File(realPathFromURI), mAccount, nextPartnerKey);
-                        uploadJson6 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, true);
-                    }
-                    else
-                    {
-                        //urls for patching to kardia
-                        String partnerUrl = mAccountManager.getUserData(mAccount, "server") + mPartnerJsonId + "&cx__res_type=element";
-                        String addressUrl = mAccountManager.getUserData(mAccount, "server") + mAddressJsonId + "&cx__res_type=element";
-                        String phoneUrl = mAccountManager.getUserData(mAccount, "server") + mPhoneJsonId + "&cx__res_type=element";
-                        String cellUrl = mAccountManager.getUserData(mAccount, "server") + mCellJsonId + "&cx__res_type=element";
-                        String emailUrl = mAccountManager.getUserData(mAccount, "server") + mEmailJsonId + "&cx__res_type=element";
-
-                        //set up patch json objects for patching
-                        uploadJson1 = new PatchJson(getContext(), partnerUrl, createPartnerJson(), mAccount);
-                        uploadJson2 = new PatchJson(getContext(), addressUrl, createAddressJson(), mAccount);
-                        uploadJson3 = new PatchJson(getContext(), phoneUrl, createPhoneJson(), mAccount);
-                        uploadJson4 = new PatchJson(getContext(), cellUrl, createCellJson(), mAccount);
-                        uploadJson6 = new PatchJson(getContext(), emailUrl, createEmailJson(), mAccount);
-                        postProfilePicture = null;
-                    }
-
-                    uploadJson1.execute();
-                    uploadJson2.execute();
-                    if(selectedPhone.equals("home")) {//if home phone is selected, patch home
-                        System.out.println("POST Phone info");
-                        uploadJson3.execute();
-                    }
-                    else if(selectedPhone.equals("mobile")) {//if mobile phone is selected, patch mobile
-                        System.out.println("POST Mobile info");
-                        uploadJson4.execute();
-                    }
-                    if (postProfilePicture != null)
-                        System.out.println("Posting Profile Picture");
-                        postProfilePicture.execute();
-                    System.out.println("POST Email info");
-                    uploadJson6.execute();
-                }
-                catch(Exception e) {
-                    e.printStackTrace();
-                }
+            public void onClick(View v)
+            {
+                submitOnClick();
             }
         });
 
-        return rootView;//holy junk dude! was this all done in onCreateView??????!!!!!!
+        return rootView;
+    }
+
+    private void ProfilePictureOnClick()
+    {
+        // Determine Uri of camera image to save.
+        final File root = new File(Environment.getExternalStorageDirectory() + File.separator + "MyDir" + File.separator);
+        root.mkdirs();
+        final String fname = "img_" + System.currentTimeMillis() + ".jpg";
+        final File sdImageMainDirectory = new File(root, fname);
+        outputFileUri = Uri.fromFile(sdImageMainDirectory);
+
+        // Camera.
+        final List<Intent> cameraIntents = new ArrayList<>();
+        final Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        final PackageManager packageManager = getContext().getPackageManager();
+        final List<ResolveInfo> listCam = packageManager.queryIntentActivities(captureIntent, 0);
+        for (ResolveInfo res : listCam)
+        {
+            final String packageName = res.activityInfo.packageName;
+            final Intent intent = new Intent(captureIntent);
+            intent.setComponent(new ComponentName(packageName, res.activityInfo.name));
+            intent.setPackage(packageName);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
+            cameraIntents.add(intent);
+        }
+
+        // Filesystem.
+        final Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        galleryIntent.setType("image/*");
+        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+
+        // Chooser of filesystem options.
+        final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
+
+        // Add the camera options.
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
+
+        startActivityForResult(chooserIntent, 0);
+    }
+
+    private void submitOnClick()
+    {
+        try {
+            setCurrentDate();
+
+            AsyncTask<String, Void, String> uploadJson1;
+            AsyncTask<String, Void, String> uploadJson2;
+            AsyncTask<String, Void, String> uploadJson3;
+            AsyncTask<String, Void, String> uploadJson4;
+            AsyncTask<String, Void, String> uploadJson6;
+            PostProfilePicture postProfilePicture;
+
+            if (mNewProfile)
+            {
+                nextPartnerKey = new GetPartnerKey().execute().get();
+                System.out.println("Retrieved New Partner Key: " + nextPartnerKey);
+
+                //urls for Posting to kardia
+                String partnerUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
+                String addressUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/Addresses?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+                String phoneUrl = selectedPhone.equals("home")
+                        ? mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic"
+                        : null;
+                String cellUrl = selectedPhone.equals("mobile")
+                        ? mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection"
+                        : null;
+
+                String emailUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+                String photoUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/files?";
+                String typeUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/crm/Partners/" + nextPartnerKey + "/Collaboratees?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+
+                //set up POST json objects for patching
+                uploadJson1 = new PostJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
+                uploadJson2 = new PostJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
+                uploadJson3 = new PostJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
+                uploadJson4 = new PostJson(getContext(), cellUrl, createCellJson(), mAccount, false);
+                String realPathFromURI = getRealPathFromURI(selectedImageUri, getContext());
+                postProfilePicture = new PostProfilePicture(getContext(), photoUrl, new File(realPathFromURI), mAccount, nextPartnerKey);
+                uploadJson6 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, true);
+            }
+            else
+            {
+                //urls for patching to kardia
+                String partnerUrl = mAccountManager.getUserData(mAccount, "server") + mPartnerJsonId + "&cx__res_type=element";
+                String addressUrl = mAccountManager.getUserData(mAccount, "server") + mAddressJsonId + "&cx__res_type=element";
+                String phoneUrl = mAccountManager.getUserData(mAccount, "server") + mPhoneJsonId + "&cx__res_type=element";
+                String cellUrl = mAccountManager.getUserData(mAccount, "server") + mCellJsonId + "&cx__res_type=element";
+                String emailUrl = mAccountManager.getUserData(mAccount, "server") + mEmailJsonId + "&cx__res_type=element";
+
+                //set up patch json objects for patching
+                uploadJson1 = new PatchJson(getContext(), partnerUrl, createPartnerJson(), mAccount);
+                uploadJson2 = new PatchJson(getContext(), addressUrl, createAddressJson(), mAccount);
+                uploadJson3 = new PatchJson(getContext(), phoneUrl, createPhoneJson(), mAccount);
+                uploadJson4 = new PatchJson(getContext(), cellUrl, createCellJson(), mAccount);
+                uploadJson6 = new PatchJson(getContext(), emailUrl, createEmailJson(), mAccount);
+                postProfilePicture = null;
+            }
+
+            uploadJson1.execute();
+            uploadJson2.execute();
+
+            if(selectedPhone.equals("home")) {//if home phone is selected, patch home
+                System.out.println("POST Phone info");
+                uploadJson3.execute();
+            }
+            else if(selectedPhone.equals("mobile")) {//if mobile phone is selected, patch mobile
+                System.out.println("POST Mobile info");
+                uploadJson4.execute();
+            }
+
+            if (postProfilePicture != null)
+            {
+                System.out.println("Posting Profile Picture");
+                postProfilePicture.execute();
+            }
+
+            System.out.println("POST Email info");
+            uploadJson6.execute();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void setCurrentDate()
@@ -492,28 +508,6 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         }
 
         return addressJson;
-    }
-
-    private JSONObject createPhotoJson()
-    {
-        JSONObject photoJson = new JSONObject();
-
-        try
-        {
-            if (mNewProfile)
-            {
-                photoJson.put("name", "ProfilePicture");
-            } else
-            {
-
-            }
-        }catch (JSONException ex)
-        {
-            ex.printStackTrace();
-        }
-
-        return photoJson;
-
     }
 
     private JSONObject createPartnerJson()
@@ -682,7 +676,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     public String getRealPathFromURI(Uri contentUri, Context context)
     {
         String[] proj = { MediaStore.Images.Media.DATA };
-        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, null); //Since manageQuery is deprecated
+        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
         int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         cursor.moveToFirst();
         return cursor.getString(column_index);

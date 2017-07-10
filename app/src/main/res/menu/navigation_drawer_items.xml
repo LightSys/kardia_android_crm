@@ -7,6 +7,10 @@
     <item android:id="@+id/action_logout"
           android:title="@string/logout"
           app:showAsAction="ifRoom"
-          android:icon="@drawable/ic_logout_white"/>
+          android:icon="@drawable/ic_logout_white" />
+
+    <item android:id="@+id/action_engagement"
+          android:title="@string/engagement"
+        android:icon="@drawable/ic_engagement"/>
 
 </menu>

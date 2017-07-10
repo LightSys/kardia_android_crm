@@ -206,7 +206,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             List<Staff> staff = fetcher.getStaff(accounts[0]);
             for(Staff staffMember : staff) {
                 ContentValues values = new ContentValues();
-                values.put(CRMContract.StaffTable.PARTNER_ID, staffMember.getPartnerId());
+                values.put(CRMContract.StaffTable.PARTNER_ID, staffMember.PartnerId);
                 values.put(CRMContract.StaffTable.KARDIA_LOGIN, staffMember.getKardiaLogin());
                 getContentResolver().insert(CRMContract.StaffTable.CONTENT_URI, values);
             }
@@ -244,17 +244,17 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
                 for (Partner collaboratee : collaboratees) {
                     ContentValues values = new ContentValues();
                     values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, mAccountManager.getUserData(accounts[0], "partnerId"));
-                    values.put(CRMContract.CollaborateeTable.PARTNER_ID, Integer.parseInt(collaboratee.getPartnerId()));
-                    values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.getPartnerName());
-                    values.put(CRMContract.CollaborateeTable.PROFILE_PICTURE, collaboratee.getProfilePictureFilename());
+                    values.put(CRMContract.CollaborateeTable.PARTNER_ID, Integer.parseInt(collaboratee.PartnerId));
+                    values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.PartnerName);
+                    values.put(CRMContract.CollaborateeTable.PROFILE_PICTURE, collaboratee.ProfilePictureFilename);
 
                     getContentResolver().insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
 
                     ProfileActivity.saveImageFromUrl(
                             mAccountManager.getUserData(accounts[0], "server"),
                             getApplicationContext(),
-                            collaboratee.getProfilePictureFilename(),
-                            collaboratee.getPartnerId()
+                            collaboratee.ProfilePictureFilename,
+                            collaboratee.PartnerId
                     );
                 }
             } catch (IOException e)

@@ -11,8 +11,7 @@ public class Staff extends Partner {
     }
 
     public Staff(String partnerId, String kardiaLogin) {
-        super(partnerId);
-        setPartnerId(partnerId);
+        this.PartnerId = partnerId;
         this.kardiaLogin = kardiaLogin;
     }
 

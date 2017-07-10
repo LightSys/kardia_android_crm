@@ -2,21 +2,17 @@ package org.lightsys.crmapp.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,7 +30,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.models.Partner;
@@ -55,7 +50,6 @@ import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PROFILE_PIC
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-
     private AccountManager mAccountManager;
 
     private RecyclerView mRecyclerView;
@@ -80,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             finish();
         } else if (accounts.length > 0){
             mAccount = accounts[0];
-            new GetCollaborateesTask().execute();
+            new GetCollaborateesTask().execute(mAccountManager.getUserData(mAccount, "partnerId"));
         }
 
         setContentView(R.layout.activity_main);
@@ -214,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
          * Binds profile information to the view.
          */
         public void bindProfile(Partner partner) {
-            if (partner.getProfilePictureFilename() == null || partner.getProfilePictureFilename().equals(""))
+            if (partner.ProfilePictureFilename == null || partner.ProfilePictureFilename.equals(""))
             {
                 Picasso.with(getApplication())
                         .load(R.drawable.persona)
@@ -223,15 +217,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             else
             {
                 File directory = getDir("imageDir", Context.MODE_PRIVATE);
-                int indexoffileName = partner.getProfilePictureFilename().lastIndexOf("/");
-                String finalPath = directory + "/" + partner.getProfilePictureFilename().substring(indexoffileName + 1);
+                int indexoffileName = partner.ProfilePictureFilename.lastIndexOf("/");
+                String finalPath = directory + "/" + partner.ProfilePictureFilename.substring(indexoffileName + 1);
 
                 Picasso.with(getApplication())
                         .load(new File(finalPath))
                         .placeholder(R.drawable.ic_person_black_24dp)
                         .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
             }
-            ((TextView) mLinearLayout.findViewById(R.id.profile_name)).setText(partner.getPartnerName());
+            ((TextView) mLinearLayout.findViewById(R.id.profile_name)).setText(partner.PartnerName);
 
             mPartner = partner;
         }
@@ -243,8 +237,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public void onClick(View v) {
             mPartner2 = mPartner;
             Intent i = new Intent(getApplication(), ProfileActivity.class);
-            i.putExtra(PARTNER_ID_KEY, mPartner2.getPartnerId());
-            i.putExtra(PARTNER_NAME, mPartner2.getPartnerName());
+            i.putExtra(PARTNER_ID_KEY, mPartner2.PartnerId);
+            i.putExtra(PARTNER_NAME, mPartner2.PartnerName);
             startActivity(i);
         }
     }
@@ -284,10 +278,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * ToDo make this asyncTask get stuffs from kardia
      * if this doesn't get things from kardia, new partners will never be registered.
      */
-    private class GetCollaborateesTask extends AsyncTask<Void, Void, List<Partner>> {
+    public class GetCollaborateesTask extends AsyncTask<String, Void, List<Partner>> {
         @Override
-        protected List<Partner> doInBackground(Void... params) {
-            String partnerId = mAccountManager.getUserData(mAccount, "partnerId");
+        protected List<Partner> doInBackground(String... params) {
+            String partnerId = params[0];
 
             //get collaboratee stuff from the database
             Cursor cursor = getContentResolver().query(
@@ -296,8 +290,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             CRMContract.CollaborateeTable.PARTNER_ID,
                             CRMContract.CollaborateeTable.PARTNER_NAME,
                             CRMContract.CollaborateeTable.PROFILE_PICTURE },
-                    null,//CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
-                    null,//new String[] { partnerId },
+                    CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
+                    new String[] { partnerId },
                     null
             );
 
@@ -312,9 +306,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 while (cursor.moveToNext())
                 {
                     Partner collaboratee = new Partner();
-                    collaboratee.setPartnerId(cursor.getString(partnerIdIndex));
-                    collaboratee.setPartnerName(cursor.getString(partnerNameIndex));
-                    collaboratee.setProfilePictureFilename(cursor.getString(profilePictureIndex));
+                    collaboratee.PartnerId = cursor.getString(partnerIdIndex);
+                    collaboratee.PartnerName = cursor.getString(partnerNameIndex);
+                    collaboratee.ProfilePictureFilename = cursor.getString(profilePictureIndex);
                     collaboratees.add(collaboratee);
                 }
                 cursor.close();
@@ -338,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void search(String searchText) {
         ArrayList<Partner> profiles = new ArrayList<>();
         for(Partner profile : mProfiles) {
-            if(profile.getPartnerName().toLowerCase().contains(searchText.toLowerCase())) {
+            if(profile.PartnerName.toLowerCase().contains(searchText.toLowerCase())) {
                 profiles.add(profile);
             }
         }

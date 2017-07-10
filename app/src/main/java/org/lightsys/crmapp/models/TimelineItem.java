@@ -36,7 +36,7 @@ public class TimelineItem {
         return partnerId;
     }
 
-    public void setPartnerId(String partnerId) {
+    public void PartnerId(String partnerId) {
         this.partnerId = partnerId;
     }
 

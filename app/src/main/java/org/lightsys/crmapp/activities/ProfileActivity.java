@@ -396,7 +396,7 @@ public class ProfileActivity extends AppCompatActivity {
             items.clear();
             while (cursor.moveToNext()) {
                 TimelineItem item = new TimelineItem(cursor.getString(0));
-                item.setPartnerId(cursor.getString(1));
+                item.PartnerId(cursor.getString(1));
                 item.setCollaborateeId(cursor.getString(2));
                 item.setCollaborateeName(cursor.getString(3));
                 item.setContactHistoryId(cursor.getString(4));
@@ -550,26 +550,26 @@ public class ProfileActivity extends AppCompatActivity {
 
             //turn raw query stuffs into a partner
             if(cursor.moveToFirst()) {
-                collaboratee.setPartnerId(cursor.getString(0));
-                collaboratee.setPartnerName(cursor.getString(1));
-                collaboratee.setEmail(cursor.getString(2));
-                collaboratee.setPhone(cursor.getString(3));
-                collaboratee.setAddress1(cursor.getString(4));
-                collaboratee.setCity(cursor.getString(5));
-                collaboratee.setStateProvince(cursor.getString(6));
-                collaboratee.setPostalCode(cursor.getString(7));
+                collaboratee.PartnerId = cursor.getString(0);
+                collaboratee.PartnerName = cursor.getString(1);
+                collaboratee.Email = cursor.getString(2);
+                collaboratee.Phone = cursor.getString(3);
+                collaboratee.Address1 = cursor.getString(4);
+                collaboratee.City = cursor.getString(5);
+                collaboratee.StateProvince = cursor.getString(6);
+                collaboratee.PostalCode = cursor.getString(7);
                 collaboratee.setFullAddress(cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7));
-                collaboratee.setCell(cursor.getString(8));
-                collaboratee.setSurname(cursor.getString(9));
-                collaboratee.setGivenNames(cursor.getString(10));
-                collaboratee.setPhoneId(cursor.getString(11));
-                collaboratee.setCellId(cursor.getString(12));
-                collaboratee.setEmailId(cursor.getString(13));
-                collaboratee.setPhoneJsonId(cursor.getString(14));
-                collaboratee.setCellJsonId(cursor.getString(15));
-                collaboratee.setEmailJsonId(cursor.getString(16));
-                collaboratee.setAddressJsonId(cursor.getString(17));
-                collaboratee.setPartnerJsonId(cursor.getString(18));
+                collaboratee.Cell = cursor.getString(8);
+                collaboratee.Surname = cursor.getString(9);
+                collaboratee.GivenNames = cursor.getString(10);
+                collaboratee.PhoneId = cursor.getString(11);
+                collaboratee.CellId = cursor.getString(12);
+                collaboratee.EmailId = cursor.getString(13);
+                collaboratee.PhoneJsonId = cursor.getString(14);
+                collaboratee.CellJsonId = cursor.getString(15);
+                collaboratee.EmailJsonId = cursor.getString(16);
+                collaboratee.AddressJsonId = cursor.getString(17);
+                collaboratee.PartnerJsonId = cursor.getString(18);
             }
             cursor.close();
 
@@ -577,62 +577,63 @@ public class ProfileActivity extends AppCompatActivity {
             // and there is a network connection available,
             // pull info down from the server
 
-            if(networkConnected() && (collaboratee.getEmail() == null || collaboratee.getPhone() == null || collaboratee.getAddress1() == null
-                    || collaboratee.getCity() == null || collaboratee.getStateProvince() == null || collaboratee.getPostalCode() == null ||
-                    collaboratee.getCell() == null)) {
+            if(networkConnected() && (collaboratee.Email == null || collaboratee.Phone == null
+                    || collaboratee.Address1 == null || collaboratee.City == null
+                    || collaboratee.StateProvince == null || collaboratee.PostalCode == null
+                    || collaboratee.Cell == null)) {
 
                 //get all the collaboratee stuff from the server
                 KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
                 collaboratee = fetcher.getCollaborateeInfo(mAccount, collaboratee);
 
-                if (collaboratee.getProfilePictureFilename() != null)
-                    saveImageFromUrl(mAccountManager.getUserData(mAccount, "server"), getApplicationContext(), collaboratee.getProfilePictureFilename(), mPartnerId);
+                if (collaboratee.ProfilePictureFilename != null)
+                    saveImageFromUrl(mAccountManager.getUserData(mAccount, "server"), getApplicationContext(), collaboratee.ProfilePictureFilename, mPartnerId);
 
                 //set partner ID to match account ID
                 //this fixes an issue where a profile disappeared from the main list after being clicked
-                collaboratee.setPartnerId(mAccountManager.getUserData(mAccount, "partnerId"));
+                collaboratee.PartnerId = mAccountManager.getUserData(mAccount, "partnerId");
 
 
                 //puts all non null collaboratee values into database
                 ContentValues values = new ContentValues();
-                if (collaboratee.getPartnerId() != null) {
-                    values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, collaboratee.getPartnerId());
-                }if (collaboratee.getPartnerName() != null) {
-                    values.put(PARTNER_NAME, collaboratee.getPartnerName());
-                }if (collaboratee.getSurname() != null) {
-                    values.put(CRMContract.CollaborateeTable.SURNAME, collaboratee.getSurname());
-                }if (collaboratee.getGivenNames() != null) {
-                    values.put(CRMContract.CollaborateeTable.GIVEN_NAMES, collaboratee.getGivenNames());
-                }if (collaboratee.getPhone() != null) {
-                    values.put(CRMContract.CollaborateeTable.PHONE, collaboratee.getPhone());
-                }if (collaboratee.getCell() != null) {
-                    values.put(CRMContract.CollaborateeTable.CELL, collaboratee.getCell());
-                }if (collaboratee.getEmail() != null) {
-                    values.put(CRMContract.CollaborateeTable.EMAIL, collaboratee.getEmail());
-                }if (collaboratee.getAddress1() != null) {
-                    values.put(CRMContract.CollaborateeTable.ADDRESS_1, collaboratee.getAddress1());
-                }if (collaboratee.getCity() != null) {
-                    values.put(CRMContract.CollaborateeTable.CITY, collaboratee.getCity());
-                }if (collaboratee.getStateProvince() != null) {
-                    values.put(CRMContract.CollaborateeTable.STATE_PROVINCE, collaboratee.getStateProvince());
-                }if (collaboratee.getPostalCode() != null) {
-                    values.put(CRMContract.CollaborateeTable.POSTAL_CODE, collaboratee.getPostalCode());
-                }if (collaboratee.getPhoneId() != null) {
-                    values.put(CRMContract.CollaborateeTable.PHONE_ID, collaboratee.getPhoneId());
-                }if (collaboratee.getEmailId() != null) {
-                    values.put(CRMContract.CollaborateeTable.EMAIL_ID, collaboratee.getEmailId());
-                }if (collaboratee.getCellId() != null) {
-                    values.put(CRMContract.CollaborateeTable.CELL_ID, collaboratee.getCellId());
-                }if (collaboratee.getPhoneJsonId() != null) {
-                    values.put(CRMContract.CollaborateeTable.PHONE_JSON_ID, collaboratee.getPhoneJsonId());
-                }if (collaboratee.getCellJsonId() != null) {
-                    values.put(CRMContract.CollaborateeTable.CELL_JSON_ID, collaboratee.getCellJsonId());
-                }if (collaboratee.getEmailJsonId() != null) {
-                    values.put(CRMContract.CollaborateeTable.EMAIL_JSON_ID, collaboratee.getEmailJsonId());
-                }if (collaboratee.getAddressJsonId() != null) {
-                    values.put(CRMContract.CollaborateeTable.ADDRESS_JSON_ID, collaboratee.getAddressJsonId());
-                }if (collaboratee.getPartnerJsonId() != null) {
-                    values.put(CRMContract.CollaborateeTable.PARTNER_JSON_ID, collaboratee.getPartnerJsonId());
+                if (collaboratee.PartnerId != null) {
+                    values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, collaboratee.PartnerId);
+                }if (collaboratee.PartnerName != null) {
+                    values.put(PARTNER_NAME, collaboratee.PartnerName);
+                }if (collaboratee.Surname != null) {
+                    values.put(CRMContract.CollaborateeTable.SURNAME, collaboratee.Surname);
+                }if (collaboratee.GivenNames != null) {
+                    values.put(CRMContract.CollaborateeTable.GIVEN_NAMES, collaboratee.GivenNames);
+                }if (collaboratee.Phone != null) {
+                    values.put(CRMContract.CollaborateeTable.PHONE, collaboratee.Phone);
+                }if (collaboratee.Cell != null) {
+                    values.put(CRMContract.CollaborateeTable.CELL, collaboratee.Cell);
+                }if (collaboratee.Email != null) {
+                    values.put(CRMContract.CollaborateeTable.EMAIL, collaboratee.Email);
+                }if (collaboratee.Address1 != null) {
+                    values.put(CRMContract.CollaborateeTable.ADDRESS_1, collaboratee.Address1);
+                }if (collaboratee.City != null) {
+                    values.put(CRMContract.CollaborateeTable.CITY, collaboratee.City);
+                }if (collaboratee.StateProvince != null) {
+                    values.put(CRMContract.CollaborateeTable.STATE_PROVINCE, collaboratee.StateProvince);
+                }if (collaboratee.PostalCode != null) {
+                    values.put(CRMContract.CollaborateeTable.POSTAL_CODE, collaboratee.PostalCode);
+                }if (collaboratee.PhoneId != null) {
+                    values.put(CRMContract.CollaborateeTable.PHONE_ID, collaboratee.PhoneId);
+                }if (collaboratee.EmailId != null) {
+                    values.put(CRMContract.CollaborateeTable.EMAIL_ID, collaboratee.EmailId);
+                }if (collaboratee.CellId != null) {
+                    values.put(CRMContract.CollaborateeTable.CELL_ID, collaboratee.CellId);
+                }if (collaboratee.PhoneJsonId != null) {
+                    values.put(CRMContract.CollaborateeTable.PHONE_JSON_ID, collaboratee.PhoneJsonId);
+                }if (collaboratee.CellJsonId != null) {
+                    values.put(CRMContract.CollaborateeTable.CELL_JSON_ID, collaboratee.CellJsonId);
+                }if (collaboratee.EmailJsonId != null) {
+                    values.put(CRMContract.CollaborateeTable.EMAIL_JSON_ID, collaboratee.EmailJsonId);
+                }if (collaboratee.AddressJsonId != null) {
+                    values.put(CRMContract.CollaborateeTable.ADDRESS_JSON_ID, collaboratee.AddressJsonId);
+                }if (collaboratee.PartnerJsonId != null) {
+                    values.put(CRMContract.CollaborateeTable.PARTNER_JSON_ID, collaboratee.PartnerJsonId);
                 }
 
                 //put new collaboratee info into database
@@ -656,26 +657,26 @@ public class ProfileActivity extends AppCompatActivity {
 
                 //turn raw query stuff into a partner
                 if(cursor2.moveToFirst()) {
-                    collaboratee.setPartnerId(cursor2.getString(0));
-                    collaboratee.setPartnerName(cursor2.getString(1));
-                    collaboratee.setEmail(cursor2.getString(2));
-                    collaboratee.setPhone(cursor2.getString(3));
-                    collaboratee.setAddress1(cursor2.getString(4));
-                    collaboratee.setCity(cursor2.getString(5));
-                    collaboratee.setStateProvince(cursor2.getString(6));
-                    collaboratee.setPostalCode(cursor2.getString(7));
+                    collaboratee.PartnerId = cursor2.getString(0);
+                    collaboratee.PartnerName = cursor2.getString(1);
+                    collaboratee.Email = cursor2.getString(2);
+                    collaboratee.Phone = cursor2.getString(3);
+                    collaboratee.Address1 = cursor2.getString(4);
+                    collaboratee.City = cursor2.getString(5);
+                    collaboratee.StateProvince = cursor2.getString(6);
+                    collaboratee.PostalCode = cursor2.getString(7);
                     collaboratee.setFullAddress(cursor2.getString(4), cursor2.getString(5), cursor2.getString(6), cursor2.getString(7));
-                    collaboratee.setCell(cursor2.getString(8));
-                    collaboratee.setSurname(cursor2.getString(9));
-                    collaboratee.setGivenNames(cursor2.getString(10));
-                    collaboratee.setPhoneId(cursor2.getString(11));
-                    collaboratee.setCellId(cursor2.getString(12));
-                    collaboratee.setEmailId(cursor2.getString(13));
-                    collaboratee.setPhoneJsonId(cursor2.getString(14));
-                    collaboratee.setCellJsonId(cursor2.getString(15));
-                    collaboratee.setEmailJsonId(cursor2.getString(16));
-                    collaboratee.setAddressJsonId(cursor2.getString(17));
-                    collaboratee.setPartnerJsonId(cursor2.getString(18));
+                    collaboratee.Cell = cursor2.getString(8);
+                    collaboratee.Surname = cursor2.getString(9);
+                    collaboratee.GivenNames = cursor2.getString(10);
+                    collaboratee.PhoneId = cursor2.getString(11);
+                    collaboratee.CellId = cursor2.getString(12);
+                    collaboratee.EmailId = cursor2.getString(13);
+                    collaboratee.PhoneJsonId = cursor2.getString(14);
+                    collaboratee.CellJsonId = cursor2.getString(15);
+                    collaboratee.EmailJsonId = cursor2.getString(16);
+                    collaboratee.AddressJsonId = cursor2.getString(17);
+                    collaboratee.PartnerJsonId = cursor2.getString(18);
                 }
 
                 cursor2.close();
@@ -694,40 +695,40 @@ public class ProfileActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void params) {
 
-            mName = mPartner2.getPartnerName();
+            mName = mPartner2.PartnerName;
 
-            mPartnerId = mPartner2.getPartnerId();
+            mPartnerId = mPartner2.PartnerId;
 
-            mEmail = mPartner2.getEmail();
-            mPhone = mPartner2.getPhone();
-            mAddress = mPartner2.getAddress1();
-            mCity = mPartner2.getCity();
-            mState = mPartner2.getStateProvince();
-            mPostalCode = mPartner2.getPostalCode();
+            mEmail = mPartner2.Email;
+            mPhone = mPartner2.Phone;
+            mAddress = mPartner2.Address1;
+            mCity = mPartner2.City;
+            mState = mPartner2.StateProvince;
+            mPostalCode = mPartner2.PostalCode;
             mFullAddress = mPartner2.getFullAddress();
-            mCell = mPartner2.getCell();
-            mSurname = mPartner2.getSurname();
-            mGivenName = mPartner2.getGivenNames();
+            mCell = mPartner2.Cell;
+            mSurname = mPartner2.Surname;
+            mGivenName = mPartner2.GivenNames;
 
-            mPhoneId = mPartner2.getPhoneId();
-            mCellId = mPartner2.getCellId();
-            mEmailId = mPartner2.getEmailId();
+            mPhoneId = mPartner2.PhoneId;
+            mCellId = mPartner2.CellId;
+            mEmailId = mPartner2.EmailId;
 
-            mPhoneJsonId = mPartner2.getPhoneJsonId();
-            mCellJsonID = mPartner2.getCellJsonId();
-            mEmailJsonId = mPartner2.getEmailJsonId();
-            mAddressJsonId = mPartner2.getAddressJsonId();
-            mPartnerJsonId = mPartner2.getPartnerJsonId();
+            mPhoneJsonId = mPartner2.PhoneJsonId;
+            mCellJsonID = mPartner2.CellJsonId;
+            mEmailJsonId = mPartner2.EmailJsonId;
+            mAddressJsonId = mPartner2.AddressJsonId;
+            mPartnerJsonId = mPartner2.PartnerJsonId;
 
-            mBlog = mPartner2.getBlog();
-            mFax = mPartner2.getFax();
-            mSkype = mPartner2.getSkype();
-            mTwitter = mPartner2.getTwitter();
-            mWebsite = mPartner2.getWebsite();
+            mBlog = mPartner2.Blog;
+            mFax = mPartner2.Fax;
+            mSkype = mPartner2.Skype;
+            mTwitter = mPartner2.Twitter;
+            mWebsite = mPartner2.Website;
 
             File directory = getDir("imageDir", Context.MODE_PRIVATE);
 
-            String profilePictureFilename = mPartner2.getProfilePictureFilename();
+            String profilePictureFilename = mPartner2.ProfilePictureFilename;
             if (profilePictureFilename == null || profilePictureFilename.equals(""))
             {
                 Picasso.with(getApplication())
