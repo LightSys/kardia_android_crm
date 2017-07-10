@@ -8,14 +8,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatButton;
@@ -43,9 +40,6 @@ import org.lightsys.crmapp.data.PostJson;
 import org.lightsys.crmapp.data.PostProfilePicture;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -284,7 +278,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         String cellUrl = selectedPhone.equals("mobile")
                                 ? mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection"
                                 : null;
-
+                        
                         String emailUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
                         String photoUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/files?";
 
@@ -293,7 +287,6 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         uploadJson2 = new PostJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
                         uploadJson3 = new PostJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
                         uploadJson4 = new PostJson(getContext(), cellUrl, createCellJson(), mAccount, false);
-                        System.out.println(selectedImageUri);
                         String realPathFromURI = getRealPathFromURI(selectedImageUri, getContext());
                         postProfilePicture = new PostProfilePicture(getContext(), photoUrl, new File(realPathFromURI), mAccount, nextPartnerKey);
                         uploadJson6 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, true);
@@ -316,20 +309,21 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         uploadJson6 = new PatchJson(getContext(), emailUrl, createEmailJson(), mAccount);
                     }
 
-                    //uploadJson1.execute();
-                    //uploadJson2.execute();
+                    uploadJson1.execute();
+                    uploadJson2.execute();
                     if(selectedPhone.equals("home")) {//if home phone is selected, patch home
                         System.out.println("POST Phone info");
-                        //uploadJson3.execute();
+                        uploadJson3.execute();
                     }
                     else if(selectedPhone.equals("mobile")) {//if mobile phone is selected, patch mobile
                         System.out.println("POST Mobile info");
-                        //uploadJson4.execute();
+                        uploadJson4.execute();
                     }
-                    System.out.println("Posting Profile Picture");
-                    postProfilePicture.execute();
+                    if (postProfilePicture != null)
+                        System.out.println("Posting Profile Picture");
+                        postProfilePicture.execute();
                     System.out.println("POST Email info");
-                    //uploadJson6.execute();
+                    uploadJson6.execute();
                 }
                 catch(Exception e) {
                     e.printStackTrace();
