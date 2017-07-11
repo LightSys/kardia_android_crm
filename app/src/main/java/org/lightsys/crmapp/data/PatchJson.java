@@ -15,15 +15,10 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.PasswordAuthentication;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
 import okhttp3.Credentials;
-import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -51,8 +46,9 @@ public class PatchJson extends AsyncTask<String, Void, String> {
     private boolean success = false;
     private static CookieManager cookieManager = new CookieManager();
     private OkHttpClient client;
+    private boolean finalTask;
 
-    public PatchJson(Context context, String Url, JSONObject jsonPost, Account userAccount){
+    public PatchJson(Context context, String Url, JSONObject jsonPost, Account userAccount, boolean finalAsyncTask){
         baseUrl = Url;
         backupUrl = Url;
         jsonObject = jsonPost;
@@ -61,6 +57,7 @@ public class PatchJson extends AsyncTask<String, Void, String> {
         mAccountManager = AccountManager.get(context);
         CookieHandler.setDefault(cookieManager);
         credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
+        finalTask = finalAsyncTask;
     }
 
     @Override
@@ -111,14 +108,15 @@ public class PatchJson extends AsyncTask<String, Void, String> {
                 performPatchCall(baseUrl, jsonObject);
             }
         } catch (Exception e) {
-            e.printStackTrace();}
+            e.printStackTrace();
+        }
 
         return null;
     }
 
     //function that posts a json object to the server
-    private String performPatchCall(String requestURL, JSONObject jsonObject)
-    {
+    private String performPatchCall(String requestURL, JSONObject jsonObject) {
+
         URL url;
         String result = "";
         try {
@@ -161,30 +159,12 @@ public class PatchJson extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String params) {
 
         if (success) {
-            Toast.makeText(context, "Data posted successfully!", Toast.LENGTH_SHORT).show();
-
-        }
-        else {
+            if(finalTask) {
+                Toast.makeText(context, "Data posted successfully!", Toast.LENGTH_SHORT).show();
+            }
+        } else {
             Toast.makeText(context, "Network Issues: Your data was not properly sent.", Toast.LENGTH_SHORT).show();
-
         }
     }
 }
 
-class MyCookieJar implements CookieJar {
-
-    private List<Cookie> cookies;
-
-    @Override
-    public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-        this.cookies =  cookies;
-    }
-
-    @Override
-    public List<Cookie> loadForRequest(HttpUrl url) {
-        if (cookies != null)
-            return cookies;
-        return new ArrayList<>();
-
-    }
-}

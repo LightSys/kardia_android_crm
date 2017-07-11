@@ -1,5 +1,6 @@
 package org.lightsys.crmapp.fragments;
 
+import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.ComponentName;
@@ -14,7 +15,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatButton;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -220,40 +223,13 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             @Override
             public void onClick(View view)
             {
-                // Determine Uri of camera image to save.
-                final File root = new File(Environment.getExternalStorageDirectory() + File.separator + "MyDir" + File.separator);
-                root.mkdirs();
-                final String fname = "img_" + System.currentTimeMillis() + ".jpg";
-                final File sdImageMainDirectory = new File(root, fname);
-                outputFileUri = Uri.fromFile(sdImageMainDirectory);
 
-                // Camera.
-                final List<Intent> cameraIntents = new ArrayList<>();
-                final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                final PackageManager packageManager = getContext().getPackageManager();
-                final List<ResolveInfo> listCam = packageManager.queryIntentActivities(captureIntent, 0);
-                for (ResolveInfo res : listCam)
-                {
-                    final String packageName = res.activityInfo.packageName;
-                    final Intent intent = new Intent(captureIntent);
-                    intent.setComponent(new ComponentName(packageName, res.activityInfo.name));
-                    intent.setPackage(packageName);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-                    cameraIntents.add(intent);
+                //Ask user for storage access permission.
+                if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+                } else {
+                    getImage();
                 }
-
-                // Filesystem.
-                final Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                galleryIntent.setType("image/*");
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-
-                // Chooser of filesystem options.
-                final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
-
-                // Add the camera options.
-                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
-
-                startActivityForResult(chooserIntent, 0);
             }
         });
 
@@ -312,12 +288,12 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         String typeUrl = mAccountManager.getUserData(mAccount, "server") + mTypeJsonId + "&cx__res_type=element";
 
                         //set up patch json objects for patching
-                        uploadJson1 = new PatchJson(getContext(), partnerUrl, createPartnerJson(), mAccount);
-                        uploadJson2 = new PatchJson(getContext(), addressUrl, createAddressJson(), mAccount);
-                        uploadJson3 = new PatchJson(getContext(), phoneUrl, createPhoneJson(), mAccount);
-                        uploadJson4 = new PatchJson(getContext(), cellUrl, createCellJson(), mAccount);
-                        uploadJson5 = new PatchJson(getContext(), emailUrl, createEmailJson(), mAccount);
-                        uploadJson6 = new PatchJson(getContext(), typeUrl, createTypeJson(), mAccount);
+                        uploadJson1 = new PatchJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
+                        uploadJson2 = new PatchJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
+                        uploadJson3 = new PatchJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
+                        uploadJson4 = new PatchJson(getContext(), cellUrl, createCellJson(), mAccount, false);
+                        uploadJson5 = new PatchJson(getContext(), emailUrl, createEmailJson(), mAccount, false);
+                        uploadJson6 = new PatchJson(getContext(), typeUrl, createTypeJson(), mAccount, true);
                         postProfilePicture = null;
                     }
 
@@ -718,5 +694,55 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         cursor.moveToFirst();
         return cursor.getString(column_index);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 0: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getImage();
+                }
+                return;
+            }
+        }
+    }
+
+    private void getImage() {
+        // Determine Uri of camera image to save.
+        final File root = new File(Environment.getExternalStorageDirectory() + File.separator + "MyDir" + File.separator);
+        root.mkdirs();
+        final String fname = "img_" + System.currentTimeMillis() + ".jpg";
+        final File sdImageMainDirectory = new File(root, fname);
+        outputFileUri = Uri.fromFile(sdImageMainDirectory);
+
+        // Camera.
+        final List<Intent> cameraIntents = new ArrayList<>();
+        final Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        final PackageManager packageManager = getContext().getPackageManager();
+        final List<ResolveInfo> listCam = packageManager.queryIntentActivities(captureIntent, 0);
+        for (ResolveInfo res : listCam)
+        {
+            final String packageName = res.activityInfo.packageName;
+            final Intent intent = new Intent(captureIntent);
+            intent.setComponent(new ComponentName(packageName, res.activityInfo.name));
+            intent.setPackage(packageName);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
+            cameraIntents.add(intent);
+        }
+
+        // Filesystem.
+        final Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        galleryIntent.setType("image/*");
+        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+
+        // Chooser of filesystem options.
+        final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
+
+        // Add the camera options.
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
+
+        startActivityForResult(chooserIntent, 0);
     }
 }

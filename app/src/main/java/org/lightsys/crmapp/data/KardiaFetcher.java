@@ -12,22 +12,20 @@ import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.Staff;
 import org.lightsys.crmapp.models.TimelineItem;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.CookieHandler;
 import java.net.CookieManager;
-import java.net.HttpURLConnection;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
-import static java.lang.System.in;
+import okhttp3.Credentials;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Route;
 
 /**
  * Created by nathan on 3/9/16.
@@ -43,6 +41,8 @@ public class KardiaFetcher {
     private Context mContext;
     private AccountManager mAccountManager;
     private static CookieManager cookieManager = new CookieManager();
+    private OkHttpClient client;
+    private String credential;
 
     public KardiaFetcher(Context context) {
         mContext = context;
@@ -53,44 +53,49 @@ public class KardiaFetcher {
     //this thing gets a json object as a string from the network
     //it takes an account for creds and a url and returns a string that contains a json object
     public String getUrlString(final Account account, String api) throws IOException {
-        Authenticator.setDefault(new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
-            }
-        });
 
-        //the url to get stuff from
-        URL url = new URL(mAccountManager.getUserData(account, "server") + api);
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-
+        String result;
         try {
 
-            InputStream inputStream = connection.getInputStream();
+            //baseUrl used to retrieve the access token
+            URL getUrl = new URL(mAccountManager.getUserData(account, "server") + api);
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            try {
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line).append("\n");
-                }
-                return sb.toString();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally
-            {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+            client = new OkHttpClient.Builder()
+                    .cookieJar(new MyCookieJar())
+                    .authenticator(new okhttp3.Authenticator()
+                    {
+                        @Override
+                        public Request authenticate(Route route, Response response) throws IOException
+                        {
+                            String credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
+                            return response.request().newBuilder()
+                                    .header("Authorization", credential)
+                                    .build();
+                        }
+                    }).build();
+
+            credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
+
+            Request request = new Request.Builder()
+                    .url(getUrl)
+                    .header("Authorization", credential)
+                    .get()
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            if (response.body() != null) {
+                result = response.body().string();
+                return result;
             }
-
-        } finally {
-            connection.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
         return "";
     }
+
 
     //function that gets a list of staff members
     public List<Staff> getStaff(Account account) {
@@ -199,7 +204,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
             String pictureJsonString = getUrlString(account, profilePictureApi);
-            JSONObject pictureJsonBody = new JSONObject(pictureJsonString);//build json object
+            JSONObject pictureJsonBody = pictureJsonString.equals("") ? null : new JSONObject(pictureJsonString);//build json object
 
             //build an object based on a combination of all the json objects
             parseCollaborateeInfoJson(collaboratee, partnerJsonBody, addressJsonBody, contactJsonBody, pictureJsonBody);
@@ -331,7 +336,8 @@ public class KardiaFetcher {
             }
         }
 
-        collaboratee.setProfilePictureFilename(profilePictureJsonBody.getString("photo_folder") + "/" + profilePictureJsonBody.getString("photo_filename"));
+        if (profilePictureJsonBody != null)
+            collaboratee.setProfilePictureFilename(profilePictureJsonBody.getString("photo_folder") + "/" + profilePictureJsonBody.getString("photo_filename"));
 
         return collaboratee;
     }
