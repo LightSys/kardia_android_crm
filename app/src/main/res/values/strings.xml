@@ -35,6 +35,7 @@
     <string name="profile_input_photo_button">Change</string>
     <string name="logout">Logout</string>
     <string name="engagement">Engagement</string>
+    <string name="collaborators">Collaborators</string>
 
     <string-array name="name_spinner">
         <item>Mobile</item>

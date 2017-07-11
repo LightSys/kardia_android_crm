@@ -725,6 +725,7 @@ public class ProfileActivity extends AppCompatActivity {
             mSkype = mPartner2.Skype;
             mTwitter = mPartner2.Twitter;
             mWebsite = mPartner2.Website;
+            mFacebook = mPartner2.Facebook;
 
             File directory = getDir("imageDir", Context.MODE_PRIVATE);
 

@@ -4,13 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activities.MainActivity">
 
-    <item android:id="@+id/action_logout"
-          android:title="@string/logout"
-          app:showAsAction="ifRoom"
-          android:icon="@drawable/ic_logout_white" />
+    <item android:id="@+id/action_collaborators"
+          android:title="@string/collaborators"
+          android:icon="@drawable/ic_action_collaborators" />
 
     <item android:id="@+id/action_engagement"
           android:title="@string/engagement"
         android:icon="@drawable/ic_engagement"/>
+
+    <item android:id="@+id/action_logout"
+          android:title="@string/logout"
+          app:showAsAction="ifRoom"
+          android:icon="@drawable/ic_logout_white" />
 
 </menu>

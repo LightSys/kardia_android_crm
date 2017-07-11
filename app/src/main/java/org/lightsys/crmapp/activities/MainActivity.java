@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     Partner mPartner2 = new Partner();
+    private NavigationView navigationView;
+
     /**
      * Retrieves account information.
      * Sets up main activity view.
@@ -83,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setupToolbar();
         setupFAB();
 
-        mRecyclerView = (android.support.v7.widget.RecyclerView) findViewById(R.id.recyclerview_profiles);
+        mRecyclerView = (android.support.v7.widget.RecyclerView) findViewById(R.id.recyclerview);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplication()));
 
         setupAdapter(mProfiles);
@@ -148,8 +150,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setupNavigationView(){
-        NavigationView navigationView = (NavigationView) findViewById(R.id.mainNavigation);
+        navigationView = (NavigationView) findViewById(R.id.mainNavigation);
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setCheckedItem(R.id.action_collaborators);
+        navigationView.getMenu().findItem(R.id.action_collaborators).setCheckable(true);
+        navigationView.getMenu().findItem(R.id.action_collaborators).setChecked(true);
     }
 
     @Override
@@ -172,7 +177,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 mAccountManager.addAccount(CRMContract.accountType, null, null, null, this, null, null);
                 finish();
-                return true;
+                break;
+            case R.id.action_engagement:
+                Intent intent = new Intent(this, EngagementActivity.class);
+                startActivity(intent);
+                break;
         }
 
         return true;
@@ -235,10 +244,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
          */
         @Override
         public void onClick(View v) {
-            mPartner2 = mPartner;
             Intent i = new Intent(getApplication(), ProfileActivity.class);
-            i.putExtra(PARTNER_ID_KEY, mPartner2.PartnerId);
-            i.putExtra(PARTNER_NAME, mPartner2.PartnerName);
+            i.putExtra(PARTNER_ID_KEY, mPartner.PartnerId);
+            i.putExtra(PARTNER_NAME, mPartner.PartnerName);
             startActivity(i);
         }
     }
@@ -275,10 +283,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     /**
      * Fetches a list of collaboratee IDs and names.
-     * ToDo make this asyncTask get stuffs from kardia
-     * if this doesn't get things from kardia, new partners will never be registered.
      */
-    public class GetCollaborateesTask extends AsyncTask<String, Void, List<Partner>> {
+    private class GetCollaborateesTask extends AsyncTask<String, Void, List<Partner>> {
+
         @Override
         protected List<Partner> doInBackground(String... params) {
             String partnerId = params[0];

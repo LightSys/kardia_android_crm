@@ -9,6 +9,7 @@
         <item name="android:textColorPrimary">@color/primary_text</item>
         <item name="android:textColorSecondary">@color/secondary_text</item>
         <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:activatedBackgroundIndicator">@drawable/drawer_list_selector</item>
     </style>
 
     <style name="CustomThemeOverlayAppCompatLight" parent="ThemeOverlay.AppCompat.Light">

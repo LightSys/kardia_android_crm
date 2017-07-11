@@ -6,8 +6,10 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lightsys.crmapp.models.Engagement;
 import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.Staff;
 import org.lightsys.crmapp.models.TimelineItem;
@@ -23,11 +25,14 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 
 import static java.lang.System.in;
+import static org.lightsys.crmapp.R.string.engagement;
 
 /**
  * Created by nathan on 3/9/16.
@@ -237,6 +242,7 @@ public class KardiaFetcher {
         return timelineItems;
     }
 
+    //Gets Next usable Partner Key from Server.
     public String getNextPartnerKey(Account account) {
         String partnerKey = null;
 
@@ -258,6 +264,61 @@ public class KardiaFetcher {
         }
 
         return partnerKey;
+    }
+
+    //Get Engagements that have been created by a specific user
+    public List<Engagement> getEngagements(Account account, List<Partner> collaboratees) {
+        try {
+            ArrayList<Engagement> engagements = new ArrayList<>();
+            for (Partner partner : collaboratees)
+            {
+                String engagementApi = Uri.parse("/apps/kardia/api/crm/Partners/" + partner.PartnerId + "/Tracks")
+                        .buildUpon()
+                        .appendQueryParameter("cx__mode", "rest")
+                        .appendQueryParameter("cx__res_format", "attrs")
+                        .appendQueryParameter("cx__res_attrs", "basic")
+                        .appendQueryParameter("cx__res_type", "collection")
+                        .build().toString();
+                String engagementJsonString = getUrlString(account, engagementApi);
+                JSONObject engagementJsonBody = new JSONObject(engagementJsonString);
+
+                if (engagementJsonBody.length() < 2)
+                    continue;
+
+                JSONArray names = engagementJsonBody.names();
+                for (int i = 0; i < names.length(); i++)
+                {
+                    String trackName = names.getString(i);
+                    if (trackName.equals("@id"))
+                        continue;
+
+                    JSONObject engagementValues = engagementJsonBody.getJSONObject(trackName);
+
+                    Engagement engagement = new Engagement();
+                    engagement.PartnerId = partner.PartnerId;
+                    engagement.PartnerName = partner.PartnerName;
+                    engagement.Archived = engagementValues.getInt("is_archived") == 1;
+                    engagement.CompletionStatus = engagementValues.getString("completion_status").toCharArray()[0];
+                    Calendar c = Calendar.getInstance();
+                    JSONObject createdDate = engagementValues.getJSONObject("date_created");
+                    c.set(  createdDate.getInt("year"), createdDate.getInt("month"),
+                            createdDate.getInt("day"), createdDate.getInt("hour"),
+                            createdDate.getInt("minute"));
+                    engagement.CreatedDate = c.getTime();
+                    engagement.TrackName = trackName.substring(0, trackName.length() - 2);
+//                    engagement.EngagementId = engagementJsonBody.getInt("engagement_id");
+//                    engagement.HistoryId = ;
+//                    engagement.StepId = ;
+//                    engagement.TrackId = ;
+                    engagements.add(engagement);
+                }
+            }
+            return engagements;
+        } catch (JSONException | IOException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     //function that fills a list of collaboratees based on a json string

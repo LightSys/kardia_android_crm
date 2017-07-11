@@ -16,6 +16,6 @@ public class Engagement
     public Date CreatedDate;
     public boolean Archived;
     public char CompletionStatus;
-
-
+    public String TrackName;
+    public String PartnerName;
 }
