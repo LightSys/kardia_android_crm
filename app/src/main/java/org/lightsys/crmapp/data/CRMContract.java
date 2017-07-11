@@ -103,7 +103,7 @@ public class CRMContract {
                 PARTNER_ID + "," +
                 COLLABORATEE_ID + "," +
                 COLLABORATEE_NAME + "," +
-                CONTACT_HISTORY_ID + "," +
+                CONTACT_HISTORY_ID + " PRIMARY KEY, " +
                 CONTACT_HISTORY_TYPE + "," +
                 SUBJECT + "," +
                 NOTES + "," +

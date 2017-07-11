@@ -543,7 +543,7 @@ public class ProfileActivity extends AppCompatActivity {
                             CRMContract.CollaborateeTable.SURNAME, CRMContract.CollaborateeTable.GIVEN_NAMES, CRMContract.CollaborateeTable.PHONE_ID,
                             CRMContract.CollaborateeTable.CELL_ID, CRMContract.CollaborateeTable.EMAIL_ID, CRMContract.CollaborateeTable.PHONE_JSON_ID,
                             CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID, CRMContract.CollaborateeTable.ADDRESS_JSON_ID,
-                            CRMContract.CollaborateeTable.PARTNER_JSON_ID},
+                            CRMContract.CollaborateeTable.PARTNER_JSON_ID, CRMContract.CollaborateeTable.PROFILE_PICTURE},
                     CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
                     new String[] {mPartnerId},
                     null);
@@ -570,23 +570,20 @@ public class ProfileActivity extends AppCompatActivity {
                 collaboratee.setEmailJsonId(cursor.getString(16));
                 collaboratee.setAddressJsonId(cursor.getString(17));
                 collaboratee.setPartnerJsonId(cursor.getString(18));
+                collaboratee.setProfilePictureFilename(cursor.getString(19));
             }
             cursor.close();
 
             //if the collaboratee is missing any information,
             // and there is a network connection available,
             // pull info down from the server
-
             if(networkConnected() && (collaboratee.getEmail() == null || collaboratee.getPhone() == null || collaboratee.getAddress1() == null
                     || collaboratee.getCity() == null || collaboratee.getStateProvince() == null || collaboratee.getPostalCode() == null ||
-                    collaboratee.getCell() == null)) {
+                    collaboratee.getCell() == null) || collaboratee.getProfilePictureFilename() == null) {
 
                 //get all the collaboratee stuff from the server
                 KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
                 collaboratee = fetcher.getCollaborateeInfo(mAccount, collaboratee);
-
-                if (collaboratee.getProfilePictureFilename() != null)
-                    saveImageFromUrl(mAccountManager.getUserData(mAccount, "server"), getApplicationContext(), collaboratee.getProfilePictureFilename(), mPartnerId);
 
                 //set partner ID to match account ID
                 //this fixes an issue where a profile disappeared from the main list after being clicked
@@ -633,6 +630,9 @@ public class ProfileActivity extends AppCompatActivity {
                     values.put(CRMContract.CollaborateeTable.ADDRESS_JSON_ID, collaboratee.getAddressJsonId());
                 }if (collaboratee.getPartnerJsonId() != null) {
                     values.put(CRMContract.CollaborateeTable.PARTNER_JSON_ID, collaboratee.getPartnerJsonId());
+                }if (collaboratee.getProfilePictureFilename() != null) {
+                    saveImageFromUrl(mAccountManager.getUserData(mAccount, "server"), getApplicationContext(), collaboratee.getProfilePictureFilename(), mPartnerId);
+                    values.put(CRMContract.CollaborateeTable.PROFILE_PICTURE, collaboratee.getProfilePictureFilename());
                 }
 
                 //put new collaboratee info into database
@@ -649,7 +649,7 @@ public class ProfileActivity extends AppCompatActivity {
                                 CRMContract.CollaborateeTable.SURNAME, CRMContract.CollaborateeTable.GIVEN_NAMES, CRMContract.CollaborateeTable.PHONE_ID,
                                 CRMContract.CollaborateeTable.CELL_ID, CRMContract.CollaborateeTable.EMAIL_ID, CRMContract.CollaborateeTable.PHONE_JSON_ID,
                                 CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID, CRMContract.CollaborateeTable.ADDRESS_JSON_ID,
-                                CRMContract.CollaborateeTable.PARTNER_JSON_ID},
+                                CRMContract.CollaborateeTable.PARTNER_JSON_ID, CRMContract.CollaborateeTable.PROFILE_PICTURE},
                         CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
                         new String[] {mPartnerId},
                         null);
@@ -676,6 +676,7 @@ public class ProfileActivity extends AppCompatActivity {
                     collaboratee.setEmailJsonId(cursor2.getString(16));
                     collaboratee.setAddressJsonId(cursor2.getString(17));
                     collaboratee.setPartnerJsonId(cursor2.getString(18));
+                    collaboratee.setProfilePictureFilename(cursor2.getString(19));
                 }
 
                 cursor2.close();
