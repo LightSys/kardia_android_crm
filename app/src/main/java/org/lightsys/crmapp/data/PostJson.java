@@ -158,9 +158,9 @@ public class PostJson extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String params) {
 
         if (success) {
-            Toast.makeText(context, "Data posted successfully!", Toast.LENGTH_SHORT).show();
             if (finalTask)
             {
+                Toast.makeText(context, "Data posted successfully!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(context, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);

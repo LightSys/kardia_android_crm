@@ -37,6 +37,9 @@ import java.util.Date;
  * Allows a user to edit/create a profile.
  *
  */
+
+
+//TODO: Go through all the create methods and delete hardcoded stuff
 public class ProfileInputFragment extends Fragment implements AdapterView.OnItemSelectedListener {
     private static final String LOG_TAG = ProfileInputFragment.class.getName();
     private static final String DATA_ARRAY_KEY = "DATA_ARRAY_KEY";
@@ -90,8 +93,12 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     private String mEmailJsonId;
     private String mAddressJsonId;
     private String mPartnerJsonId;
+    private String mTypeJsonId;
+    //TODO
 
     Spinner phoneType; // Switches between home and cell.
+    Spinner collabType; //Chooses user role.
+    private int collabTypeNumber; //Used to turn role into a number.
     boolean initializedView = false;
 
     private String[] mEditTextData;
@@ -99,6 +106,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     private String nextPartnerKey;
     boolean mNewProfile = true;
     JSONObject jsonDate;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -135,6 +143,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             mEmailJsonId = arguments.getString(EditProfileActivity.EMAIL_JSON_ID_KEY);
             mAddressJsonId = arguments.getString(EditProfileActivity.ADDRESS_JSON_ID_KEY);
             mPartnerJsonId = arguments.getString(EditProfileActivity.PARTNER_JSON_ID_KEY);
+            mTypeJsonId = arguments.getString(EditProfileActivity.TYPE_JSON_ID_KEY);
+            //TODO
             mNewProfile = false;
         }
         else {
@@ -171,6 +181,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         state = (TextView)rootView.findViewById(R.id.profile_input_state);
         postalCode = (TextView)rootView.findViewById(R.id.profile_input_zip);
         phoneType = (Spinner)rootView.findViewById(R.id.profile_input_phone_spinner);
+        collabType = (Spinner)rootView.findViewById(R.id.profile_input_role);
 
         //Used to switch between home and mobile.
         phoneType.setOnItemSelectedListener(this);
@@ -199,7 +210,6 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                     AsyncTask<String, Void, String> uploadJson5;
                     AsyncTask<String, Void, String> uploadJson6;
 
-
                     if (mNewProfile)
                     {
                         nextPartnerKey = new GetPartnerKey().execute().get();
@@ -215,7 +225,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                                 ? mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection"
                                 : null;
                         String emailUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
-                        String typeUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/crm/Partners/" + nextPartnerKey + "/Collaboratees?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+                        String typeUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/crm/Partners/" + mAccountManager.getUserData(mAccount, "partnerId") + "/Collaboratees?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
 
                         JSONObject cellJson = createCellJson();
                         System.out.println(cellJson);
@@ -225,7 +235,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         uploadJson3 = new PostJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
                         uploadJson4 = new PostJson(getContext(), cellUrl, createCellJson(), mAccount, false);
                         uploadJson5 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, false);
-                        //uploadJson6 = new PostJson(getContext(), typeUrl, createTypeJson(), mAccount, false);
+                        uploadJson6 = new PostJson(getContext(), typeUrl, createTypeJson(), mAccount, true);
+                        //TODO
                     }
                     else
                     {
@@ -235,6 +246,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         String phoneUrl = mAccountManager.getUserData(mAccount, "server") + mPhoneJsonId + "&cx__res_type=element";
                         String cellUrl = mAccountManager.getUserData(mAccount, "server") + mCellJsonId + "&cx__res_type=element";
                         String emailUrl = mAccountManager.getUserData(mAccount, "server") + mEmailJsonId + "&cx__res_type=element";
+                        String typeUrl = mAccountManager.getUserData(mAccount, "server") + mTypeJsonId + "&cx__res_type=element";
+                        //TODO
 
                         //set up patch json objects for patching
                         uploadJson1 = new PatchJson(getContext(), partnerUrl, createPartnerJson(), mAccount);
@@ -242,7 +255,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         uploadJson3 = new PatchJson(getContext(), phoneUrl, createPhoneJson(), mAccount);
                         uploadJson4 = new PatchJson(getContext(), cellUrl, createCellJson(), mAccount);
                         uploadJson5 = new PatchJson(getContext(), emailUrl, createEmailJson(), mAccount);
-                        //uploadJson6 = new PatchJson(getContext(), typeUrl, createTypeJson(), mAccount);
+                        uploadJson6 = new PatchJson(getContext(), typeUrl, createTypeJson(), mAccount);
+                        //TODO
 
                     }
 
@@ -258,6 +272,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                     }
                     System.out.println("POST Email info");
                     uploadJson5.execute();
+                    uploadJson6.execute();
+                    //TODO
                 }
                 catch(Exception e) {
                     e.printStackTrace();
@@ -299,8 +315,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             if (mNewProfile)
             {
                 emailJson.put("p_partner_key", nextPartnerKey);
-                emailJson.put("s_created_by", "tparr");
-                emailJson.put("s_modified_by", "tparr");
+                emailJson.put("s_created_by", "dgarcia");
+                emailJson.put("s_modified_by", "dgarcia");
                 emailJson.put("s_date_created", jsonDate);
                 emailJson.put("s_date_modified", jsonDate);
                 emailJson.put("p_contact_data", email.getText().toString());
@@ -330,8 +346,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             if (mNewProfile)
             {
                 cellJson.put("p_partner_key", nextPartnerKey);
-                cellJson.put("s_created_by", "tparr");
-                cellJson.put("s_modified_by", "tparr");
+                cellJson.put("s_created_by", "dgarcia");
+                cellJson.put("s_modified_by", "dgarcia");
                 cellJson.put("s_date_created", jsonDate);
                 cellJson.put("s_date_modified", jsonDate);
                 cellJson.put("p_contact_data", phone.getText().toString());
@@ -366,8 +382,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             if(mNewProfile)
             {
                 phoneJson.put("p_partner_key", nextPartnerKey);
-                phoneJson.put("s_created_by", "tparr");
-                phoneJson.put("s_modified_by", "tparr");
+                phoneJson.put("s_created_by", "dgarcia");
+                phoneJson.put("s_modified_by", "dgarcia");
                 phoneJson.put("s_date_created", jsonDate);
                 phoneJson.put("s_date_modified", jsonDate);
                 phoneJson.put("p_contact_data", phone.getText().toString());
@@ -398,8 +414,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             if (mNewProfile)
             {
                 addressJson.put("p_partner_key", nextPartnerKey);
-                addressJson.put("s_created_by", "tparr");
-                addressJson.put("s_modified_by", "tparr");
+                addressJson.put("s_created_by", "dgarcia");
+                addressJson.put("s_modified_by", "dgarcia");
                 addressJson.put("s_date_created", jsonDate);
                 addressJson.put("s_date_modified", jsonDate);
                 addressJson.put("p_location_id", 0);
@@ -434,9 +450,9 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             if (mNewProfile)
             {
                 partnerJson.put("p_partner_key", nextPartnerKey);
-                partnerJson.put("s_created_by", "tparr");
-                partnerJson.put("s_modified_by", "tparr");
-                partnerJson.put("p_creating_office", "100054");
+                partnerJson.put("s_created_by", "dgarcia");
+                partnerJson.put("s_modified_by", "dgarcia");
+                partnerJson.put("p_creating_office", mAccountManager.getUserData(mAccount, "partnerId"));
                 partnerJson.put("p_status_code", "A");
                 partnerJson.put("p_partner_class", "123");
                 partnerJson.put("p_record_status_code", "A");
@@ -460,24 +476,43 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
 
     private JSONObject createTypeJson()
     {
+
+        //Convert collaborator type to a number
+        if(collabType.getSelectedItem().equals("None")){
+            collabTypeNumber = 0;
+        }else if(collabType.getSelectedItem().equals("Mobilizer")){
+            collabTypeNumber = 1;
+        }else if(collabType.getSelectedItem().equals("NonMobilizer")){
+            collabTypeNumber = 2;
+        }
+
         JSONObject typeJson = new JSONObject();
 
         try
         {
             if (mNewProfile)
             {
-                typeJson.put("e_collaborator", "100202");
+                typeJson.put("e_collaborator", mAccountManager.getUserData(mAccount, "partnerId"));
                 typeJson.put("p_partner_key", nextPartnerKey);
-                typeJson.put("e_collab_type_id", "1"); //TODO: GET THE INFOOOO
-                typeJson.put("e_is_automatic", "0");
+                typeJson.put("e_collab_type_id", collabTypeNumber);
+                typeJson.put("e_is_automatic", 0);
+                typeJson.put("e_collaborator_status", "A");
                 typeJson.put("s_created_by", "dgarcia");
                 typeJson.put("s_modified_by", "dgarcia");
                 typeJson.put("s_date_created", jsonDate);
                 typeJson.put("s_date_modified", jsonDate);
+                typeJson.put( "collaborator_id", mAccountManager.getUserData(mAccount, "partnerId"));
+                typeJson.put( "collaborator_type_id", collabTypeNumber);
+                typeJson.put( "collaborator_status", "A");
+                typeJson.put( "partner_id", nextPartnerKey);
+                typeJson.put( "role_id", collabTypeNumber);
+                typeJson.put( "role_name", collabType.getSelectedItem());
+
+
 
             } else
             {
-                typeJson.put("collab_type_id", "2"); //TODO: FIX THIS TOOOOOO
+                typeJson.put("collab_type_id", collabTypeNumber);
             }
         }
         catch (JSONException ex)
@@ -504,17 +539,17 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             return;
         }
 
-        String type = (String)phoneType.getSelectedItem();
+        String typeOfPhone = (String)phoneType.getSelectedItem();
         String[] phoneBits = null;//split up phone into its parts
 
-        selectedPhone = type.toLowerCase();
+        selectedPhone = typeOfPhone.toLowerCase();
 
-        if (type.equals("Home"))
+        if (typeOfPhone.equals("Home"))
         {
             if (mPhone != null)
                 phoneBits = mPhone.split(" ");
         }
-        else if (type.equals("Mobile"))
+        else if (typeOfPhone.equals("Mobile"))
         {
             if (mCell != null)
                 phoneBits = mCell.split(" ");//split phone into its parts

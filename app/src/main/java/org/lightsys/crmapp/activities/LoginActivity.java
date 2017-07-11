@@ -145,12 +145,14 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         bundle.putString(AccountManager.KEY_ACCOUNT_NAME, addAccountName);
         bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, CRMContract.accountType);
         boolean success = mAccountManager.addAccountExplicitly(newAccount, addAccountPassword, bundle);
-        if (!success)
+        if (success)
         {
+            mAccountManager.setUserData(newAccount, "server", addFullServerAddress);
+            new GetPartnerIdTask().execute(newAccount);
+        } else {
             Log.d("LoginActivity", "Adding Acount Failed");
         }
-        mAccountManager.setUserData(newAccount, "server", addFullServerAddress);
-        new GetPartnerIdTask().execute(newAccount);
+
     }
 
     private void checkAccount(Account account) {
