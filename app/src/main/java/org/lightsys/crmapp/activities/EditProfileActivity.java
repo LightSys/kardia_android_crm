@@ -42,6 +42,8 @@ public class EditProfileActivity extends AppCompatActivity {
     public static final String EMAIL_JSON_ID_KEY = "EXTRA_EMAIL_JSON_ID";
     public static final String ADDRESS_JSON_ID_KEY = "EXTRA_ADDRESS_JSON_ID";
     public static final String PARTNER_JSON_ID_KEY = "EXTRA_PARTNER_JSON_ID";
+    public static final String TYPE_JSON_ID_KEY = "EXTRA_TYPE_JSON_ID";
+    //TODO
 
     //these store the stuff after they are retrieved from a bundle
     private String mName;
@@ -66,6 +68,8 @@ public class EditProfileActivity extends AppCompatActivity {
     private String mEmailJsonId;
     private String mAddressJsonId;
     private String mPartnerJsonId;
+    private String mTypeJsonId;
+    //TODO
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +95,8 @@ public class EditProfileActivity extends AppCompatActivity {
             mEmailJsonId = extras.getString(EMAIL_JSON_ID_KEY);
             mAddressJsonId = extras.getString(ADDRESS_JSON_ID_KEY);
             mPartnerJsonId = extras.getString(PARTNER_JSON_ID_KEY);
+            mTypeJsonId = extras.getString(TYPE_JSON_ID_KEY);
+            //TODO
 
             //create a bundle to send on the the input frag
             Bundle arguments = new Bundle();
@@ -111,6 +117,8 @@ public class EditProfileActivity extends AppCompatActivity {
             arguments.putString(EMAIL_JSON_ID_KEY, mEmailJsonId);
             arguments.putString(ADDRESS_JSON_ID_KEY, mAddressJsonId);
             arguments.putString(PARTNER_JSON_ID_KEY, mPartnerJsonId);
+            arguments.putString(TYPE_JSON_ID_KEY, mTypeJsonId);
+            //TODO
 
             //start profile input frag and send it everything
             ProfileInputFragment fragment = new ProfileInputFragment();
@@ -139,6 +147,8 @@ public class EditProfileActivity extends AppCompatActivity {
             mEmailJsonId = savedInstanceState.getString(EMAIL_JSON_ID_KEY);
             mAddressJsonId = savedInstanceState.getString(ADDRESS_JSON_ID_KEY);
             mPartnerJsonId = savedInstanceState.getString(PARTNER_JSON_ID_KEY);
+            mTypeJsonId = savedInstanceState.getString(TYPE_JSON_ID_KEY);
+            //TODO
         }
 
         setContentView(R.layout.activity_profile_input);
@@ -170,6 +180,7 @@ public class EditProfileActivity extends AppCompatActivity {
         savedInstanceState.putString(EMAIL_JSON_ID_KEY, mEmailJsonId);
         savedInstanceState.putString(ADDRESS_JSON_ID_KEY, mAddressJsonId);
         savedInstanceState.putString(PARTNER_JSON_ID_KEY, mPartnerJsonId);
+        //savedInstanceState.putString(TYPE_JSON_ID_KEY, mTypeJsonId);
 
         super.onSaveInstanceState(savedInstanceState);
     }
