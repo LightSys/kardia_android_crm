@@ -2,21 +2,17 @@ package org.lightsys.crmapp.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,7 +30,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.models.Partner;
@@ -217,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (partner.getProfilePictureFilename() == null || partner.getProfilePictureFilename().equals(""))
             {
                 Picasso.with(getApplication())
-                        .load(R.drawable.persona)
+                        .load(R.drawable.ic_person_black_24dp)
                         .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
             }
             else
