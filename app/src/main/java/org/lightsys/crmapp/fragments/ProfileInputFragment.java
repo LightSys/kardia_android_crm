@@ -55,10 +55,12 @@ import java.util.List;
  *
  * Allows a user to edit/create a profile.
  *
+ * Edited by Daniel Garcia on 25/July/17
+ *
+ * Fixed an issue where Patch failed if a
+ * field was empty when new user was created
+ *
  */
-
-
-//TODO: Go through all the create methods and delete hardcoded stuff
 public class ProfileInputFragment extends Fragment implements AdapterView.OnItemSelectedListener {
     private static final String LOG_TAG = ProfileInputFragment.class.getName();
     private static final String DATA_ARRAY_KEY = "DATA_ARRAY_KEY";
@@ -248,52 +250,100 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                     AsyncTask<String, Void, String> uploadJson6;
                     PostProfilePicture postProfilePicture;
 
+                    //Urls for Posting/Patching
+                    String partnerUrl;
+                    String addressUrl;
+                    String phoneUrl;
+                    String cellUrl;
+                    String emailUrl;
+                    String typeUrl;
+                    String photoUrl;
+
                     if (mNewProfile)
                     {
                         nextPartnerKey = new GetPartnerKey().execute().get();
                         System.out.println("Retrieved New Partner Key: " + nextPartnerKey);
 
-                        //urls for Posting to kardia
-                        String partnerUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
-                        String addressUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/Addresses?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
-                        String phoneUrl = selectedPhone.equals("home")
-                                ? mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic"
+                        //Set urls for Posting to kardia
+                        partnerUrl = createPostUrl("partner/Partners");
+                        addressUrl = createPostUrl("partner/Partners/" + nextPartnerKey + "/Addresses");
+                        phoneUrl = selectedPhone.equals("home")
+                                ? createPostUrl("partner/Partners/" + nextPartnerKey + "/ContactInfo")
                                 : null;
-                        String cellUrl = selectedPhone.equals("mobile")
-                                ? mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection"
+                        cellUrl = selectedPhone.equals("mobile")
+                                ? createPostUrl("partner/Partners/" + nextPartnerKey + "/ContactInfo")
                                 : null;
-                        
-                        String emailUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/partner/Partners/" + nextPartnerKey + "/ContactInfo?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
-                        String photoUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/files?";
-                        String typeUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/crm/Partners/" + mAccountManager.getUserData(mAccount, "partnerId") + "/Collaboratees?cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
+                        emailUrl = createPostUrl("partner/Partners/" + nextPartnerKey + "/ContactInfo");
+                        typeUrl = createPostUrl("crm/Partners/" + mAccountManager.getUserData(mAccount, "partnerId") + "/Collaboratees");
+                        photoUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/files?";
 
                         //set up POST json objects for patching
                         uploadJson1 = new PostJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
                         uploadJson2 = new PostJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
                         uploadJson3 = new PostJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
                         uploadJson4 = new PostJson(getContext(), cellUrl, createCellJson(), mAccount, false);
-                        String realPathFromURI = getRealPathFromURI(selectedImageUri, getContext());
-                        postProfilePicture = new PostProfilePicture(getContext(), photoUrl, new File(realPathFromURI), mAccount, nextPartnerKey);
                         uploadJson5 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, false);
                         uploadJson6 = new PostJson(getContext(), typeUrl, createTypeJson(), mAccount, true);
+                        String realPathFromURI = getRealPathFromURI(selectedImageUri, getContext());
+                        postProfilePicture = new PostProfilePicture(getContext(), photoUrl, new File(realPathFromURI), mAccount, nextPartnerKey);
                     }
                     else
                     {
-                        //urls for patching to kardia
-                        String partnerUrl = mAccountManager.getUserData(mAccount, "server") + mPartnerJsonId + "&cx__res_type=element";
-                        String addressUrl = mAccountManager.getUserData(mAccount, "server") + mAddressJsonId + "&cx__res_type=element";
-                        String phoneUrl = mAccountManager.getUserData(mAccount, "server") + mPhoneJsonId + "&cx__res_type=element";
-                        String cellUrl = mAccountManager.getUserData(mAccount, "server") + mCellJsonId + "&cx__res_type=element";
-                        String emailUrl = mAccountManager.getUserData(mAccount, "server") + mEmailJsonId + "&cx__res_type=element";
-                        String typeUrl = mAccountManager.getUserData(mAccount, "server") + mTypeJsonId + "&cx__res_type=element";
 
-                        //set up patch json objects for patching
-                        uploadJson1 = new PatchJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
-                        uploadJson2 = new PatchJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
-                        uploadJson3 = new PatchJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
-                        uploadJson4 = new PatchJson(getContext(), cellUrl, createCellJson(), mAccount, false);
-                        uploadJson5 = new PatchJson(getContext(), emailUrl, createEmailJson(), mAccount, false);
-                        uploadJson6 = new PatchJson(getContext(), typeUrl, createTypeJson(), mAccount, true);
+                        //Set urls and json objects for Patching to kardia
+                        //If no existing url, use a Post call instead
+                        if (mPartnerJsonId != null){
+                            partnerUrl = createPatchUrl(mPartnerJsonId);
+                            uploadJson1 = new PatchJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
+                        } else {
+                            partnerUrl = createPostUrl("partner/Partners");
+                            uploadJson1 = new PostJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
+                        }
+
+                        if (mAddressJsonId != null){
+                            addressUrl = createPatchUrl(mAddressJsonId);
+                            uploadJson2 = new PatchJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
+                        } else {
+                            addressUrl = createPostUrl("partner/Partners/" + mPartnerId + "/Addresses");
+                            uploadJson2 = new PostJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
+                        }
+
+                        if (mPhoneJsonId != null){
+                            phoneUrl = createPatchUrl(mPhoneJsonId);
+                            uploadJson3 = new PatchJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
+                        } else {
+                            phoneUrl = selectedPhone.equals("home")
+                                    ? createPostUrl("partner/Partners/" + mPartnerId + "/ContactInfo")
+                                    : null;
+                            uploadJson3 = new PostJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
+                        }
+
+                        if (mCellJsonId != null){
+                            cellUrl = createPatchUrl(mCellJsonId);
+                            uploadJson4 = new PatchJson(getContext(), cellUrl, createCellJson(), mAccount, false);
+                        } else {
+                            cellUrl = selectedPhone.equals("mobile")
+                                    ? createPostUrl("partner/Partners/" + mPartnerId + "/ContactInfo")
+                                    : null;
+                            uploadJson4 = new PostJson(getContext(), cellUrl, createCellJson(), mAccount, false);
+                        }
+
+                        if (mEmailJsonId != null){
+                            emailUrl = createPatchUrl(mEmailJsonId);
+                            uploadJson5 = new PatchJson(getContext(), emailUrl, createEmailJson(), mAccount, false);
+                        } else {
+                            emailUrl = createPostUrl("partner/Partners/" + mPartnerId + "/ContactInfo");
+                            uploadJson5 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, false);
+                        }
+
+                        if (mTypeJsonId != null){
+                            typeUrl = createPatchUrl(mTypeJsonId);
+                            uploadJson6 = new PatchJson(getContext(), typeUrl, createTypeJson(), mAccount, true);
+                        } else {
+                            typeUrl = createPostUrl("crm/Partners/" + mAccountManager.getUserData(mAccount, "partnerId") + "/Collaboratees");
+                            uploadJson6 = new PostJson(getContext(), typeUrl, createTypeJson(), mAccount, true);
+                        }
+
                         postProfilePicture = null;
                     }
 
@@ -307,12 +357,12 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         System.out.println("POST Mobile info");
                         uploadJson4.execute();
                     }
-                    if (postProfilePicture != null)
-                        System.out.println("Posting Profile Picture");
-                        postProfilePicture.execute();
                     System.out.println("POST Email info");
                     uploadJson5.execute();
                     uploadJson6.execute();
+                    if (postProfilePicture != null)
+                        System.out.println("Posting Profile Picture");
+                    postProfilePicture.execute();
                 }
                 catch(Exception e) {
                     e.printStackTrace();
@@ -347,114 +397,50 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         }
     }
 
-    private JSONObject createEmailJson()
+    private JSONObject createPartnerJson()
     {
-        JSONObject emailJson = new JSONObject();
+        JSONObject partnerJson = new JSONObject();
+        String partner = mNewProfile ? nextPartnerKey : mPartnerId;
 
-        try {
-            if (mNewProfile)
+        try
+        {
+            if (mNewProfile || mPartnerJsonId == null)
             {
-                emailJson.put("p_partner_key", nextPartnerKey);
-                emailJson.put("s_created_by", mAccount.name);
-                emailJson.put("s_modified_by", mAccount.name);
-                emailJson.put("s_date_created", jsonDate);
-                emailJson.put("s_date_modified", jsonDate);
-                emailJson.put("p_contact_data", email.getText().toString());
-                emailJson.put("p_contact_type", "E");
-                emailJson.put("p_record_status_code", "A");
-            }
-            else
+                partnerJson.put("p_partner_key", partner);
+                partnerJson.put("s_created_by", mAccount.name);
+                partnerJson.put("s_modified_by", mAccount.name);
+                partnerJson.put("p_creating_office", mAccountManager.getUserData(mAccount, "partnerId"));
+                partnerJson.put("p_status_code", "A");
+                partnerJson.put("p_partner_class", "123");
+                partnerJson.put("p_record_status_code", "A");
+                partnerJson.put("p_surname", lastName.getText().toString());
+                partnerJson.put("p_given_name", firstName.getText().toString());
+                partnerJson.put("s_date_created", jsonDate);
+                partnerJson.put("s_date_modified", jsonDate);
+
+            } else
             {
-                emailJson.put("contact_data", email.getText().toString());
+                partnerJson.put("surname", lastName.getText().toString());
+                partnerJson.put("given_names", firstName.getText().toString());
             }
         }
-        catch (JSONException ex) {
+        catch (JSONException ex)
+        {
             ex.printStackTrace();
         }
 
-        return emailJson;
-    }
-
-    private JSONObject createCellJson()
-    {
-        JSONObject cellJson = new JSONObject();
-
-        try {
-            String countryCodeTemp = countryCode.getText().toString();
-            String actualCountryCode = countryCodeTemp.equals("") ? "1" : countryCodeTemp.replace("+", "");
-
-            if (mNewProfile)
-            {
-                cellJson.put("p_partner_key", nextPartnerKey);
-                cellJson.put("s_created_by", mAccount.name);
-                cellJson.put("s_modified_by", mAccount.name);
-                cellJson.put("s_date_created", jsonDate);
-                cellJson.put("s_date_modified", jsonDate);
-                cellJson.put("p_contact_data", phone.getText().toString());
-                cellJson.put("p_phone_country", actualCountryCode);
-                cellJson.put("p_phone_area_city", areaCode.getText().toString());
-                cellJson.put("p_contact_type", "C");
-                cellJson.put("p_record_status_code", "A");
-            }
-            else
-            {
-                cellJson.put("contact_data", phone.getText().toString());
-                cellJson.put("phone_country", actualCountryCode);
-                cellJson.put("phone_area_city", areaCode.getText().toString());
-            }
-        }
-        catch (JSONException ex) {
-            ex.printStackTrace();
-        }
-
-        return cellJson;
-    }
-
-    private JSONObject createPhoneJson()
-    {
-        JSONObject phoneJson = new JSONObject();
-
-        try {
-
-            String countryCodeTemp = countryCode.getText().toString();
-            String actualCountryCode = countryCodeTemp.equals("") ? "1" : countryCodeTemp.replace("+", "");
-
-            if(mNewProfile)
-            {
-                phoneJson.put("p_partner_key", nextPartnerKey);
-                phoneJson.put("s_created_by", mAccount.name);
-                phoneJson.put("s_modified_by", mAccount.name);
-                phoneJson.put("s_date_created", jsonDate);
-                phoneJson.put("s_date_modified", jsonDate);
-                phoneJson.put("p_contact_data", phone.getText().toString());
-                phoneJson.put("p_phone_country", actualCountryCode);
-                phoneJson.put("p_phone_area_city", areaCode.getText().toString());
-                phoneJson.put("p_contact_type", "P");
-                phoneJson.put("p_record_status_code", "A");
-            }
-            else
-            {
-                phoneJson.put("contact_data", phone.getText().toString());
-                phoneJson.put("phone_country", actualCountryCode);
-                phoneJson.put("phone_area_city", areaCode.getText().toString());
-            }
-
-        }
-        catch (JSONException ex) {
-            ex.printStackTrace();
-        }
-
-        return phoneJson;
+        return partnerJson;
     }
 
     private JSONObject createAddressJson()
     {
         JSONObject addressJson = new JSONObject();
+        String partner = mNewProfile ? nextPartnerKey : mPartnerId;
 
         try {
-            if (mNewProfile)
+            if (mNewProfile || mAddressJsonId == null)
             {
-                addressJson.put("p_partner_key", nextPartnerKey);
+                addressJson.put("p_partner_key", partner);
                 addressJson.put("s_created_by", mAccount.name);
                 addressJson.put("s_modified_by", mAccount.name);
                 addressJson.put("s_date_created", jsonDate);
@@ -483,6 +469,158 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         return addressJson;
     }
 
+    private JSONObject createCellJson()
+    {
+        JSONObject cellJson = new JSONObject();
+        String partner = mNewProfile ? nextPartnerKey : mPartnerId;
+
+        try {
+            String countryCodeTemp = countryCode.getText().toString();
+            String actualCountryCode = countryCodeTemp.equals("") ? "1" : countryCodeTemp.replace("+", "");
+
+            if (mNewProfile || mCellJsonId == null)
+            {
+                cellJson.put("p_partner_key", partner);
+                cellJson.put("s_created_by", mAccount.name);
+                cellJson.put("s_modified_by", mAccount.name);
+                cellJson.put("s_date_created", jsonDate);
+                cellJson.put("s_date_modified", jsonDate);
+                cellJson.put("p_contact_data", phone.getText().toString());
+                cellJson.put("p_phone_country", actualCountryCode);
+                cellJson.put("p_phone_area_city", areaCode.getText().toString());
+                cellJson.put("p_contact_type", "C");
+                cellJson.put("p_record_status_code", "A");
+            }
+            else
+            {
+                cellJson.put("contact_data", phone.getText().toString());
+                cellJson.put("phone_country", actualCountryCode);
+                cellJson.put("phone_area_city", areaCode.getText().toString());
+            }
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+
+        return cellJson;
+    }
+
+    private JSONObject createPhoneJson()
+    {
+        JSONObject phoneJson = new JSONObject();
+        String partner = mNewProfile ? nextPartnerKey : mPartnerId;
+
+        try {
+
+            String countryCodeTemp = countryCode.getText().toString();
+            String actualCountryCode = countryCodeTemp.equals("") ? "1" : countryCodeTemp.replace("+", "");
+
+            if(mNewProfile || mPhoneJsonId == null)
+            {
+                phoneJson.put("p_partner_key", partner);
+                phoneJson.put("s_created_by", mAccount.name);
+                phoneJson.put("s_modified_by", mAccount.name);
+                phoneJson.put("s_date_created", jsonDate);
+                phoneJson.put("s_date_modified", jsonDate);
+                phoneJson.put("p_contact_data", phone.getText().toString());
+                phoneJson.put("p_phone_country", actualCountryCode);
+                phoneJson.put("p_phone_area_city", areaCode.getText().toString());
+                phoneJson.put("p_contact_type", "P");
+                phoneJson.put("p_record_status_code", "A");
+            }
+            else
+            {
+                phoneJson.put("contact_data", phone.getText().toString());
+                phoneJson.put("phone_country", actualCountryCode);
+                phoneJson.put("phone_area_city", areaCode.getText().toString());
+            }
+
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+
+        return phoneJson;
+    }
+
+    private JSONObject createEmailJson()
+    {
+        JSONObject emailJson = new JSONObject();
+        String partner = mNewProfile ? nextPartnerKey : mPartnerId;
+
+        try {
+            if (mNewProfile || mEmailJsonId == null)
+            {
+                emailJson.put("p_partner_key", partner);
+                emailJson.put("s_created_by", mAccount.name);
+                emailJson.put("s_modified_by", mAccount.name);
+                emailJson.put("s_date_created", jsonDate);
+                emailJson.put("s_date_modified", jsonDate);
+                emailJson.put("p_contact_data", email.getText().toString());
+                emailJson.put("p_contact_type", "E");
+                emailJson.put("p_record_status_code", "A");
+            }
+            else
+            {
+                emailJson.put("contact_data", email.getText().toString());
+            }
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+
+        return emailJson;
+    }
+
+    private JSONObject createTypeJson()
+    {
+
+        //Convert collaborator type to a number
+        if(collabType.getSelectedItem().equals("None")){
+            collabTypeNumber = 0;
+        }else if(collabType.getSelectedItem().equals("Mobilizer")){
+            collabTypeNumber = 1;
+        }else if(collabType.getSelectedItem().equals("NonMobilizer")){
+            collabTypeNumber = 2;
+        }
+
+        JSONObject typeJson = new JSONObject();
+        String partner = mNewProfile ? nextPartnerKey : mPartnerId;
+
+        try
+        {
+            if (mNewProfile || mTypeJsonId == null)
+            {
+                typeJson.put("e_collaborator", mAccountManager.getUserData(mAccount, "partnerId"));
+                typeJson.put("p_partner_key", partner);
+                typeJson.put("e_collab_type_id", collabTypeNumber);
+                typeJson.put("e_is_automatic", 0);
+                typeJson.put("e_collaborator_status", "A");
+                typeJson.put("s_created_by", "dgarcia");
+                typeJson.put("s_modified_by", "dgarcia");
+                typeJson.put("s_date_created", jsonDate);
+                typeJson.put("s_date_modified", jsonDate);
+                typeJson.put( "collaborator_id", mAccountManager.getUserData(mAccount, "partnerId"));
+                typeJson.put( "collaborator_type_id", collabTypeNumber);
+                typeJson.put( "collaborator_status", "A");
+                typeJson.put( "partner_id", partner);
+                typeJson.put( "role_id", collabTypeNumber);
+                typeJson.put( "role_name", collabType.getSelectedItem());
+
+
+
+            } else
+            {
+                typeJson.put("collab_type_id", collabTypeNumber);
+            }
+        }
+        catch (JSONException ex)
+        {
+            ex.printStackTrace();
+        }
+        return typeJson;
+    }
+
     private JSONObject createPhotoJson()
     {
         JSONObject photoJson = new JSONObject();
@@ -503,88 +641,6 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
 
         return photoJson;
 
-    }
-
-    private JSONObject createPartnerJson()
-    {
-        JSONObject partnerJson = new JSONObject();
-
-        try
-        {
-            if (mNewProfile)
-            {
-                partnerJson.put("p_partner_key", nextPartnerKey);
-                partnerJson.put("s_created_by", mAccount.name);
-                partnerJson.put("s_modified_by", mAccount.name);
-                partnerJson.put("p_creating_office", mAccountManager.getUserData(mAccount, "partnerId"));
-                partnerJson.put("p_status_code", "A");
-                partnerJson.put("p_partner_class", "123");
-                partnerJson.put("p_record_status_code", "A");
-                partnerJson.put("p_surname", lastName.getText().toString());
-                partnerJson.put("p_given_name", firstName.getText().toString());
-                partnerJson.put("s_date_created", jsonDate);
-                partnerJson.put("s_date_modified", jsonDate);
-
-            } else
-            {
-                partnerJson.put("surname", lastName.getText().toString());
-                partnerJson.put("given_names", firstName.getText().toString());
-            }
-        }
-        catch (JSONException ex)
-        {
-            ex.printStackTrace();
-        }
-
-        return partnerJson;
-    }
-
-    private JSONObject createTypeJson()
-    {
-
-        //Convert collaborator type to a number
-        if(collabType.getSelectedItem().equals("None")){
-            collabTypeNumber = 0;
-        }else if(collabType.getSelectedItem().equals("Mobilizer")){
-            collabTypeNumber = 1;
-        }else if(collabType.getSelectedItem().equals("NonMobilizer")){
-            collabTypeNumber = 2;
-        }
-
-        JSONObject typeJson = new JSONObject();
-
-        try
-        {
-            if (mNewProfile)
-            {
-                typeJson.put("e_collaborator", mAccountManager.getUserData(mAccount, "partnerId"));
-                typeJson.put("p_partner_key", nextPartnerKey);
-                typeJson.put("e_collab_type_id", collabTypeNumber);
-                typeJson.put("e_is_automatic", 0);
-                typeJson.put("e_collaborator_status", "A");
-                typeJson.put("s_created_by", "dgarcia");
-                typeJson.put("s_modified_by", "dgarcia");
-                typeJson.put("s_date_created", jsonDate);
-                typeJson.put("s_date_modified", jsonDate);
-                typeJson.put( "collaborator_id", mAccountManager.getUserData(mAccount, "partnerId"));
-                typeJson.put( "collaborator_type_id", collabTypeNumber);
-                typeJson.put( "collaborator_status", "A");
-                typeJson.put( "partner_id", nextPartnerKey);
-                typeJson.put( "role_id", collabTypeNumber);
-                typeJson.put( "role_name", collabType.getSelectedItem());
-
-
-
-            } else
-            {
-                typeJson.put("collab_type_id", collabTypeNumber);
-            }
-        }
-        catch (JSONException ex)
-        {
-            ex.printStackTrace();
-        }
-        return typeJson;
     }
 
     /**
@@ -744,5 +800,16 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
 
         startActivityForResult(chooserIntent, 0);
+    }
+
+    private String createPostUrl(String url){
+        String postUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/"
+                + url
+                + "?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
+        return postUrl;
+    }
+
+    private String createPatchUrl(String JsonId){
+        return mAccountManager.getUserData(mAccount, "server") + JsonId + "&cx__res_type=element";
     }
 }

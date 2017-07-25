@@ -745,6 +745,7 @@ public class ProfileActivity extends AppCompatActivity {
                         .into(((ImageView) findViewById(R.id.backdrop_profile)));
             }
 
+            //TODO: Rename this crap
             TextView mTextView = (TextView) findViewById(R.id.e_address);
             mTextView.setText(mEmail);
 
@@ -753,6 +754,7 @@ public class ProfileActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     Intent eIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", mEmail, null));
                     startActivity(Intent.createChooser(eIntent, "Send email..."));
+                    //TODO: Ask to record
                 }
             });
 
@@ -771,6 +773,7 @@ public class ProfileActivity extends AppCompatActivity {
                     String tele = "+" + phones.replaceAll("[^0-9.]", "");
                     Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", tele, null));
                     startActivity(intent);
+                    //TODO: Ask to record
                 }
             });
 
