@@ -23,7 +23,7 @@ public class CRMContract {
         public static final String PARTNER_ID = "partnerId";
         public static final String KARDIA_LOGIN = "kardiaLogin";
 
-        public static final String CREATE_TABLE = "CREATE TABLE " + CRMContract.StaffTable.TABLE_NAME + "(" +
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" +
                         PARTNER_ID + ", " +
                         KARDIA_LOGIN +
                         ")";
@@ -31,7 +31,7 @@ public class CRMContract {
 
     public static final class CollaborateeTable {
         public static final String TABLE_NAME = "collaboratee";
-        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path("collaboratees").build();
+        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path(TABLE_NAME).build();
 
         public static final String COLLABORATER_ID = "collaboraterId";
         public static final String PARTNER_ID = "partnerId";
@@ -86,7 +86,7 @@ public class CRMContract {
 
     public static final class TimelineTable {
         public static final String TABLE_NAME = "timeline";
-        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path("timeline").build();
+        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path(TABLE_NAME).build();
 
         public static final String CONTACT_ID = "contactId";
         public static final String PARTNER_ID = "partnerId";
@@ -98,7 +98,7 @@ public class CRMContract {
         public static final String NOTES = "notes";
         public static final String DATE = "date";
 
-        public static final String CREATE_TABLE = "CREATE TABLE " + TimelineTable.TABLE_NAME + "("  +
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("  +
                 CONTACT_ID + "," +
                 PARTNER_ID + "," +
                 COLLABORATEE_ID + "," +
@@ -108,5 +108,30 @@ public class CRMContract {
                 SUBJECT + "," +
                 NOTES + "," +
                 DATE + ")";
+    }
+
+    public static final class EngagementTable {
+        public static final String TABLE_NAME = "engagment";
+        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path(TABLE_NAME).build();
+
+        public static final String PARTNER_ID = "partnerId";
+        public static final String ENGAGEMENT_ID = "engagementId";
+        public static final String DESCRIPTION = "description";
+        public static final String ENGAGEMENT_TRACK = "track";
+        public static final String ENGAGEMENT_STEP = "step";
+        public static final String ENGAGEMENT_COMMENTS = "comments";
+        public static final String COMPLETION_STATUS = "completionStatus";
+        public static final String DATE = "date";
+
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" +
+                PARTNER_ID + "," +
+                ENGAGEMENT_ID + "," +
+                DESCRIPTION + "," +
+                ENGAGEMENT_TRACK + "," +
+                ENGAGEMENT_STEP + "," +
+                ENGAGEMENT_COMMENTS + "," +
+                COMPLETION_STATUS+ "," +
+                DATE + ")";
+
     }
 }

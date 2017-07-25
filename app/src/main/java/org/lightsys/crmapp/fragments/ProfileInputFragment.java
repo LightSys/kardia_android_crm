@@ -227,7 +227,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             {
                 //Ask user for storage access permission.
                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, 0);
                 } else {
                     getImage();
                 }

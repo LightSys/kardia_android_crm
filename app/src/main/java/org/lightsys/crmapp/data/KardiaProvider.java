@@ -36,9 +36,10 @@ public class KardiaProvider extends ContentProvider {
 
     static {
         //things used to identify what tables we are dealing with
-        sUriMatcher.addURI(CRMContract.providerAuthority, "staff", 1);
-        sUriMatcher.addURI(CRMContract.providerAuthority, "collaboratees", 2);
-        sUriMatcher.addURI(CRMContract.providerAuthority, "timeline", 3);
+        sUriMatcher.addURI(CRMContract.providerAuthority, CRMContract.StaffTable.TABLE_NAME, 1);
+        sUriMatcher.addURI(CRMContract.providerAuthority, CRMContract.CollaborateeTable.TABLE_NAME, 2);
+        sUriMatcher.addURI(CRMContract.providerAuthority, CRMContract.TimelineTable.TABLE_NAME, 3);
+        sUriMatcher.addURI(CRMContract.providerAuthority, CRMContract.EngagementTable.TABLE_NAME, 4);
     }
 
 
@@ -66,6 +67,9 @@ public class KardiaProvider extends ContentProvider {
                 break;
             case 3:
                 builder.setTables(CRMContract.TimelineTable.TABLE_NAME);
+                break;
+            case 4:
+                builder.setTables(CRMContract.EngagementTable.TABLE_NAME);
                 break;
             default:
                 break;
@@ -101,6 +105,10 @@ public class KardiaProvider extends ContentProvider {
                 table = CRMContract.TimelineTable.TABLE_NAME;
                 id = values.getAsInteger(CRMContract.TimelineTable.CONTACT_HISTORY_ID);
                 break;
+            case 4:
+                table = CRMContract.EngagementTable.TABLE_NAME;
+                id = values.getAsInteger(CRMContract.EngagementTable.ENGAGEMENT_ID);
+                break;
             default:
                 table = "";
                 id = 0;
@@ -133,6 +141,9 @@ public class KardiaProvider extends ContentProvider {
                 break;
             case 3:
                 table = CRMContract.TimelineTable.TABLE_NAME;
+                break;
+            case 4:
+                table = CRMContract.EngagementTable.TABLE_NAME;
                 break;
             default:
                 table = "";

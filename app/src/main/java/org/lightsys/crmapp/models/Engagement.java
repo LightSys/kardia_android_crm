@@ -9,13 +9,16 @@ import java.util.Date;
 public class Engagement
 {
     public String PartnerId;
-    public int EngagementId;
-    public int HistoryId;
-    public int TrackId;
-    public int StepId;
-    public Date CreatedDate;
-    public boolean Archived;
-    public char CompletionStatus;
+    public String EngagementId;
+    public String Description;
     public String TrackName;
+    public String StepName;
+    public String Comments;
+    public String CompletionStatus;
+    public Date CreatedDate;
+
+    public boolean Archived;
     public String PartnerName;
+
+
 }

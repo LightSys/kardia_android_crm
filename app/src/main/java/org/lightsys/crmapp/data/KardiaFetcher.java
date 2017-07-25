@@ -20,20 +20,17 @@ import java.net.CookieManager;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
+
 import javax.net.ssl.HttpsURLConnection;
 
-import static java.lang.System.in;
-import static org.lightsys.crmapp.R.string.engagement;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
+
 import static org.lightsys.crmapp.activities.LoginActivity.Credential;
 
 /**
@@ -309,20 +306,23 @@ public class KardiaFetcher {
 
                     Engagement engagement = new Engagement();
                     engagement.PartnerId = partner.PartnerId;
-                    engagement.PartnerName = partner.PartnerName;
-                    engagement.Archived = engagementValues.getInt("is_archived") == 1;
-                    engagement.CompletionStatus = engagementValues.getString("completion_status").toCharArray()[0];
+                    engagement.EngagementId = engagementValues.getString("engagement_id");
+                    engagement.Description = engagementValues.getString("engagement_description");
+                    engagement.TrackName = trackName.substring(0, trackName.length() - 2);
+                    engagement.StepName = engagementValues.getString("engagement_step");
+                    engagement.Comments = engagementValues.getString("engagement_comments");
+                    engagement.CompletionStatus = engagementValues.getString("completion_status");
+
                     Calendar c = Calendar.getInstance();
                     JSONObject createdDate = engagementValues.getJSONObject("date_created");
                     c.set(  createdDate.getInt("year"), createdDate.getInt("month"),
                             createdDate.getInt("day"), createdDate.getInt("hour"),
                             createdDate.getInt("minute"));
                     engagement.CreatedDate = c.getTime();
-                    engagement.TrackName = trackName.substring(0, trackName.length() - 2);
-//                    engagement.EngagementId = engagementJsonBody.getInt("engagement_id");
-//                    engagement.HistoryId = ;
-//                    engagement.StepId = ;
-//                    engagement.TrackId = ;
+
+                    engagement.PartnerName = partner.PartnerName;
+                    engagement.Archived = engagementValues.getInt("is_archived") == 1;
+
                     engagements.add(engagement);
                 }
             }

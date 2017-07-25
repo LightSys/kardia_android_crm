@@ -2,6 +2,8 @@ package org.lightsys.crmapp.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -265,9 +267,24 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         {
             KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
             mEngagements = fetcher.getEngagements(mAccount, collaboratees);
+
+            ContentResolver contentResolver = getContentResolver();
+            for (Engagement engagement : mEngagements)
+            {
+                ContentValues values = new ContentValues();
+                values.put(CRMContract.EngagementTable.PARTNER_ID, engagement.PartnerId);
+                values.put(CRMContract.EngagementTable.ENGAGEMENT_ID, engagement.EngagementId);
+                values.put(CRMContract.EngagementTable.DESCRIPTION, engagement.Description);
+                values.put(CRMContract.EngagementTable.ENGAGEMENT_TRACK, engagement.TrackName);
+                values.put(CRMContract.EngagementTable.ENGAGEMENT_STEP, engagement.StepName);
+                values.put(CRMContract.EngagementTable.ENGAGEMENT_COMMENTS, engagement.Comments);
+                values.put(CRMContract.EngagementTable.COMPLETION_STATUS, engagement.CompletionStatus);
+
+                contentResolver.insert(CRMContract.EngagementTable.CONTENT_URI, values);
+            }
             return null;
         }
-
+        
         @Override
         protected void onPostExecute(Void aVoid)
         {
