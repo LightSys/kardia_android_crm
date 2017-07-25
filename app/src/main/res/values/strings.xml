@@ -17,6 +17,7 @@
     <string name="contact">Contact</string>
     <string name="timeline">Timeline</string>
     <string name="role">Role</string>
+    <string name="title_activity_interaction">Record an Interaction</string>
 
     <string name="hint_first_name">First Name</string>
     <string name="hint_last_name">Last Name</string>
