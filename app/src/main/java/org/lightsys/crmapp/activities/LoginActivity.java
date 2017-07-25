@@ -35,11 +35,14 @@ import org.lightsys.crmapp.models.Staff;
 import java.io.IOException;
 import java.util.List;
 
+import okhttp3.Credentials;
+
+import static org.lightsys.crmapp.activities.ProfileActivity.saveImageFromUrl;
 
 public class LoginActivity extends AccountAuthenticatorActivity implements AppCompatCallback {
 
     private AccountManager mAccountManager;
-
+    public static String Credential;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,6 +151,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         if (success)
         {
             mAccountManager.setUserData(newAccount, "server", addFullServerAddress);
+            Credential = Credentials.basic(newAccount.name, mAccountManager.getPassword(newAccount));
             new GetPartnerIdTask().execute(newAccount);
         } else {
             Log.d("LoginActivity", "Adding Acount Failed");
@@ -252,11 +256,10 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
                     getContentResolver().insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
 
-                    ProfileActivity.saveImageFromUrl(
+                    saveImageFromUrl(
                             mAccountManager.getUserData(accounts[0], "server"),
                             getApplicationContext(),
-                            collaboratee.getProfilePictureFilename(),
-                            collaboratee.getPartnerId()
+                            collaboratee.getProfilePictureFilename()
                     );
                 }
             } catch (IOException e)
@@ -270,7 +273,9 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         @Override
         protected void onPostExecute(Void nothing) {
             if (error == null)
+            {
                 mainActivity();
+            }
             else
             {
                 Toast.makeText(getApplicationContext(), "Network Issues: Server rejected request.", Toast.LENGTH_SHORT).show();

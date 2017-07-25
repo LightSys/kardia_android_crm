@@ -12,22 +12,23 @@ import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.Staff;
 import org.lightsys.crmapp.models.TimelineItem;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.CookieHandler;
 import java.net.CookieManager;
-import java.net.HttpURLConnection;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 
-import static java.lang.System.in;
+import javax.net.ssl.HttpsURLConnection;
+
+import okhttp3.Credentials;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Route;
+
+import static org.lightsys.crmapp.activities.LoginActivity.Credential;
 
 /**
  * Created by nathan on 3/9/16.
@@ -35,64 +36,77 @@ import static java.lang.System.in;
  * Edited by Ca2br and Judah on 7/19/16
  *
  * Edited by Tim on 6/21/2017
- *
- * This is the thing that fetches stuffs from kardia
  */
 
 public class KardiaFetcher {
     private Context mContext;
     private AccountManager mAccountManager;
     private static CookieManager cookieManager = new CookieManager();
+    private OkHttpClient client;
+    private String TAG = "CRM Fetcher";
 
     public KardiaFetcher(Context context) {
         mContext = context;
         mAccountManager = AccountManager.get(context);
         CookieHandler.setDefault(cookieManager);
+        client = new OkHttpClient.Builder()
+                .cookieJar(new MyCookieJar())
+                .authenticator(new okhttp3.Authenticator()
+                {
+                    @Override
+                    public Request authenticate(Route route, Response response) throws IOException
+                    {
+                        return response.request().newBuilder()
+                                .header("Authorization", Credential)
+                                .build();
+                    }
+                }).build();
     }
 
-    //this thing gets a json object as a string from the network
-    //it takes an account for creds and a url and returns a string that contains a json object
-    public String getUrlString(final Account account, String api) throws IOException {
-        Authenticator.setDefault(new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
-            }
-        });
+    //Makes Requests to the Kardia Server and returns response
+    private String Request(final Account account, String Uri)
+    {
+        URL url;
+        String result = "";
+        final String credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
+        try
+        {
+            url = new URL(mAccountManager.getUserData(account, "server") + Uri);
 
-        //the url to get stuff from
-        URL url = new URL(mAccountManager.getUserData(account, "server") + api);
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .header("Authorization", credential)
+                    .get()
+                    .build();
 
-        try {
+            Response response = client.newCall(request).execute();
 
-            InputStream inputStream = connection.getInputStream();
+            int responseCode = response.code();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            try {
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line).append("\n");
-                }
-                return sb.toString();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally
+            Log.e(TAG, "responseCode : " + responseCode);
+            boolean success;
+
+            //if the things were sent properly, get the result code
+            if (responseCode == HttpsURLConnection.HTTP_OK && response.isSuccessful())
             {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Log.e(TAG, "HTTP_OK");
+                result = response.body().string();
+                success = true;
+            } else
+            {
+                Log.e(TAG, "False - HTTP_OK");//send failed :(
+                result = "";
+                success = false;
             }
-
-        } finally {
-            connection.disconnect();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
         }
-        return "";
+
+        return result;
     }
 
-    //function that gets a list of staff members
+    //Returns a list of staff members
     public List<Staff> getStaff(Account account) {
         List<Staff> staff = new ArrayList<>();
 
@@ -104,7 +118,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_type", "collection")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String jsonString = getUrlString(account, api);//get json string from network
+            String jsonString = Request(account, api);//get json string from network
             JSONObject jsonBody = new JSONObject(jsonString);//build json object from json string
             parseStaffJson(staff, jsonBody);//fills staff list with members
         } catch (Exception e) {
@@ -114,7 +128,7 @@ public class KardiaFetcher {
         return staff;
     }
 
-    //function that gets a list of collaboratees
+    //Returns a list of collaboratees
     public List<Partner> getCollaboratees(Account account) throws IOException
     {
         List<Partner> collaboratees = new ArrayList<>();//empty list of collaboratees
@@ -127,7 +141,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_type", "collection")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String crmJsonString = getUrlString(account, crmApi);//get json string from network
+            String crmJsonString = Request(account, crmApi);//get json string from network
             JSONObject crmJsonBody = new JSONObject(crmJsonString);//build json object form string
 
             parseCollaborateesJson(collaboratees, crmJsonBody);//fill collaboratees list with collaboratees
@@ -141,11 +155,13 @@ public class KardiaFetcher {
                         .appendQueryParameter("cx__res_format", "attrs")
                         .appendQueryParameter("cx__res_attrs", "basic")
                         .build().toString();
-                String pictureJsonString = getUrlString(account, profilePictureApi);
-                JSONObject pictureJsonBody = new JSONObject(pictureJsonString);//build json object
-                collaboratee.setProfilePictureFilename(pictureJsonBody.getString("photo_folder") + "/" + pictureJsonBody.getString("photo_filename"));
+                String pictureJsonString = Request(account, profilePictureApi);
+                if (!pictureJsonString.startsWith("HTTP/1.0 404 Not Found"))
+                {
+                    JSONObject pictureJsonBody = new JSONObject(pictureJsonString);//build json object
+                    collaboratee.setProfilePictureFilename(pictureJsonBody.getString("photo_folder") + "/" + pictureJsonBody.getString("photo_filename"));
+                }
             }
-
         } catch (JSONException je) {
             je.printStackTrace();
         }
@@ -153,10 +169,8 @@ public class KardiaFetcher {
         return collaboratees;
     }
 
-    //function that gets detailed info on a collaboratee
-    //getting collaboratee info is a little harder that getting the other things
-    //this is because all the collaboratee info is stored in multiple places
-    //thus you need more that one url to get what you need
+    //Returns detailed info on a collaboratee
+    //Makes multiple requests because the collaboratee info is located in several places
     public Partner getCollaborateeInfo(Account account, Partner collaboratee) {
 
         try {
@@ -167,7 +181,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_format", "attrs")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String partnerJsonString = getUrlString(account, partnerApi);//get json string from network
+            String partnerJsonString = Request(account, partnerApi);//get json string from network
             JSONObject partnerJsonBody = new JSONObject(partnerJsonString);//build json object
 
             //url that gets address info
@@ -177,7 +191,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_type", "collection")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String addressJsonString = getUrlString(account, addressApi);//get json string from network
+            String addressJsonString = Request(account, addressApi);//get json string from network
             JSONObject addressJsonBody = new JSONObject(addressJsonString);//build json object
 
 
@@ -188,7 +202,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_type", "collection")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String contactJsonString = getUrlString(account, contactApi);//get json string from network
+            String contactJsonString = Request(account, contactApi);//get json string from network
             JSONObject contactJsonBody = new JSONObject(contactJsonString);//build json object
 
             String profilePictureApi = Uri.parse("/apps/kardia/api/crm/Partners/" + collaboratee.getPartnerId() + "/ProfilePicture")
@@ -198,21 +212,19 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_format", "attrs")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String pictureJsonString = getUrlString(account, profilePictureApi);
+            String pictureJsonString = Request(account, profilePictureApi);
             JSONObject pictureJsonBody = new JSONObject(pictureJsonString);//build json object
 
             //build an object based on a combination of all the json objects
             parseCollaborateeInfoJson(collaboratee, partnerJsonBody, addressJsonBody, contactJsonBody, pictureJsonBody);
-        } catch (JSONException je) {
+        } catch (JSONException | IOException je) {
             je.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
         }
 
         return collaboratee;
     }
 
-    //function that gets a list of time line items (timelitems)
+    //Returns a list of time line items (timelitems)
     public List<TimelineItem> getTimelineItems(Account account) {
         List<TimelineItem> timelineItems = new ArrayList<>();//empty list of timelitems
 
@@ -224,19 +236,18 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_type", "collection")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
-            String timelineJsonString = getUrlString(account, crmApi);//get timelitem json string from network
+            String timelineJsonString = Request(account, crmApi);//get timelitem json string from network
             JSONObject timelineJsonBody = new JSONObject(timelineJsonString);//build json object
 
             parseTimelineItemsJson(timelineItems, timelineJsonBody);//fill list of timelitems
-        } catch (JSONException je) {
+        } catch (JSONException | IOException je) {
             je.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
         }
 
         return timelineItems;
     }
 
+    //Returns next available PartnerKey for creating a new Partner.
     public String getNextPartnerKey(Account account) {
         String partnerKey = null;
 
@@ -249,10 +260,10 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .appendQueryParameter("cx__res_type", "element")
                     .build().toString();
-            String partnerKeyJsonString = getUrlString(account, partnerKeyApi);//get partnerKey Json string from network
+            String partnerKeyJsonString = Request(account, partnerKeyApi);//get partnerKey Json string from network
             JSONObject partnerKeyJsonBody = new JSONObject(partnerKeyJsonString);//build json object
             partnerKey = partnerKeyJsonBody.getString("partner_id");
-        } catch (JSONException | IOException je)
+        } catch (JSONException je)
         {
             je.printStackTrace();
         }
@@ -260,7 +271,7 @@ public class KardiaFetcher {
         return partnerKey;
     }
 
-    //function that fills a list of collaboratees based on a json string
+    //Fills a list of collaboratees based on a json string
     private void parseCollaborateesJson(List<Partner> collaboratees, JSONObject crmJsonBody) throws IOException, JSONException {
         Iterator<String> crmKeys = crmJsonBody.keys();
 
@@ -279,7 +290,7 @@ public class KardiaFetcher {
         }
     }
 
-    //function that fills a partner with information based on a json object
+    //Fills a partner with information based on a json object
     private Partner parseCollaborateeInfoJson(Partner collaboratee, JSONObject partnerJsonBody, JSONObject addressJsonBody, JSONObject contactJsonBody, JSONObject profilePictureJsonBody) throws IOException, JSONException {
         //TODO Use contact provider
         collaboratee.setSurname(partnerJsonBody.getString("surname"));
@@ -336,7 +347,7 @@ public class KardiaFetcher {
         return collaboratee;
     }
 
-    //function that fills a list of staff based on a json object
+    //Fills a list of staff based on a json object
     private void parseStaffJson(List<Staff> staff, JSONObject jsonBody) throws IOException, JSONException {
         Iterator<String> keys = jsonBody.keys();
 
@@ -355,7 +366,7 @@ public class KardiaFetcher {
         }
     }
 
-    //function that fills a list of timelitems based on a json object
+    //Fills a list of timelitems based on a json object
     private void parseTimelineItemsJson(List<TimelineItem> timelineItems, JSONObject timelineJsonBody) throws IOException, JSONException {
         Iterator<String> timelineKeys = timelineJsonBody.keys();
 

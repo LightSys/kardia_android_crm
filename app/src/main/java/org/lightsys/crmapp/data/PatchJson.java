@@ -65,17 +65,10 @@ public class PatchJson extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... params) {
-
-        Authenticator.setDefault(new java.net.Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
-            }
-        });
-
         String result;
         try {
 
-            //baseUrl used to retrieve the access token
+            //Retrieves access token
             URL getUrl = new URL(mAccountManager.getUserData(account, "server") + "/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
 
             client = new OkHttpClient.Builder()
@@ -107,7 +100,7 @@ public class PatchJson extends AsyncTask<String, Void, String> {
 
                 baseUrl += "&cx__akey=" + token.getString("akey");
 
-                //post json object
+                //patch json object
                 performPatchCall(baseUrl, jsonObject);
             }
         } catch (Exception e) {
@@ -123,9 +116,6 @@ public class PatchJson extends AsyncTask<String, Void, String> {
         String result = "";
         try {
             url = new URL(requestURL);
-
-            if (client == null)
-                client = new OkHttpClient();
 
             RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
             Request request = new Request.Builder()

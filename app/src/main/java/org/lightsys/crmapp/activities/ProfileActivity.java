@@ -6,6 +6,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -38,12 +40,18 @@ import org.lightsys.crmapp.models.TimelineItem;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
+
+import okhttp3.Credentials;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Route;
 
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
 
@@ -586,7 +594,7 @@ public class ProfileActivity extends AppCompatActivity {
                 collaboratee = fetcher.getCollaborateeInfo(mAccount, collaboratee);
 
                 if (collaboratee.getProfilePictureFilename() != null)
-                    saveImageFromUrl(mAccountManager.getUserData(mAccount, "server"), getApplicationContext(), collaboratee.getProfilePictureFilename(), mPartnerId);
+                    saveImageFromUrl(mAccountManager.getUserData(mAccount, "server"), getApplicationContext(), collaboratee.getProfilePictureFilename());
 
                 //set partner ID to match account ID
                 //this fixes an issue where a profile disappeared from the main list after being clicked
@@ -728,10 +736,15 @@ public class ProfileActivity extends AppCompatActivity {
             File directory = getDir("imageDir", Context.MODE_PRIVATE);
 
             String profilePictureFilename = mPartner2.getProfilePictureFilename();
+            View appBarView = findViewById(R.id.appbarlayout_profile);
+            int width = appBarView.getWidth();
+            int height = appBarView.getHeight();
+
             if (profilePictureFilename == null || profilePictureFilename.equals(""))
             {
                 Picasso.with(getApplication())
                         .load(R.drawable.ic_person_black_24dp)
+                        .resize(width, height)
                         .into(((ImageView) findViewById(R.id.backdrop_profile)));
             }
             else
@@ -741,6 +754,7 @@ public class ProfileActivity extends AppCompatActivity {
                 Picasso.with(getApplication())
                         .load(new File(finalPath))
                         .placeholder(R.drawable.ic_person_black_24dp)
+                        .resize(width, height)
                         .into(((ImageView) findViewById(R.id.backdrop_profile)));
             }
 
@@ -788,36 +802,54 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    public static void saveImageFromUrl(String server, Context context, String profilePictureFilename, String partnerId)
+    public static void saveImageFromUrl(String server, Context context, String profilePictureFilename)
     {
         if (profilePictureFilename == null || profilePictureFilename.equals(""))
             return;
 
-        URL url;
         String finalPath;
-        InputStream input;
+
+        File directory = context.getDir("imageDir", Context.MODE_PRIVATE);
+        int indexoffileName = profilePictureFilename.lastIndexOf("/");
+
+        finalPath = directory + "/"+ profilePictureFilename.substring(indexoffileName + 1);
+
+        if (new File(finalPath).exists())
+            return;
+
+        final OkHttpClient client = new OkHttpClient.Builder()
+                .authenticator(new okhttp3.Authenticator()
+                {
+                    @Override
+                    public Request authenticate(Route route, Response response) throws IOException
+                    {
+                        return response.request().newBuilder()
+                                .header("Authorization", LoginActivity.Credential)
+                                .build();
+                    }
+                }).build();
+
+        Request request = new Request.Builder()
+                .url(server + profilePictureFilename)
+                .build();
+
+        Response response = null;
         try {
-            url = new URL(server + profilePictureFilename);
-            File directory = context.getDir("imageDir", Context.MODE_PRIVATE);
-            int indexoffileName = profilePictureFilename.lastIndexOf("/");
-
-            finalPath = directory + "/"+ profilePictureFilename.substring(indexoffileName + 1);
-
-            if (new File(finalPath).exists())
-                return;
-
-            input = url.openStream();
-            FileOutputStream output = new FileOutputStream(finalPath);
-
-            byte[] buffer = new byte[2048];
-            int bytesRead;
-            while ((bytesRead = input.read(buffer, 0, buffer.length)) >= 0)
-            {
-                output.write(buffer, 0, bytesRead);
-            }
-        } catch (IOException e)
-        {
+            response = client.newCall(request).execute();
+        } catch (IOException e) {
             e.printStackTrace();
+        }
+        if (response.code() == HttpsURLConnection.HTTP_OK && response.isSuccessful()) {
+            FileOutputStream output;
+            try
+            {
+                output = new FileOutputStream(finalPath);
+                Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 85, output);
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 
