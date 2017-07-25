@@ -221,6 +221,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 Picasso.with(getApplication())
                         .load(R.drawable.persona)
+                        .resize(64,64)
                         .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
             }
             else
@@ -231,6 +232,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 Picasso.with(getApplication())
                         .load(new File(finalPath))
+                        .resize(64,64)
                         .placeholder(R.drawable.ic_person_black_24dp)
                         .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
             }

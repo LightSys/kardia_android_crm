@@ -15,14 +15,22 @@ import android.accounts.Account;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.net.Authenticator;
 import java.net.CookieHandler;
 import java.net.CookieManager;
-import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
+import okhttp3.Credentials;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.Route;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -35,7 +43,8 @@ import javax.net.ssl.HttpsURLConnection;
  */
 public class PostJson extends AsyncTask<String, Void, String> {
 
-    private static final String TAG = "POST Json";
+    private static final String TAG = "Post Json";
+    private String credential;
     private Account account;
     private AccountManager mAccountManager;
     private String baseUrl = "";
@@ -43,46 +52,53 @@ public class PostJson extends AsyncTask<String, Void, String> {
     private JSONObject jsonObject;
     private Context context;
     private boolean success = false;
-    private static CookieManager cookieManager = new CookieManager();
+    private OkHttpClient client;
     private boolean finalTask;
 
-    public PostJson(Context context, String baseUrl, JSONObject jsonPost, Account userAccount, boolean finalAsyncTask){
-        this.baseUrl = baseUrl;
-        backupUrl = baseUrl;
+    public PostJson(Context context, String Url, JSONObject jsonPost, Account userAccount, boolean finalAsyncTask){
+        this.baseUrl = Url;
+        backupUrl = Url;
         jsonObject = jsonPost;
         account = userAccount;
         this.context = context;
         mAccountManager = AccountManager.get(context);
-        CookieHandler.setDefault(cookieManager);
+        credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
         finalTask = finalAsyncTask;
     }
 
     @Override
     protected String doInBackground(String... params) {
 
-        java.net.Authenticator.setDefault(new java.net.Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(account.name, mAccountManager.getPassword(account).toCharArray());
-            }
-        });
-
-        InputStream inputStream;
         String result;
         try {
 
             //baseUrl used to retrieve the access token
             URL getUrl = new URL(mAccountManager.getUserData(account, "server") + "/?cx__mode=appinit&cx__groupname=Kardia&cx__appname=Donor");
 
-            HttpURLConnection connection;
-            connection = (HttpURLConnection) getUrl.openConnection();
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(10000);
+            client = new OkHttpClient.Builder()
+                    .cookieJar(new MyCookieJar())
+                    .authenticator(new okhttp3.Authenticator()
+                    {
+                        @Override
+                        public Request authenticate(Route route, Response response) throws IOException
+                        {
+                            return response.request().newBuilder()
+                                    .header("Authorization", credential)
+                                    .build();
+                        }
+                    }).build();
 
-            inputStream = connection.getInputStream();
+            Request request = new Request.Builder()
+                    .url(getUrl)
+                    .header("Authorization", credential)
+                    .get()
+                    .build();
+
+            Response response = client.newCall(request).execute();
 
             //get access token
-            if (inputStream != null) {
-                result = convertInputStreamToString(inputStream);
+            if (response.body() != null) {
+                result = response.body().string();
                 JSONObject token = new JSONObject(result);
 
                 baseUrl += "&cx__akey=" + token.getString("akey");
@@ -96,78 +112,62 @@ public class PostJson extends AsyncTask<String, Void, String> {
         return null;
     }
 
-    private String convertInputStreamToString(InputStream in) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String line, result = "";
-
-        while ((line = reader.readLine()) != null) {
-            result += line;
-        }
-        in.close();
-        return result;
-    }
-
-    /*
-        function that posts a json object to the server
-    */
+    //function that posts a json object to the server
     private String performPostCall(String requestURL, JSONObject jsonObject) {
 
         URL url;
-        String response = "";
+        String result = "";
         try {
             url = new URL(requestURL);
 
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(15000);//15 second time out
-            conn.setConnectTimeout(15000);
-            conn.setRequestMethod("POST");
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            conn.setRequestProperty("Content-Type", "application/json");
+            if (client == null)
+                client = new OkHttpClient();
 
-            //get json object ready to send
-            String str = jsonObject.toString();
-            byte[] outputBytes = str.getBytes("UTF-8");
-            OutputStream os = conn.getOutputStream();
-            os.write(outputBytes);//send json object
+            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+            Request request = new Request.Builder()
+                    .url(url)
+                    .header("Authorization", credential)
+                    .post(body)
+                    .build();
 
-            int responseCode = conn.getResponseCode();
+            Response response = client.newCall(request).execute();
+
+            int responseCode = response.code();
 
             Log.e(TAG, "responseCode : " + responseCode);
 
             //if the things were sent properly, get the response code
             if (responseCode == HttpsURLConnection.HTTP_CREATED) {
                 Log.e(TAG, "HTTP_OK");
-                response = convertInputStreamToString(conn.getInputStream());
+                result = response.body().string();
                 success = true;
             } else
             {
                 Log.e(TAG, "False - HTTP_OK");//send failed :(
-                String s = convertInputStreamToString(conn.getErrorStream());
-                response = "";
+                result = "";
                 success = false;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return response;
+        return result;
     }
 
     @Override
     protected void onPostExecute(String params) {
 
         if (success) {
-            Toast.makeText(context, "Data posted successfully!", Toast.LENGTH_SHORT).show();
             if (finalTask)
             {
+                Toast.makeText(context, "Data posted successfully!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(context, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             }
         }
         else {
-            Toast.makeText(context, "Network Issues: Your data is waiting to be sent", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Network Issues: Your data was not sent properly", Toast.LENGTH_SHORT).show();
         }
     }
 }

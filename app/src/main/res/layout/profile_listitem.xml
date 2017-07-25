@@ -6,17 +6,11 @@
     android:padding="@dimen/profile_listitem_padding"
     android:minHeight="?android:listPreferredItemHeight">
 
-    <FrameLayout
+    <ImageView
+        android:id="@+id/profile_photo"
+        android:layout_gravity="center"
         android:layout_width="64dp"
-        android:layout_height="64dp">
-
-        <ImageView
-            android:id="@+id/profile_photo"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-    </FrameLayout>
+        android:layout_height="64dp" />
 
     <TextView
         android:id="@+id/profile_name"

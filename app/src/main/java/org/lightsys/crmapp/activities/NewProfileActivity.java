@@ -29,8 +29,6 @@ public class NewProfileActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Add new profile");
 
-        //TODO: Automatically make new profile a Collaboratee of the user
-
         final ActionBar ab = getSupportActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
     }

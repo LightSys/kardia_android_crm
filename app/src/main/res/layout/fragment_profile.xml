@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -8,69 +10,67 @@
         android:id="@+id/cardview_contact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/primary_text"
-        android:layout_marginTop="@dimen/cardview_profile_layout_margin"
         android:layout_marginLeft="@dimen/cardview_profile_layout_margin"
-        android:layout_marginRight="@dimen/cardview_profile_layout_margin">
+        android:layout_marginRight="@dimen/cardview_profile_layout_margin"
+        android:layout_marginTop="@dimen/cardview_profile_layout_margin"
+        android:textColor="@color/primary_text"
+        app:cardBackgroundColor="@color/cardview_light_background">
 
         <LinearLayout
             android:id="@+id/linearlayout_contact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@android:color/background_light"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/textview_profile"
-                android:text="@string/contact"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/card_profile_padding"
+                android:text="@string/contact"
                 android:textColor="@color/primary_text" />
 
             <include layout="@layout/divider" />
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/card_profile_padding"
-                android:paddingBottom="@dimen/card_profile_padding"
-                android:paddingRight="@dimen/card_profile_padding"
-                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
-                android:textColor="@color/primary_text"
                 android:id="@+id/e_address"
-                android:text="No Email Address"/>
-
-
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/card_profile_padding"
+                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
+                android:paddingRight="@dimen/card_profile_padding"
+                android:paddingTop="@dimen/card_profile_padding"
+                android:text="No Email Address"
+                android:textColor="@color/primary_text" />
 
             <include layout="@layout/divider_small" />
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/card_profile_padding"
-                android:paddingBottom="@dimen/card_profile_padding"
-                android:paddingRight="@dimen/card_profile_padding"
-                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
-                android:textColor="@color/primary_text"
                 android:id="@+id/phone_number"
-                android:text="No Phone Number"/>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/card_profile_padding"
+                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
+                android:paddingRight="@dimen/card_profile_padding"
+                android:paddingTop="@dimen/card_profile_padding"
+                android:text="No Phone Number"
+                android:textColor="@color/primary_text" />
 
             <include layout="@layout/divider_small" />
 
             <TextView
+                android:id="@+id/s_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="@dimen/card_profile_padding"
                 android:paddingBottom="@dimen/card_profile_padding"
-                android:paddingRight="@dimen/card_profile_padding"
                 android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
-                android:textColor="@color/primary_text"
-                android:id="@+id/s_address"
-                android:text="No Street Address"/>
+                android:paddingRight="@dimen/card_profile_padding"
+                android:paddingTop="@dimen/card_profile_padding"
+                android:text="No Street Address"
+                android:textColor="@color/primary_text" />
 
             <include layout="@layout/divider" />
-
-
 
         </LinearLayout>
 
@@ -85,25 +85,26 @@
 
         <LinearLayout
             android:id="@+id/linearlayout_timeline"
-            android:layout_below="@id/linearlayout_contact"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_below="@id/linearlayout_contact"
+            android:background="@android:color/background_light"
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/timelineText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/card_profile_padding"
-                android:textColor="@color/primary_text"
                 android:text="@string/timeline"
-                android:id="@+id/timelineText" />
+                android:textColor="@color/primary_text" />
 
             <include layout="@layout/divider" />
 
             <org.lightsys.crmapp.data.NonScrollListView
+                android:id="@+id/timelineList"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/timelineList" />
+                android:layout_height="match_parent" />
 
             <include layout="@layout/divider_small" />
 

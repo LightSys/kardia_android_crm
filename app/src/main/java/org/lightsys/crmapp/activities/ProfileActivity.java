@@ -6,6 +6,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -38,12 +40,18 @@ import org.lightsys.crmapp.models.TimelineItem;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
+
+import okhttp3.Credentials;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Route;
 
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
 
@@ -543,7 +551,7 @@ public class ProfileActivity extends AppCompatActivity {
                             CRMContract.CollaborateeTable.SURNAME, CRMContract.CollaborateeTable.GIVEN_NAMES, CRMContract.CollaborateeTable.PHONE_ID,
                             CRMContract.CollaborateeTable.CELL_ID, CRMContract.CollaborateeTable.EMAIL_ID, CRMContract.CollaborateeTable.PHONE_JSON_ID,
                             CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID, CRMContract.CollaborateeTable.ADDRESS_JSON_ID,
-                            CRMContract.CollaborateeTable.PARTNER_JSON_ID},
+                            CRMContract.CollaborateeTable.PARTNER_JSON_ID, CRMContract.CollaborateeTable.PROFILE_PICTURE},
                     CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
                     new String[] {mPartnerId},
                     null);
@@ -570,6 +578,7 @@ public class ProfileActivity extends AppCompatActivity {
                 collaboratee.EmailJsonId = cursor.getString(16);
                 collaboratee.AddressJsonId = cursor.getString(17);
                 collaboratee.PartnerJsonId = cursor.getString(18);
+                collaboratee.ProfilePictureFilename = cursor.getString(19);
             }
             cursor.close();
 
@@ -580,19 +589,18 @@ public class ProfileActivity extends AppCompatActivity {
             if(networkConnected() && (collaboratee.Email == null || collaboratee.Phone == null
                     || collaboratee.Address1 == null || collaboratee.City == null
                     || collaboratee.StateProvince == null || collaboratee.PostalCode == null
-                    || collaboratee.Cell == null)) {
+                    || collaboratee.Cell == null) || collaboratee.ProfilePictureFilename == null) {
 
                 //get all the collaboratee stuff from the server
                 KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
                 collaboratee = fetcher.getCollaborateeInfo(mAccount, collaboratee);
 
                 if (collaboratee.ProfilePictureFilename != null)
-                    saveImageFromUrl(mAccountManager.getUserData(mAccount, "server"), getApplicationContext(), collaboratee.ProfilePictureFilename, mPartnerId);
+                    saveImageFromUrl(mAccountManager.getUserData(mAccount, "server"), getApplicationContext(), collaboratee.ProfilePictureFilename);
 
                 //set partner ID to match account ID
                 //this fixes an issue where a profile disappeared from the main list after being clicked
                 collaboratee.PartnerId = mAccountManager.getUserData(mAccount, "partnerId");
-
 
                 //puts all non null collaboratee values into database
                 ContentValues values = new ContentValues();
@@ -634,6 +642,9 @@ public class ProfileActivity extends AppCompatActivity {
                     values.put(CRMContract.CollaborateeTable.ADDRESS_JSON_ID, collaboratee.AddressJsonId);
                 }if (collaboratee.PartnerJsonId != null) {
                     values.put(CRMContract.CollaborateeTable.PARTNER_JSON_ID, collaboratee.PartnerJsonId);
+                }if (collaboratee.ProfilePictureFilename != null) {
+                    saveImageFromUrl(mAccountManager.getUserData(mAccount, "server"), getApplicationContext(), collaboratee.ProfilePictureFilename);
+                    values.put(CRMContract.CollaborateeTable.PROFILE_PICTURE, collaboratee.ProfilePictureFilename);
                 }
 
                 //put new collaboratee info into database
@@ -650,7 +661,7 @@ public class ProfileActivity extends AppCompatActivity {
                                 CRMContract.CollaborateeTable.SURNAME, CRMContract.CollaborateeTable.GIVEN_NAMES, CRMContract.CollaborateeTable.PHONE_ID,
                                 CRMContract.CollaborateeTable.CELL_ID, CRMContract.CollaborateeTable.EMAIL_ID, CRMContract.CollaborateeTable.PHONE_JSON_ID,
                                 CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID, CRMContract.CollaborateeTable.ADDRESS_JSON_ID,
-                                CRMContract.CollaborateeTable.PARTNER_JSON_ID},
+                                CRMContract.CollaborateeTable.PARTNER_JSON_ID, CRMContract.CollaborateeTable.PROFILE_PICTURE},
                         CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
                         new String[] {mPartnerId},
                         null);
@@ -677,6 +688,7 @@ public class ProfileActivity extends AppCompatActivity {
                     collaboratee.EmailJsonId = cursor2.getString(16);
                     collaboratee.AddressJsonId = cursor2.getString(17);
                     collaboratee.PartnerJsonId = cursor2.getString(18);
+                    collaboratee.ProfilePictureFilename = cursor2.getString(19);
                 }
 
                 cursor2.close();
@@ -730,10 +742,15 @@ public class ProfileActivity extends AppCompatActivity {
             File directory = getDir("imageDir", Context.MODE_PRIVATE);
 
             String profilePictureFilename = mPartner2.ProfilePictureFilename;
+            View appBarView = findViewById(R.id.appbarlayout_profile);
+            int width = appBarView.getWidth();
+            int height = appBarView.getHeight();
+
             if (profilePictureFilename == null || profilePictureFilename.equals(""))
             {
                 Picasso.with(getApplication())
-                        .load(R.drawable.ic_person_black_24dp)
+                        .load(R.drawable.persona)
+                        .resize(width, height)
                         .into(((ImageView) findViewById(R.id.backdrop_profile)));
             }
             else
@@ -742,10 +759,12 @@ public class ProfileActivity extends AppCompatActivity {
                 String finalPath = directory + "/" + profilePictureFilename.substring(indexoffileName + 1);
                 Picasso.with(getApplication())
                         .load(new File(finalPath))
-                        .placeholder(R.drawable.ic_person_black_24dp)
+                        .placeholder(R.drawable.persona)
+                        .resize(width, height)
                         .into(((ImageView) findViewById(R.id.backdrop_profile)));
             }
 
+            //TODO: Rename this crap
             TextView mTextView = (TextView) findViewById(R.id.e_address);
             mTextView.setText(mEmail);
 
@@ -754,6 +773,7 @@ public class ProfileActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     Intent eIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", mEmail, null));
                     startActivity(Intent.createChooser(eIntent, "Send email..."));
+                    //TODO: Ask to record
                 }
             });
 
@@ -772,6 +792,7 @@ public class ProfileActivity extends AppCompatActivity {
                     String tele = "+" + phones.replaceAll("[^0-9.]", "");
                     Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", tele, null));
                     startActivity(intent);
+                    //TODO: Ask to record
                 }
             });
 
@@ -790,36 +811,54 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    public static void saveImageFromUrl(String server, Context context, String profilePictureFilename, String partnerId)
+    public static void saveImageFromUrl(String server, Context context, String profilePictureFilename)
     {
         if (profilePictureFilename == null || profilePictureFilename.equals(""))
             return;
 
-        URL url;
         String finalPath;
-        InputStream input;
+
+        File directory = context.getDir("imageDir", Context.MODE_PRIVATE);
+        int indexoffileName = profilePictureFilename.lastIndexOf("/");
+
+        finalPath = directory + "/"+ profilePictureFilename.substring(indexoffileName + 1);
+
+        if (new File(finalPath).exists())
+            return;
+
+        final OkHttpClient client = new OkHttpClient.Builder()
+                .authenticator(new okhttp3.Authenticator()
+                {
+                    @Override
+                    public Request authenticate(Route route, Response response) throws IOException
+                    {
+                        return response.request().newBuilder()
+                                .header("Authorization", LoginActivity.Credential)
+                                .build();
+                    }
+                }).build();
+
+        Request request = new Request.Builder()
+                .url(server + profilePictureFilename)
+                .build();
+
+        Response response = null;
         try {
-            url = new URL(server + profilePictureFilename);
-            File directory = context.getDir("imageDir", Context.MODE_PRIVATE);
-            int indexoffileName = profilePictureFilename.lastIndexOf("/");
-
-            finalPath = directory + "/"+ profilePictureFilename.substring(indexoffileName + 1);
-
-            if (new File(finalPath).exists())
-                return;
-
-            input = url.openStream();
-            FileOutputStream output = new FileOutputStream(finalPath);
-
-            byte[] buffer = new byte[2048];
-            int bytesRead;
-            while ((bytesRead = input.read(buffer, 0, buffer.length)) >= 0)
-            {
-                output.write(buffer, 0, bytesRead);
-            }
-        } catch (IOException e)
-        {
+            response = client.newCall(request).execute();
+        } catch (IOException e) {
             e.printStackTrace();
+        }
+        if (response.code() == HttpsURLConnection.HTTP_OK && response.isSuccessful()) {
+            FileOutputStream output;
+            try
+            {
+                output = new FileOutputStream(finalPath);
+                Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 85, output);
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 
