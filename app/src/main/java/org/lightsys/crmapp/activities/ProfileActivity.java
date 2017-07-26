@@ -2,8 +2,10 @@ package org.lightsys.crmapp.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -22,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -132,8 +135,10 @@ public class ProfileActivity extends AppCompatActivity {
 
     public Toolbar mToolbar;
     public CollapsingToolbarLayout mCollapsingToolbarLayout;
+    public Button addInteraction;
 
     private String phones = "";
+    private int code;
 
     private Account mAccount;
     private List<TimelineItem> mItems = new ArrayList<>();
@@ -192,6 +197,15 @@ public class ProfileActivity extends AppCompatActivity {
         if(mName != null) {
             mCollapsingToolbarLayout.setTitle(mName);
         }
+
+        addInteraction = (Button) findViewById(R.id.addInteraction);
+        addInteraction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getApplicationContext(), NewInteractionActivity.class);
+                startActivity(i);
+            }
+        });
 
         mAccountManager = AccountManager.get(getApplicationContext());
 
@@ -284,6 +298,43 @@ public class ProfileActivity extends AppCompatActivity {
         savedInstanceState.putString(WEBSITE_KEY, mWebsite);
 
         super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch(requestCode){
+            case 0:
+                //email
+                break;
+            case 1:
+                //cell
+                break;
+            case 2:
+                //phone
+                break;
+            default:
+                //nothing
+                break;
+        }
+
+        new AlertDialog.Builder(ProfileActivity.this)
+                .setCancelable(false)
+                .setMessage("Record Interaction?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(getApplicationContext(), NewInteractionActivity.class);
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    }
+                })
+                .show();
     }
 
     //Sorts timeline items by date
@@ -486,6 +537,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         TextView itemView = new TextView(getContext());
         CardView button;
+        //Button addInteraction = (Button) findViewById(R.id.addInteraction);
 
         public String type = "";
         public String name = "";
@@ -512,7 +564,6 @@ public class ProfileActivity extends AppCompatActivity {
             });
 
         }
-
 
         public void setItemViewText(final String text){
             itemView.setText(text);
@@ -761,43 +812,44 @@ public class ProfileActivity extends AppCompatActivity {
                         .into(((ImageView) findViewById(R.id.backdrop_profile)));
             }
 
-            //TODO: Rename this crap
-            TextView mTextView = (TextView) findViewById(R.id.e_address);
-            mTextView.setText(mEmail);
+            TextView emailTextView = (TextView) findViewById(R.id.e_address);
+            emailTextView.setText(mEmail);
 
-            mTextView.setOnClickListener(new View.OnClickListener() {
+            emailTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent eIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", mEmail, null));
-                    startActivity(Intent.createChooser(eIntent, "Send email..."));
+                    startActivityForResult(Intent.createChooser(eIntent, "Send email..."), 0);
                     //TODO: Ask to record
                 }
             });
 
-            TextView mTextView2 = (TextView) findViewById(R.id.phone_number);
+            TextView phoneTextView = (TextView) findViewById(R.id.phone_number);
             if(mCell != null) {
-                mTextView2.setText(mCell);
+                phoneTextView.setText(mCell);
                 phones = mCell;
+                code = 1;
             }
             else if (mPhone!=null){
-                mTextView2.setText(mPhone);
+                phoneTextView.setText(mPhone);
                 phones = mPhone;
+                code = 2;
             }
-            mTextView2.setOnClickListener(new View.OnClickListener() {
+            phoneTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String tele = "+" + phones.replaceAll("[^0-9.]", "");
                     Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", tele, null));
-                    startActivity(intent);
+                    startActivityForResult(intent, code);
                     //TODO: Ask to record
                 }
             });
 
 
-            TextView mTextView3 = (TextView) findViewById(R.id.s_address);
-            mTextView3.setText(mAddress + ", " + mCity + ", " + mState + ", " + mPostalCode);
+            TextView addressTextView = (TextView) findViewById(R.id.s_address);
+            addressTextView.setText(mAddress + ", " + mCity + ", " + mState + ", " + mPostalCode);
 
-            mTextView3.setOnClickListener(new View.OnClickListener() {
+            addressTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String url = "https://www.google.com/maps/search/?api=1&query=" + mAddress + "%2C+" + mCity + "%2C+" + mState + "%2C+" + mPostalCode;

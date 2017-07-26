@@ -12,12 +12,20 @@
     <string name="password">Password</string>
     <string name="serverName">Server Name or Address</string>
     <string name="portNumber">Port Number</string>
-    <string name="title_activity_profile">ProfileActivity</string>
+    <string name="title_activity_profile">Profile Activity</string>
     <string name="search_hint">Search</string>
     <string name="contact">Contact</string>
     <string name="timeline">Timeline</string>
     <string name="role">Role</string>
+
     <string name="title_activity_interaction">Record an Interaction</string>
+    <string name="type">Type</string>
+    <string name="date">Date</string>
+    <string name="subject">Subject</string>
+    <string name="notes">Notes</string>
+    <string name="followup_checkbox">Schedule Followup</string>
+    <string name="followup_by">Followup By</string>
+    <string name="followup_note">Followup Note</string>
 
     <string name="hint_first_name">First Name</string>
     <string name="hint_last_name">Last Name</string>
@@ -36,7 +44,7 @@
     <string name="profile_input_photo_button">Change</string>
     <string name="logout">Logout</string>
 
-    <string-array name="name_spinner">
+    <string-array name="phone_spinner">
         <item>Mobile</item>
         <item>Home</item>
     </string-array>
@@ -48,6 +56,13 @@
         <item>None</item>
         <item>Mobilizer</item>
         <item>NonMobilizer</item>
+    </string-array>
+    <string-array name="type_spinner">
+        <item>Email Message</item>
+        <item>In-Person</item>
+        <item>Phone Call</item>
+        <item>Sign-Up List</item>
+        <item>Update</item>
     </string-array>
 
 </resources>

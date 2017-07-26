@@ -191,7 +191,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
 
         // Sets up views.
         final ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
-                R.array.name_spinner, android.R.layout.simple_spinner_item);
+                R.array.phone_spinner, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
 
         firstName = (TextView)rootView.findViewById(R.id.profile_input_name_first);

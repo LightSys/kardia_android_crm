@@ -61,6 +61,10 @@
             android:label="TimelineActivity"
             android:parentActivityName=".activities.MainActivity">
         </activity>
+        <activity android:name=".activities.NewInteractionActivity"
+            android:label="NewInteractionActivity"
+            android:parentActivityName=".activities.MainActivity">
+        </activity>
 
         <service
             android:name="org.lightsys.crmapp.data.AuthenticatorService">

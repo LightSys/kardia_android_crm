@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <TableRow
+        android:id="@+id/TableRow1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -47,8 +48,12 @@
     </TableRow>
 
     <TableRow
+        android:id="@+id/TableRow2"
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="40dp"
+        android:layout_below="@+id/TableRow1"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -59,46 +64,55 @@
                 android:id="@+id/type"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:layout_weight="1"
-                android:text="TextView" />
+                android:gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/type" />
 
             <Spinner
                 android:id="@+id/typeSpinner"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:entries="@array/type_spinner"
+                android:popupBackground="@drawable/divider" />
 
             <Spinner
-                android:id="@+id/phoneSpinner"
+                android:id="@+id/specificContactSpinner"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
-
-            <Spinner
-                android:id="@+id/emailSpinner"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:popupBackground="@drawable/divider"/>
 
         </LinearLayout>
 
     </TableRow>
 
     <TableRow
+        android:id="@+id/TableRow3"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/TableRow2">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp">
 
             <TextView
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:layout_weight="1"
-                android:text="TextView" />
+                android:gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/date" />
 
             <EditText
                 android:id="@+id/dateText"
@@ -109,11 +123,14 @@
                 android:inputType="date" />
 
         </LinearLayout>
+
     </TableRow>
 
     <TableRow
+        android:id="@+id/TableRow4"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/TableRow3">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -124,8 +141,12 @@
                 android:id="@+id/subject"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:layout_weight="1"
-                android:text="TextView" />
+                android:gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/subject" />
 
         </LinearLayout>
 
@@ -133,9 +154,7 @@
             android:id="@+id/scrollview_subject"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginBottom="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_margin="10dp"
             android:layout_weight="1"
             android:background="@color/cardview_light_background"
             android:textColor="@color/primary_text">
@@ -145,15 +164,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:inputType="text"
-                android:text="Name" />
+                android:layout_gravity="center_vertical"
+                android:background="@android:color/transparent" />
         </ScrollView>
 
     </TableRow>
 
     <TableRow
+        android:id="@+id/TableRow5"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/TableRow4">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -164,18 +188,20 @@
                 android:id="@+id/notes"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:layout_weight="1"
-                android:text="TextView" />
+                android:gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/notes" />
 
         </LinearLayout>
 
         <ScrollView
             android:id="@+id/scrollview_notes"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_height="240dp"
+            android:layout_margin="10dp"
             android:layout_weight="1"
             android:background="@color/cardview_light_background"
             android:textColor="@color/primary_text">
@@ -184,10 +210,128 @@
                 android:id="@+id/notesText"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
+                android:background="@android:color/transparent"
                 android:inputType="textMultiLine" />
         </ScrollView>
 
     </TableRow>
 
-</LinearLayout>
+    <TableRow
+        android:id="@+id/TableRow6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/TableRow5">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/followupCheckboxText"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/followup_checkbox" />
+
+            <CheckBox
+                android:id="@+id/followupCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginEnd="4dp" />
+        </LinearLayout>
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/TableRow7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/TableRow6">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:id="@+id/followupDate"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/followup_by" />
+
+            <EditText
+                android:id="@+id/followupDateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:inputType="date" />
+
+        </LinearLayout>
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/TableRow8"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/TableRow7">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/followupNote"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/followup_note" />
+
+        </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/scrollview_followupNote"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="@color/cardview_light_background"
+            android:textColor="@color/primary_text">
+
+            <EditText
+                android:id="@+id/followupNoteText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:inputType="text" />
+        </ScrollView>
+
+    </TableRow>
+
+</RelativeLayout>

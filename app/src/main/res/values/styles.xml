@@ -13,10 +13,10 @@
     </style>
 
     <style name="CustomThemeOverlayAppCompatLight" parent="ThemeOverlay.AppCompat.Light">
-        <item name="android:spinnerDropDownItemStyle">@style/customSpinnerDropDownItemStyle</item>
+        <item name="android:spinnerDropDownItemStyle">@style/CustomSpinnerDropDownItemStyle</item>
     </style>
 
-    <style name="customSpinnerDropDownItemStyle" parent="ThemeOverlay.AppCompat.Light">
+    <style name="CustomSpinnerDropDownItemStyle" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:textColor">@color/primary_text</item>
         <item name="android:background">#FFFFFF</item>
     </style>
