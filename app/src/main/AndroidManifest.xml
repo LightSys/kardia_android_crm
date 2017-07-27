@@ -81,6 +81,8 @@
 
         <activity android:name=".activities.EngagementActivity">
         </activity>
+        <activity android:name=".activities.EngagementDetailActivity">
+        </activity>
     </application>
 
 </manifest>

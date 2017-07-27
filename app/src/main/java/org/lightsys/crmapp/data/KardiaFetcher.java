@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lightsys.crmapp.models.Engagement;
+import org.lightsys.crmapp.models.EngagementTrack;
 import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.Staff;
 import org.lightsys.crmapp.models.TimelineItem;
@@ -67,7 +68,7 @@ public class KardiaFetcher {
     }
 
     //Makes Requests to the Kardia Server and returns response
-    private String Request(final Account account, String Uri)
+    private String Request(Account account, String Uri)
     {
         URL url;
         String result = "";
@@ -458,5 +459,47 @@ public class KardiaFetcher {
                 timelineItems.add(item);
             }
         }
+    }
+
+    public List<EngagementTrack> getEngagementTracks(final Account account) throws JSONException
+    {
+        String trackApi = Uri.parse("/apps/kardia/api/crm_config/Tracks")
+                .buildUpon()
+                .appendQueryParameter("cx__mode", "rest")
+                .appendQueryParameter("cx__res_format", "attrs")
+                .appendQueryParameter("cx__res_attrs", "basic")
+                .appendQueryParameter("cx__res_type", "collection")
+                .build().toString();
+
+        String trackJsonString = Request(account, trackApi);
+        JSONObject trackJsonBody = new JSONObject(trackJsonString);
+
+        return parseEngagementTracks(trackJsonBody);
+    }
+
+    private ArrayList<EngagementTrack> parseEngagementTracks(JSONObject trackJsonBody) throws JSONException
+    {
+        ArrayList<EngagementTrack> tracks = new ArrayList<>();
+
+        Iterator<String> trackKeys = trackJsonBody.keys();
+
+        while(trackKeys.hasNext())
+        {
+            String key = trackKeys.next();
+            if (!key.equals("@id"))
+            {
+                JSONObject jsonItem = trackJsonBody.getJSONObject(key);
+                EngagementTrack track = new EngagementTrack();
+
+                track.TrackId = jsonItem.getString("track_id");
+                track.TrackName = key;
+                track.TrackDescription = jsonItem.getString("track_description");
+                track.TrackStatus = jsonItem.getString("track_status");
+
+                tracks.add(track);
+            }
+        }
+
+        return tracks;
     }
 }

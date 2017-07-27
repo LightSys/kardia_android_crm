@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -29,10 +30,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.models.Engagement;
+import org.lightsys.crmapp.models.EngagementTrack;
 import org.lightsys.crmapp.models.Partner;
 
 import java.util.ArrayList;
@@ -46,10 +49,17 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
     private List<Engagement> mEngagements;
     private Account mAccount;
     private List<Partner> collaboratees;
+    public static String PARTNER_ID = "partnerId";
+    public static String ENGAGEMENT_ID = "engagementId";
+    public static String DESCRIPTION = "description";
+    public static String TRACK_NAME = "trackName";
+    public static String STEP_NAME = "stepName";
+    public static String COMMENTS = "comments";
+    public static String COMPLETON_STATUS = "completionStatus";
+    List<EngagementTrack> tracks;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d("Engagement Activity", "Created");
@@ -62,6 +72,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         } else if (accounts.length > 0){
             mAccount = accounts[0];
             new GetCollaborateeIdsTask().execute();
+            new GetEngagementInfoTask().execute();
         }
 
         setupNavigationView();
@@ -79,25 +90,6 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        // Gets text to search for.
-        final SearchView search = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            // Runs when a search is submitted.
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                return false;
-            }
-
-            /**
-             * Runs a search every time the search input is changed.
-             */
-            @Override
-            public boolean onQueryTextChange(String s) {
-                search(s);
-                return true;
-            }
-        });
         return true;
     }
 
@@ -136,8 +128,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item)
-    {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         switch (itemId)
         {
@@ -177,19 +168,6 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
     }
 
     /**
-     * Searches through a list of profile names for a particular substring.
-     */
-    public void search(String searchText) {
-//        ArrayList<Engagement> profiles = new ArrayList<>();
-//        for(Engagement engagement : mEngagements) {
-//            if(engagement.PartnerId.toLowerCase().contains(searchText.toLowerCase())) {
-//                profiles.add(engagement);
-//            }
-//        }
-//        setupAdapter(profiles);
-    }
-
-    /**
      * Sets up adapter after Async task is complete.
      */
     private void setupAdapter(List<Engagement> engagements) {
@@ -198,6 +176,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
 
     private class EngagementHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private LinearLayout mLinearLayout;
+        private Engagement engagement;
 
         public EngagementHolder(View view) {
             super(view);
@@ -211,7 +190,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
          * Binds profile information to the view.
          */
         public void bindProfile(Engagement engagement) {
-
+            this.engagement = engagement;
             ((TextView) mLinearLayout.findViewById(R.id.engagementName)).setText(engagement.PartnerName);
             ((TextView) mLinearLayout.findViewById(R.id.engagementTrack)).setText(engagement.TrackName);
         }
@@ -221,16 +200,19 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
          */
         @Override
         public void onClick(View v) {
-//            mPartner2 = mPartner;
-//            Intent i = new Intent(getApplication(), ProfileActivity.class);
-//            i.putExtra(PARTNER_ID_KEY, mPartner2.PartnerId);
-//            i.putExtra(PARTNER_NAME, mPartner2.PartnerName);
-//            startActivity(i);
+            Intent i = new Intent(getApplication(), EngagementDetailActivity.class);
+            i.putExtra(PARTNER_ID, engagement.PartnerId);
+            i.putExtra(ENGAGEMENT_ID, engagement.EngagementId);
+            i.putExtra(DESCRIPTION, engagement.Description);
+            i.putExtra(TRACK_NAME, engagement.TrackName);
+            i.putExtra(STEP_NAME, engagement.StepName);
+            i.putExtra(COMMENTS, engagement.Comments);
+            i.putExtra(COMPLETON_STATUS, engagement.CompletionStatus);
+            startActivity(i);
         }
     }
 
-    private class EngagementAdapter extends RecyclerView.Adapter<EngagementHolder>
-    {
+    private class EngagementAdapter extends RecyclerView.Adapter<EngagementHolder> {
         List<Engagement> engagements;
         public EngagementAdapter(List<Engagement> engagements)
         {
@@ -260,8 +242,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         }
     }
 
-    private class GetEngagementsTask extends AsyncTask<Void, Void, Void>
-    {
+    private class GetEngagementsTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids)
         {
@@ -293,8 +274,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         }
     }
 
-    private class GetCollaborateeIdsTask extends AsyncTask<Void, Void, Void>
-    {
+    private class GetCollaborateeIdsTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids)
         {
@@ -327,6 +307,30 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         {
             super.onPostExecute(aVoid);
             new GetEngagementsTask().execute();
+        }
+    }
+
+    private class GetEngagementInfoTask extends AsyncTask<Void, Void, Void>
+    {
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
+            try
+            {
+                tracks = fetcher.getEngagementTracks(mAccount);
+                Log.d("Engagement Activity", "Tracks Count: " + tracks.size());
+            } catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid)
+        {
+            super.onPostExecute(aVoid);
         }
     }
 }
