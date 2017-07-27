@@ -21,10 +21,11 @@
     <string name="title_activity_interaction">Record an Interaction</string>
     <string name="type">Type</string>
     <string name="date">Date</string>
+    <string name="choose_date">Choose Date</string>
     <string name="subject">Subject</string>
     <string name="notes">Notes</string>
     <string name="followup_checkbox">Schedule Followup</string>
-    <string name="followup_by">Followup By</string>
+    <string name="followup_date">Followup Date</string>
     <string name="followup_note">Followup Note</string>
 
     <string name="hint_first_name">First Name</string>

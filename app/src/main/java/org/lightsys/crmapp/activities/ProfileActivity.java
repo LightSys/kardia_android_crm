@@ -101,6 +101,11 @@ public class ProfileActivity extends AppCompatActivity {
     public static final String TWITTER_KEY = "EXTRA_TWITTER";
     public static final String WEBSITE_KEY = "EXTRA_WEBSITE";
 
+    //Constants specifically for Recording Interactions Activity
+    public static final String TYPE_KEY = "EXTRA_TYPE";
+    public static final String SPECIFIC_CONTACT_KEY = "EXTRA_SPECIFIC_CONTACT";
+    public static final String DATE_KEY = "EXTRA_DATE";
+
     //Variables that hold the stuff retrieved from the intent
     public String mName;
     public String mPartnerId;
@@ -304,21 +309,34 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        final String type;
+        final String specificContact;
+        //String date;
+
+        //Set correct contact form based on code from the activity
         switch(requestCode){
             case 0:
-                //email
+                //email messge
+                type = "Email Message";
+                specificContact = mEmail;
                 break;
             case 1:
-                //cell
-                break;
-            case 2:
-                //phone
+                //phone call
+                type = "Phone Call";
+                specificContact = phones;
                 break;
             default:
                 //nothing
+                type = "";
+                specificContact = "";
                 break;
         }
 
+        /**
+         * Ask if user wants to record interaction,
+         * and if so start a new interaction activity
+         * with type and date automatically filled
+         */
         new AlertDialog.Builder(ProfileActivity.this)
                 .setCancelable(false)
                 .setMessage("Record Interaction?")
@@ -326,6 +344,8 @@ public class ProfileActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Intent intent = new Intent(getApplicationContext(), NewInteractionActivity.class);
+                        intent.putExtra(TYPE_KEY, type);
+                        intent.putExtra(SPECIFIC_CONTACT_KEY, specificContact);
                         startActivity(intent);
                     }
                 })
@@ -791,27 +811,26 @@ public class ProfileActivity extends AppCompatActivity {
 
             String profilePictureFilename = mPartner2.getProfilePictureFilename();
             View appBarView = findViewById(R.id.appbarlayout_profile);
-            int width = appBarView.getWidth();
-            int height = appBarView.getHeight();
+            int width = appBarView.getMeasuredWidth();
+            int height = appBarView.getMeasuredHeight();
 
-            if (profilePictureFilename == null || profilePictureFilename.equals(""))
-            {
-                Picasso.with(getApplication())
-                        .load(R.drawable.ic_person_black_24dp)
-                        .resize(width, height)
-                        .into(((ImageView) findViewById(R.id.backdrop_profile)));
+            //TODO: Fix issue where width and height are not read properly
+            if(width != 0 && height != 0) {
+                if (profilePictureFilename == null || profilePictureFilename.equals("")) {
+                    Picasso.with(getApplication())
+                            .load(R.drawable.ic_person_black_24dp)
+                            .resize(width, height)
+                            .into(((ImageView) findViewById(R.id.backdrop_profile)));
+                } else {
+                    int indexoffileName = profilePictureFilename.lastIndexOf("/");
+                    String finalPath = directory + "/" + profilePictureFilename.substring(indexoffileName + 1);
+                    Picasso.with(getApplication())
+                            .load(new File(finalPath))
+                            .placeholder(R.drawable.ic_person_black_24dp)
+                            .resize(width, height)
+                            .into(((ImageView) findViewById(R.id.backdrop_profile)));
+                }
             }
-            else
-            {
-                int indexoffileName = profilePictureFilename.lastIndexOf("/");
-                String finalPath = directory + "/" + profilePictureFilename.substring(indexoffileName + 1);
-                Picasso.with(getApplication())
-                        .load(new File(finalPath))
-                        .placeholder(R.drawable.ic_person_black_24dp)
-                        .resize(width, height)
-                        .into(((ImageView) findViewById(R.id.backdrop_profile)));
-            }
-
             TextView emailTextView = (TextView) findViewById(R.id.e_address);
             emailTextView.setText(mEmail);
 
@@ -819,8 +838,8 @@ public class ProfileActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent eIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", mEmail, null));
+                    //TODO: Set email for autofill
                     startActivityForResult(Intent.createChooser(eIntent, "Send email..."), 0);
-                    //TODO: Ask to record
                 }
             });
 
@@ -828,20 +847,19 @@ public class ProfileActivity extends AppCompatActivity {
             if(mCell != null) {
                 phoneTextView.setText(mCell);
                 phones = mCell;
-                code = 1;
             }
             else if (mPhone!=null){
                 phoneTextView.setText(mPhone);
                 phones = mPhone;
-                code = 2;
             }
             phoneTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String tele = "+" + phones.replaceAll("[^0-9.]", "");
                     Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", tele, null));
-                    startActivityForResult(intent, code);
-                    //TODO: Ask to record
+                    //TODO: Set phone for autofill
+                    //use phones String
+                    startActivityForResult(intent, 1);
                 }
             });
 
