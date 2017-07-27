@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lightsys.crmapp.models.Engagement;
+import org.lightsys.crmapp.models.EngagementStep;
 import org.lightsys.crmapp.models.EngagementTrack;
 import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.Staff;
@@ -501,5 +502,52 @@ public class KardiaFetcher {
         }
 
         return tracks;
+    }
+
+    public List<EngagementStep> getEngagementSteps(Account account, List<EngagementTrack> tracks) throws JSONException
+    {
+        ArrayList<EngagementStep> steps = new ArrayList<>();
+
+        for (EngagementTrack track : tracks)
+        {
+            String stepApi = Uri.parse("/apps/kardia/api/crm_config/Tracks/" + track.TrackName + "/Steps")
+                    .buildUpon()
+                    .appendQueryParameter("cx__mode", "rest")
+                    .appendQueryParameter("cx__res_format", "attrs")
+                    .appendQueryParameter("cx__res_attrs", "basic")
+                    .appendQueryParameter("cx__res_type", "collection")
+                    .build().toString();
+
+            String stepJsonString = Request(account, stepApi);
+            JSONObject stepJsonBody = new JSONObject(stepJsonString);
+
+            parseEngagementSteps(steps, stepJsonBody);
+        }
+
+        return steps;
+    }
+
+    private void parseEngagementSteps(ArrayList<EngagementStep> steps, JSONObject stepJsonBody) throws JSONException
+    {
+        Iterator<String> stepKeys = stepJsonBody.keys();
+
+        while(stepKeys.hasNext())
+        {
+            String key = stepKeys.next();
+            if (!key.equals("@id"))
+            {
+                JSONObject jsonItem = stepJsonBody.getJSONObject(key);
+
+                EngagementStep step = new EngagementStep();
+                step.StepId = jsonItem.getString("step_id");
+                step.StepName = jsonItem.getString("step_name");
+                step.TrackId = jsonItem.getString("track_id");
+                step.TrackName = jsonItem.getString("track_name");
+                step.StepDescription = jsonItem.getString("step_description");
+                step.StepSequence = jsonItem.getInt("step_sequence");
+
+                steps.add(step);
+            }
+        }
     }
 }

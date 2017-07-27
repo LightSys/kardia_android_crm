@@ -2,6 +2,7 @@ package org.lightsys.crmapp.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.DatePickerDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -15,6 +16,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -35,6 +37,7 @@ import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.models.Engagement;
+import org.lightsys.crmapp.models.EngagementStep;
 import org.lightsys.crmapp.models.EngagementTrack;
 import org.lightsys.crmapp.models.Partner;
 
@@ -56,7 +59,8 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
     public static String STEP_NAME = "stepName";
     public static String COMMENTS = "comments";
     public static String COMPLETON_STATUS = "completionStatus";
-    List<EngagementTrack> tracks;
+    private List<EngagementTrack> tracks;
+    private List<EngagementStep> steps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -324,6 +328,31 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
             {
                 e.printStackTrace();
             }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid)
+        {
+            new getEngagementStepsTask().execute();
+        }
+    }
+
+    private class getEngagementStepsTask  extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
+            try
+            {
+                steps = fetcher.getEngagementSteps(mAccount, tracks);
+                Log.d("Engagement Activity", "Steps Count: " + steps.size());
+            } catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+
             return null;
         }
 
