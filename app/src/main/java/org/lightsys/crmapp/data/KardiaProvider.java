@@ -40,6 +40,8 @@ public class KardiaProvider extends ContentProvider {
         sUriMatcher.addURI(CRMContract.providerAuthority, CRMContract.CollaborateeTable.TABLE_NAME, 2);
         sUriMatcher.addURI(CRMContract.providerAuthority, CRMContract.TimelineTable.TABLE_NAME, 3);
         sUriMatcher.addURI(CRMContract.providerAuthority, CRMContract.EngagementTable.TABLE_NAME, 4);
+        sUriMatcher.addURI(CRMContract.providerAuthority, CRMContract.EngagementStepTable.TABLE_NAME, 5);
+        sUriMatcher.addURI(CRMContract.providerAuthority, CRMContract.EngagementTrackTable.TABLE_NAME, 6);
     }
 
 
@@ -70,6 +72,12 @@ public class KardiaProvider extends ContentProvider {
                 break;
             case 4:
                 builder.setTables(CRMContract.EngagementTable.TABLE_NAME);
+                break;
+            case 5:
+                builder.setTables(CRMContract.EngagementStepTable.TABLE_NAME);
+                break;
+            case 6:
+                builder.setTables(CRMContract.EngagementTrackTable.TABLE_NAME);
                 break;
             default:
                 break;
@@ -109,6 +117,14 @@ public class KardiaProvider extends ContentProvider {
                 table = CRMContract.EngagementTable.TABLE_NAME;
                 id = values.getAsInteger(CRMContract.EngagementTable.ENGAGEMENT_ID);
                 break;
+            case 5:
+                table = CRMContract.EngagementStepTable.TABLE_NAME;
+                id = values.getAsInteger(CRMContract.EngagementStepTable.STEP_ID);
+                break;
+            case 6:
+                table = CRMContract.EngagementTrackTable.TABLE_NAME;
+                id = values.getAsInteger(CRMContract.EngagementTrackTable.TRACK_ID);
+                break;
             default:
                 table = "";
                 id = 0;
@@ -144,6 +160,12 @@ public class KardiaProvider extends ContentProvider {
                 break;
             case 4:
                 table = CRMContract.EngagementTable.TABLE_NAME;
+                break;
+            case 5:
+                table = CRMContract.EngagementStepTable.TABLE_NAME;
+                break;
+            case 6:
+                table = CRMContract.EngagementTrackTable.TABLE_NAME;
                 break;
             default:
                 table = "";

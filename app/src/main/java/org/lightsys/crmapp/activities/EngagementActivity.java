@@ -2,7 +2,6 @@ package org.lightsys.crmapp.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.DatePickerDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -16,11 +15,9 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,7 +73,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         } else if (accounts.length > 0){
             mAccount = accounts[0];
             new GetCollaborateeIdsTask().execute();
-            new GetEngagementInfoTask().execute();
+            new GetEngagementTracksTask().execute();
         }
 
         setupNavigationView();
@@ -97,9 +94,6 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         return true;
     }
 
-    /**
-     * Provides option to select something within the Menu.
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -114,9 +108,6 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Creates a toolbar.
-     */
     private void setupToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
@@ -171,9 +162,6 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         });
     }
 
-    /**
-     * Sets up adapter after Async task is complete.
-     */
     private void setupAdapter(List<Engagement> engagements) {
         mRecyclerView.setAdapter(new EngagementAdapter(engagements));
     }
@@ -246,38 +234,6 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         }
     }
 
-    private class GetEngagementsTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids)
-        {
-            KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
-            mEngagements = fetcher.getEngagements(mAccount, collaboratees);
-
-            ContentResolver contentResolver = getContentResolver();
-            for (Engagement engagement : mEngagements)
-            {
-                ContentValues values = new ContentValues();
-                values.put(CRMContract.EngagementTable.PARTNER_ID, engagement.PartnerId);
-                values.put(CRMContract.EngagementTable.ENGAGEMENT_ID, engagement.EngagementId);
-                values.put(CRMContract.EngagementTable.DESCRIPTION, engagement.Description);
-                values.put(CRMContract.EngagementTable.ENGAGEMENT_TRACK, engagement.TrackName);
-                values.put(CRMContract.EngagementTable.ENGAGEMENT_STEP, engagement.StepName);
-                values.put(CRMContract.EngagementTable.ENGAGEMENT_COMMENTS, engagement.Comments);
-                values.put(CRMContract.EngagementTable.COMPLETION_STATUS, engagement.CompletionStatus);
-
-                contentResolver.insert(CRMContract.EngagementTable.CONTENT_URI, values);
-            }
-            return null;
-        }
-        
-        @Override
-        protected void onPostExecute(Void aVoid)
-        {
-            super.onPostExecute(aVoid);
-            setupAdapter(mEngagements);
-        }
-    }
-
     private class GetCollaborateeIdsTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids)
@@ -310,12 +266,43 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         protected void onPostExecute(Void aVoid)
         {
             super.onPostExecute(aVoid);
-            new GetEngagementsTask().execute();
+            new GetEngagementsforCollaborateesTask().execute();
         }
     }
 
-    private class GetEngagementInfoTask extends AsyncTask<Void, Void, Void>
-    {
+    private class GetEngagementsforCollaborateesTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids)
+        {
+            KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
+            mEngagements = fetcher.getEngagements(mAccount, collaboratees);
+
+            ContentResolver contentResolver = getContentResolver();
+            for (Engagement engagement : mEngagements)
+            {
+                ContentValues values = new ContentValues();
+                values.put(CRMContract.EngagementTable.PARTNER_ID, engagement.PartnerId);
+                values.put(CRMContract.EngagementTable.ENGAGEMENT_ID, engagement.EngagementId);
+                values.put(CRMContract.EngagementTable.DESCRIPTION, engagement.Description);
+                values.put(CRMContract.EngagementTable.ENGAGEMENT_TRACK, engagement.TrackName);
+                values.put(CRMContract.EngagementTable.ENGAGEMENT_STEP, engagement.StepName);
+                values.put(CRMContract.EngagementTable.ENGAGEMENT_COMMENTS, engagement.Comments);
+                values.put(CRMContract.EngagementTable.COMPLETION_STATUS, engagement.CompletionStatus);
+
+                contentResolver.insert(CRMContract.EngagementTable.CONTENT_URI, values);
+            }
+            return null;
+        }
+        
+        @Override
+        protected void onPostExecute(Void aVoid)
+        {
+            super.onPostExecute(aVoid);
+            setupAdapter(mEngagements);
+        }
+    }
+
+    private class GetEngagementTracksTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params)
         {
@@ -324,6 +311,18 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
             {
                 tracks = fetcher.getEngagementTracks(mAccount);
                 Log.d("Engagement Activity", "Tracks Count: " + tracks.size());
+
+                for (EngagementTrack track : tracks)
+                {
+                    ContentValues values = new ContentValues();
+
+                    values.put(CRMContract.EngagementTrackTable.TRACK_ID, track.TrackId);
+                    values.put(CRMContract.EngagementTrackTable.TRACK_NAME, track.TrackName);
+                    values.put(CRMContract.EngagementTrackTable.TRACK_DESCRIPTION, track.TrackDescription);
+                    values.put(CRMContract.EngagementTrackTable.TRACK_STATUS, track.TrackStatus);
+
+                    getContentResolver().insert(CRMContract.EngagementTrackTable.CONTENT_URI, values);
+                }
             } catch (JSONException e)
             {
                 e.printStackTrace();
@@ -348,6 +347,20 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
             {
                 steps = fetcher.getEngagementSteps(mAccount, tracks);
                 Log.d("Engagement Activity", "Steps Count: " + steps.size());
+
+                for (EngagementStep step : steps)
+                {
+                    ContentValues values = new ContentValues();
+
+                    values.put(CRMContract.EngagementStepTable.TRACK_ID, step.TrackId);
+                    values.put(CRMContract.EngagementStepTable.TRACK_NAME, step.TrackName);
+                    values.put(CRMContract.EngagementStepTable.STEP_DESCRIPTION, step.StepDescription);
+                    values.put(CRMContract.EngagementStepTable.STEP_ID, step.StepId);
+                    values.put(CRMContract.EngagementStepTable.STEP_NAME, step.StepName);
+                    values.put(CRMContract.EngagementStepTable.STEP_SEQUENCE, step.StepSequence);
+
+                    getContentResolver().insert(CRMContract.EngagementStepTable.CONTENT_URI, values);
+                }
             } catch (JSONException e)
             {
                 e.printStackTrace();

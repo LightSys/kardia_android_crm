@@ -23,7 +23,7 @@ public class CRMContract {
         public static final String PARTNER_ID = "partnerId";
         public static final String KARDIA_LOGIN = "kardiaLogin";
 
-        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" +
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                         PARTNER_ID + ", " +
                         KARDIA_LOGIN +
                         ")";
@@ -60,7 +60,7 @@ public class CRMContract {
                 POSTAL_CODE, CELL, SURNAME, GIVEN_NAMES, PHONE_ID, CELL_ID, EMAIL_ID, PHONE_JSON_ID,
                 CELL_JSON_ID, EMAIL_JSON_ID, ADDRESS_JSON_ID, PARTNER_JSON_ID };
 
-        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" +
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 COLLABORATER_ID + ", " +
                 PARTNER_ID + " INTEGER PRIMARY KEY, " +
                 PARTNER_NAME + ", " +
@@ -98,7 +98,7 @@ public class CRMContract {
         public static final String NOTES = "notes";
         public static final String DATE = "date";
 
-        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("  +
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ("  +
                 CONTACT_ID + "," +
                 PARTNER_ID + "," +
                 COLLABORATEE_ID + "," +
@@ -123,7 +123,7 @@ public class CRMContract {
         public static final String COMPLETION_STATUS = "completionStatus";
         public static final String DATE = "date";
 
-        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" +
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 PARTNER_ID + "," +
                 ENGAGEMENT_ID + "," +
                 DESCRIPTION + "," +
@@ -132,6 +132,45 @@ public class CRMContract {
                 ENGAGEMENT_COMMENTS + "," +
                 COMPLETION_STATUS+ "," +
                 DATE + ")";
+
+    }
+
+    public static final class EngagementStepTable {
+        public static final String TABLE_NAME = "engagmentStep";
+        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path(TABLE_NAME).build();
+
+        public static final String TRACK_ID = "trackId";
+        public static final String TRACK_NAME = "trackName";
+        public static final String STEP_ID = "stepId";
+        public static final String STEP_NAME = "stepName";
+        public static final String STEP_DESCRIPTION = "stepDescription";
+        public static final String STEP_SEQUENCE = "stepSequence";
+
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+                TRACK_ID + "," +
+                TRACK_NAME + "," +
+                STEP_DESCRIPTION + "," +
+                STEP_ID + "," +
+                STEP_NAME + "," +
+                STEP_SEQUENCE + "," +
+                "PRIMARY KEY (" + TRACK_ID + ", " + STEP_ID + "))";
+
+    }
+
+    public static final class EngagementTrackTable {
+        public static final String TABLE_NAME = "engagementTrack";
+        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path(TABLE_NAME).build();
+
+        public static final String TRACK_ID = "trackId";
+        public static final String TRACK_NAME = "trackName";
+        public static final String TRACK_DESCRIPTION = "stepDescription";
+        public static final String TRACK_STATUS = "stepSequence";
+
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+                TRACK_ID + " PRIMARY KEY," +
+                TRACK_NAME + "," +
+                TRACK_DESCRIPTION + "," +
+                TRACK_STATUS + ")";
 
     }
 }
