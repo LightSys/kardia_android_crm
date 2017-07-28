@@ -278,13 +278,11 @@
                 android:text="@string/followup_date"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <EditText
-                android:id="@+id/followupDateText"
+            <Button
+                android:id="@+id/followupDateButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="date" />
+                android:text="@string/choose_date"/>
 
         </LinearLayout>
     </TableRow>

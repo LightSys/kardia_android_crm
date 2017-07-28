@@ -23,7 +23,6 @@ import org.lightsys.crmapp.R;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.StringTokenizer;
 
 /**
  * Created by Daniel Garcia on 26/07/2017.
@@ -39,17 +38,18 @@ public class NewInteractionActivity extends AppCompatActivity {
     public static final String SPECIFIC_CONTACT_KEY = "EXTRA_SPECIFIC_CONTACT";
     public static final String PARTNER_ID_KEY = "EXTRA_PARTNER_ID";
 
+    public int mTypeId;
     public String mType;
     public String mSpecificContact;
     public String mPartnerId;
-    public int mTypeId;
     public String subject;
     public String notes;
 
+    //Values from the Interaction Detailed view
     public int mYear, mMonth, mDay, mHour, mMinute, mSecond;
     public TableRow followupDateTable, followupNoteTable;
     public Spinner typeSpinner, specificContactSpinner;
-    public Button dateButton, backButton, submitButton;
+    public Button dateButton, followupDateButton, backButton, submitButton;
     public CheckBox followupCheckBox;
     public EditText subjectText, notesText;
 
@@ -78,11 +78,13 @@ public class NewInteractionActivity extends AppCompatActivity {
 
         //Set up fields from the Interaction Detail view
         setContentView(R.layout.interaction_detail);
+
         followupDateTable = (TableRow) findViewById(R.id.TableRow7);
         followupNoteTable = (TableRow) findViewById(R.id.TableRow8);
         typeSpinner = (Spinner) findViewById(R.id.typeSpinner);
         specificContactSpinner = (Spinner) findViewById(R.id.specificContactSpinner);
         dateButton = (Button) findViewById(R.id.dateButton);
+        followupDateButton = (Button) findViewById(R.id.followupDateButton);
         backButton = (Button) findViewById(R.id.backButton);
         submitButton = (Button) findViewById(R.id.submitButton);
         followupCheckBox = (CheckBox) findViewById(R.id.followupCheckBox);
@@ -117,10 +119,10 @@ public class NewInteractionActivity extends AppCompatActivity {
             today = true;
         }
 
+        //Show followup info if followupCheckBox is checked
         followupCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Show followup info if box is checked
                 if(followupCheckBox.isChecked()){
                     followupDateTable.setVisibility(View.VISIBLE);
                     followupNoteTable.setVisibility(View.VISIBLE);
@@ -181,6 +183,31 @@ public class NewInteractionActivity extends AppCompatActivity {
             }
         });
 
+        //Same as above for the followup date button
+        followupDateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new TimePickerDialog(NewInteractionActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+                        mHour = hour;
+                        mMinute = minute;
+                        mSecond = 0;
+                    }
+                }, mHour, mMinute, true).show();
+                new DatePickerDialog(NewInteractionActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                        mYear = year;
+                        mMonth = month;
+                        mDay = day;
+                        mDate = mDay + "-" + mMonth + "-" + mYear;
+                        followupDateButton.setText(mDate);
+                    }
+                }, mYear, mMonth, mDay).show();
+            }
+        });
+
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -235,7 +262,8 @@ public class NewInteractionActivity extends AppCompatActivity {
         subject = subjectText.toString();
         notes = notesText.toString();
 
-        try {
+        try
+        {
             jsonDate = new JSONObject();
             jsonDate.put("year", mYear);
             jsonDate.put("month", mMonth);
@@ -244,7 +272,8 @@ public class NewInteractionActivity extends AppCompatActivity {
             jsonDate.put("minute", mMinute);
             jsonDate.put("second", mSecond);
 
-            //interactionJson.put("e_contact_history_id", ); //TODO: How to generate this?
+            //Load information into a jsonObject
+            //(Unique ID for each Interaction is automatically generated)
             interactionJson.put("p_partner_key", mPartnerId);
             interactionJson.put("e_contact_history_type", mTypeId);
             interactionJson.put("e_whom", mAccount);
@@ -263,7 +292,6 @@ public class NewInteractionActivity extends AppCompatActivity {
 
         return interactionJson;
     }
-
 
     private void setCurrentDate()
     {
