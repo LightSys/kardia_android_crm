@@ -101,10 +101,9 @@ public class ProfileActivity extends AppCompatActivity {
     public static final String TWITTER_KEY = "EXTRA_TWITTER";
     public static final String WEBSITE_KEY = "EXTRA_WEBSITE";
 
-    //Constants specifically for Recording Interactions Activity
+    //Constants specifically for NewInteractionActivity
     public static final String TYPE_KEY = "EXTRA_TYPE";
     public static final String SPECIFIC_CONTACT_KEY = "EXTRA_SPECIFIC_CONTACT";
-    public static final String DATE_KEY = "EXTRA_DATE";
 
     //Variables that hold the stuff retrieved from the intent
     public String mName;
@@ -143,7 +142,6 @@ public class ProfileActivity extends AppCompatActivity {
     public Button addInteraction;
 
     private String phones = "";
-    private int code;
 
     private Account mAccount;
     private List<TimelineItem> mItems = new ArrayList<>();
@@ -208,6 +206,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(getApplicationContext(), NewInteractionActivity.class);
+                i.putExtra(PARTNER_ID_KEY, mPartnerId);
                 startActivity(i);
             }
         });
@@ -311,7 +310,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         final String type;
         final String specificContact;
-        //String date;
 
         //Set correct contact form based on code from the activity
         switch(requestCode){
@@ -346,6 +344,7 @@ public class ProfileActivity extends AppCompatActivity {
                         Intent intent = new Intent(getApplicationContext(), NewInteractionActivity.class);
                         intent.putExtra(TYPE_KEY, type);
                         intent.putExtra(SPECIFIC_CONTACT_KEY, specificContact);
+                        intent.putExtra(PARTNER_ID_KEY, mPartnerId);
                         startActivity(intent);
                     }
                 })

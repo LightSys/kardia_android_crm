@@ -387,9 +387,9 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
             jsonDate.put("month", cal.get(Calendar.MONTH));
             jsonDate.put("year", cal.get(Calendar.YEAR));
             jsonDate.put("day", cal.get(Calendar.DAY_OF_MONTH));
+            jsonDate.put("hour", cal.get(Calendar.HOUR));
             jsonDate.put("minute", cal.get(Calendar.MINUTE));
             jsonDate.put("second", cal.get(Calendar.SECOND));
-            jsonDate.put("hour", cal.get(Calendar.HOUR));
         }
         catch (JSONException ex)
         {
@@ -647,7 +647,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
      * Saves info.
      */
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
+    public void onSaveInstanceState(Bundle savedInstanceState)
+    {
         savedInstanceState.putStringArray(DATA_ARRAY_KEY, mEditTextData);
     }
 
@@ -714,7 +715,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
         if (resultCode == -1)
         {
             if (requestCode == 0)
@@ -753,7 +755,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+    {
         switch (requestCode) {
             case 0: {
                 // If request is cancelled, the result arrays are empty.
