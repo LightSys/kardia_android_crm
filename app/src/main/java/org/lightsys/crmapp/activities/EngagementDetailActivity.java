@@ -8,6 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.kofigyan.stateprogressbar.StateProgressBar;
 
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
@@ -16,7 +19,6 @@ import org.lightsys.crmapp.models.EngagementStep;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static org.lightsys.crmapp.activities.EngagementActivity.COMMENTS;
 import static org.lightsys.crmapp.activities.EngagementActivity.COMPLETON_STATUS;
@@ -28,7 +30,7 @@ import static org.lightsys.crmapp.activities.EngagementActivity.TRACK_NAME;
 
 public class EngagementDetailActivity extends AppCompatActivity
 {
-    ProgressBar progressBar;
+    StateProgressBar progressBar;
     int currentProgress;
     int secondaryProgress;
     int maxProgress;
@@ -38,7 +40,6 @@ public class EngagementDetailActivity extends AppCompatActivity
     TextView descriptionTextView;
     TextView commentsTextView;
     List<EngagementStep> steps = new ArrayList<>();
-    int stepSequence;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -59,10 +60,15 @@ public class EngagementDetailActivity extends AppCompatActivity
         stepTextView = (TextView) findViewById(R.id.stepText);
         descriptionTextView = (TextView) findViewById(R.id.descriptionText);
         commentsTextView = (TextView) findViewById(R.id.commentsText);
-        progressBar = (ProgressBar) findViewById(R.id.engagementProgress);
+        progressBar = (StateProgressBar) findViewById(R.id.engagementProgress);
 
         new GetStepsforTrack().execute();
 
+        setTextFields();
+    }
+
+    private void setTextFields()
+    {
         trackTextView.setText(engagement.TrackName);
         stepTextView.setText(engagement.StepName);
         descriptionTextView.setText(engagement.Description);
@@ -71,18 +77,27 @@ public class EngagementDetailActivity extends AppCompatActivity
 
     public void FinishStep(View view)
     {
-        currentProgress += 1;
-        secondaryProgress += 1;
-        stepSequence = currentProgress;
-
-        progressBar.setProgress(currentProgress);
-        progressBar.setSecondaryProgress(secondaryProgress);
-
-        if (currentProgress == maxProgress) {
+        if (currentProgress >= maxProgress) {
             //TODO: Possibly Toast or Dialog then Return to List of Engagements
+            Toast.makeText(this, "Finished Track", Toast.LENGTH_SHORT).show();
+            finish();
         }
         else {
+            currentProgress += 1;
+            secondaryProgress += 1;
 
+            progressBar.setCurrentStateNumber(numberToStateNumber(currentProgress));
+
+            for (int i = 0; i < steps.size(); i++) {
+                EngagementStep step = steps.get(i);
+                if (currentProgress == step.StepSequence) {
+                    engagement.StepName = step.StepName;
+                    engagement.Description = step.StepDescription;
+                    break;
+                }
+            }
+
+            setTextFields();
         }
     }
 
@@ -121,18 +136,29 @@ public class EngagementDetailActivity extends AppCompatActivity
 
             for (int i = 0; i < steps.size(); i++) {
                 if (steps.get(i).StepName.equals(engagement.StepName)) {
-                    stepSequence = steps.get(i).StepSequence;
+                    currentProgress = steps.get(i).StepSequence;
                     break;
                 }
             }
 
             maxProgress = steps.size();
-            currentProgress = stepSequence;
             secondaryProgress = currentProgress + 1;
 
-            progressBar.setMax(maxProgress);
-            progressBar.setProgress(currentProgress);
-            progressBar.setSecondaryProgress(secondaryProgress);
+            progressBar.setMaxStateNumber(numberToStateNumber(maxProgress));
+            progressBar.setCurrentStateNumber(numberToStateNumber(currentProgress));
+        }
+    }
+
+    private StateProgressBar.StateNumber numberToStateNumber(int i)
+    {
+        switch (i)
+        {
+            case 1: return StateProgressBar.StateNumber.ONE;
+            case 2: return StateProgressBar.StateNumber.TWO;
+            case 3: return StateProgressBar.StateNumber.THREE;
+            case 4: return StateProgressBar.StateNumber.FOUR;
+            case 5: return StateProgressBar.StateNumber.FIVE;
+            default: return StateProgressBar.StateNumber.ONE;
         }
     }
 }
