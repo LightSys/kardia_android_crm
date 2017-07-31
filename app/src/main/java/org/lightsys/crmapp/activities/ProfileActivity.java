@@ -372,7 +372,7 @@ public class ProfileActivity extends AppCompatActivity {
                     highestItem = item;
                 }
                 else if (date[0] == highestDate[0]){//if the years are the same look at the month
-                    if (date[1] > highestDate[1]){//if the month in bigger the date is newer
+                    if (date[1] > highestDate[1]){//if the month is bigger the date is newer
                         highestDate = date;
                         highestItem = item;
                     }
@@ -499,7 +499,6 @@ public class ProfileActivity extends AppCompatActivity {
             if (mItems.size() == 0)
             {
                 timelineCardView.setEnabled(false);
-                timelineCardView.setVisibility(View.INVISIBLE);
             }
         }
 

@@ -387,7 +387,7 @@ public class KardiaFetcher {
                 item.setSubject(jsonItem.getString("subject"));
                 item.setNotes(jsonItem.getString("notes"));
 
-                JSONObject jsonDate = jsonItem.getJSONObject("date_created");
+                JSONObject jsonDate = jsonItem.getJSONObject("contact_date");
                 String date = jsonDate.getInt("year") + "-" + jsonDate.getInt("month") + "-" + jsonDate.getInt("day");
                 item.setDate(date);
 

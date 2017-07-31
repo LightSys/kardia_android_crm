@@ -277,7 +277,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                         typeUrl = createPostUrl("crm/Partners/" + mAccountManager.getUserData(mAccount, "partnerId") + "/Collaboratees");
                         photoUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/files?";
 
-                        //set up POST json objects for patching
+                        //set up POST json objects for posting
                         uploadJson1 = new PostJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
                         uploadJson2 = new PostJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
                         uploadJson3 = new PostJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
