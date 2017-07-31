@@ -126,6 +126,8 @@ public class EngagementDetailActivity extends AppCompatActivity
                 steps.add(step);
             }
 
+            cursor.close();
+
             return null;
         }
 
