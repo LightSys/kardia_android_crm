@@ -201,7 +201,7 @@
         <ScrollView
             android:id="@+id/scrollview_notes"
             android:layout_width="wrap_content"
-            android:layout_height="200dp"
+            android:layout_height="160dp"
             android:layout_margin="10dp"
             android:layout_weight="1"
             android:background="@color/cardview_light_background"
@@ -315,7 +315,7 @@
         <ScrollView
             android:id="@+id/scrollview_followupNote"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="54dp"
             android:layout_margin="10dp"
             android:layout_weight="1"
             android:background="@color/cardview_light_background"
@@ -325,12 +325,12 @@
                 android:id="@+id/followupNoteText"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
                 android:layout_marginLeft="4dp"
                 android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:inputType="text" />
+                android:inputType="textMultiLine" />
         </ScrollView>
 
     </TableRow>

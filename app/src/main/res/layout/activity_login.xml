@@ -89,9 +89,10 @@
             android:id="@+id/protocolSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/protocol_options"
             android:layout_marginLeft="64dp"
-            android:layout_marginRight="64dp" />
+            android:layout_marginRight="64dp"
+            android:entries="@array/protocol_options"
+            android:popupBackground="@drawable/divider" />
 
     </RelativeLayout>
 
@@ -162,7 +163,7 @@
         android:id="@+id/loginSubmit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Submit"
+        android:text="@string/submit"
         android:layout_marginTop="10dp"
         android:layout_gravity="center_horizontal" />
 

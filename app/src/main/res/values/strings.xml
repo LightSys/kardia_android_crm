@@ -59,7 +59,7 @@
         <item>NonMobilizer</item>
     </string-array>
     <string-array name="type_spinner">
-        <item>Email Message</item>
+        <item>Email</item>
         <item>In-Person</item>
         <item>Phone Call</item>
         <item>Sign-Up List</item>

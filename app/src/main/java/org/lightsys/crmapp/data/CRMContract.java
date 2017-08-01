@@ -109,4 +109,20 @@ public class CRMContract {
                 NOTES + "," +
                 DATE + ")";
     }
+
+    public static final class NotificationsTable {
+        public static final String TABLE_NAME = "notifications";
+        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path("notifications").build();
+
+        public static final String NOTIFICATION_ID = "notificationId";
+        public static final String TIME = "time";
+        public static final String PARTNER_ID = "partnerId";
+        public static final String NOTES = "notes";
+
+        public static final String CREATE_TABLE = "CREATE TABLE" + NotificationsTable.TABLE_NAME + "(" +
+                NOTIFICATION_ID + " PRIMARY KEY, " +
+                TIME + ", " +
+                PARTNER_ID + ", " +
+                NOTES + ")";
+    }
 }
