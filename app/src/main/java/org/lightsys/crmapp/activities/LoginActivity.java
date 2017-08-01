@@ -210,12 +210,14 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         protected Account doInBackground(Account... accounts) {
             KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
             List<Staff> staff = fetcher.getStaff(accounts[0]);
+
             for(Staff staffMember : staff) {
                 ContentValues values = new ContentValues();
                 values.put(CRMContract.StaffTable.PARTNER_ID, staffMember.PartnerId);
                 values.put(CRMContract.StaffTable.KARDIA_LOGIN, staffMember.getKardiaLogin());
                 getContentResolver().insert(CRMContract.StaffTable.CONTENT_URI, values);
             }
+
             Cursor cursor = getContentResolver().query(
                     CRMContract.StaffTable.CONTENT_URI,
                     new String[] { CRMContract.StaffTable.PARTNER_ID },

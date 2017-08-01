@@ -1,24 +1,30 @@
 package org.lightsys.crmapp.activities;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kofigyan.stateprogressbar.StateProgressBar;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
+import org.lightsys.crmapp.data.PatchJson;
+import org.lightsys.crmapp.data.PostJson;
 import org.lightsys.crmapp.models.Engagement;
 import org.lightsys.crmapp.models.EngagementStep;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Calendar;
+import java.util.Date;
 
 import static org.lightsys.crmapp.activities.EngagementActivity.COMMENTS;
 import static org.lightsys.crmapp.activities.EngagementActivity.COMPLETON_STATUS;
@@ -35,11 +41,13 @@ public class EngagementDetailActivity extends AppCompatActivity
     int secondaryProgress;
     int maxProgress;
     Engagement engagement = new Engagement();
-    TextView trackTextView;
-    TextView stepTextView;
+    TextView trackStepTextView;
     TextView descriptionTextView;
     TextView commentsTextView;
-    List<EngagementStep> steps = new ArrayList<>();
+    EngagementStep[] steps;
+    private AccountManager accountManager;
+    private Account mAccount;
+    private String partnerName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -56,8 +64,7 @@ public class EngagementDetailActivity extends AppCompatActivity
         engagement.Comments = intent.getStringExtra(COMMENTS);
         engagement.CompletionStatus = intent.getStringExtra(COMPLETON_STATUS);
 
-        trackTextView = (TextView) findViewById(R.id.trackText);
-        stepTextView = (TextView) findViewById(R.id.stepText);
+        trackStepTextView = (TextView) findViewById(R.id.trackStepText);
         descriptionTextView = (TextView) findViewById(R.id.descriptionText);
         commentsTextView = (TextView) findViewById(R.id.commentsText);
         progressBar = (StateProgressBar) findViewById(R.id.engagementProgress);
@@ -65,14 +72,24 @@ public class EngagementDetailActivity extends AppCompatActivity
         new GetStepsforTrack().execute();
 
         setTextFields();
+
+        accountManager = AccountManager.get(this);
+        final Account[] accounts = accountManager.getAccounts();
+        if(accounts.length > 0) {
+            mAccount = accounts[0];
+        }
     }
 
     private void setTextFields()
     {
-        trackTextView.setText(engagement.TrackName);
-        stepTextView.setText(engagement.StepName);
+        setTrackStepText(engagement.StepName);
         descriptionTextView.setText(engagement.Description);
         commentsTextView.setText(engagement.Comments);
+    }
+
+    private void setTrackStepText(String stepName)
+    {
+        trackStepTextView.setText(engagement.TrackName + ": " + stepName);
     }
 
     public void FinishStep(View view)
@@ -81,24 +98,130 @@ public class EngagementDetailActivity extends AppCompatActivity
             //TODO: Possibly Toast or Dialog then Return to List of Engagements
             Toast.makeText(this, "Finished Track", Toast.LENGTH_SHORT).show();
             finish();
-        }
-        else {
+        } else {
+
+            String patchStepUrl = Uri.parse(accountManager.getUserData(mAccount, "server"))
+                    .buildUpon()
+                    .appendEncodedPath("apps/kardia/api/crm/Partners/" + engagement.PartnerId + "/Tracks")
+                    .appendEncodedPath(engagement.TrackName + "-" + engagement.EngagementId)
+                    .appendEncodedPath("History/" + currentProgress)
+                    .build().toString() + "?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=element";
+
+            /*
+            * The Rest API this relies on will change eventually - Greg Beeley
+            *
+            * Patch current step
+            * */
+            PatchJson patchStep = new PatchJson(this, patchStepUrl, createStepPatchJson(), mAccount, false);
+            patchStep.execute();
+
             currentProgress += 1;
             secondaryProgress += 1;
 
             progressBar.setCurrentStateNumber(numberToStateNumber(currentProgress));
 
-            for (int i = 0; i < steps.size(); i++) {
-                EngagementStep step = steps.get(i);
-                if (currentProgress == step.StepSequence) {
-                    engagement.StepName = step.StepName;
-                    engagement.Description = step.StepDescription;
-                    break;
-                }
-            }
+            engagement.StepName = steps[currentProgress - 1].StepName;
+            engagement.Description = steps[currentProgress - 1].StepDescription;
+
+            String postStepUrl = Uri.parse(accountManager.getUserData(mAccount, "server"))
+                    .buildUpon()
+                    .appendEncodedPath("apps/kardia/api/crm/Partners/" + engagement.PartnerId + "/Tracks")
+                    .appendEncodedPath(engagement.TrackName + "-" + engagement.EngagementId)
+                    .appendEncodedPath("History")
+                    .build().toString() + "?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
+
+            //Post new step.
+            PostJson postStep = new PostJson(this, postStepUrl, createStepPostJson(), mAccount, false);
+            postStep.execute();
+
+
 
             setTextFields();
         }
+    }
+
+    private JSONObject createStepPatchJson()
+    {
+        JSONObject step = new JSONObject();
+
+        try
+        {
+            JSONObject currentDate = getCurrentDate();
+            step.put("engagement_description", descriptionTextView.getText());
+            step.put("engagement_comments", commentsTextView.getText());
+            step.put("completion_status", "Complete");
+            step.put("completion_date", getCurrentDate());
+//            step.put("completed_by_partner_id", accountManager.getUserData(mAccount, "partnerId"));
+//            step.put("completed_by_partner_ref", "/apps/kardia/api/partner/Partners/" + accountManager.getUserData(mAccount, "partnerId"));
+
+        } catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+
+        return step;
+
+    }
+
+    private JSONObject createStepPostJson()
+    {
+        JSONObject step = new JSONObject();
+
+        try
+        {
+            JSONObject currentDate = getCurrentDate();
+            step.put("history_id", currentProgress);
+            step.put("partner_id", engagement.PartnerId);
+//            step.put("partner_ref", "/apps/kardia/api/partner/Partners/" + engagement.PartnerId);
+            step.put("engagement_description", descriptionTextView.getText());
+            step.put("engagement_track", engagement.TrackName);
+            step.put("engagement_step", engagement.StepName);
+            step.put("engagement_comments", null);
+            step.put("completion_status", "Incomplete");
+            step.put("start_date", currentDate);
+            step.put("started_by_partner_id", accountManager.getUserData(mAccount, "partnerId"));
+//            step.put("started_by_partner_ref", "/apps/kardia/api/partner/Partners/" + accountManager.getUserData(mAccount, "partnerId"));
+            step.put("completion_date", null);
+            step.put("completed_by_partner_id", null);
+            step.put("completed_by_partner_ref", null);
+            step.put("completed_by_partner", null);
+            step.put("exited_date", null);
+            step.put("exited_by_partner_id", null);
+            step.put("exited_by_partner_ref", null);
+            step.put("exited_by_partner", null);
+
+        } catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+
+        return step;
+    }
+
+    private JSONObject getCurrentDate()
+    {
+        //Get current date
+        java.util.Date date = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+
+        JSONObject jsonDate = new JSONObject();
+
+        try
+        {
+            jsonDate.put("month", cal.get(Calendar.MONTH));
+            jsonDate.put("year", cal.get(Calendar.YEAR));
+            jsonDate.put("day", cal.get(Calendar.DAY_OF_MONTH));
+            jsonDate.put("minute", cal.get(Calendar.MINUTE));
+            jsonDate.put("second", cal.get(Calendar.SECOND));
+            jsonDate.put("hour", cal.get(Calendar.HOUR));
+        }
+        catch (JSONException ex)
+        {
+            ex.printStackTrace();
+        }
+
+        return jsonDate;
     }
 
     public class GetStepsforTrack extends AsyncTask<Void, Void, Void>
@@ -116,17 +239,22 @@ public class EngagementDetailActivity extends AppCompatActivity
                     null
             );
 
-            while (cursor.moveToNext())
+            if (cursor != null)
             {
-                EngagementStep step = new EngagementStep();
-                step.TrackName = engagement.TrackName;
-                step.StepName = cursor.getString(0);
-                step.StepDescription = cursor.getString(1);
-                step.StepSequence = cursor.getInt(2);
-                steps.add(step);
-            }
+                steps = new EngagementStep[cursor.getCount()];
 
-            cursor.close();
+                while (cursor.moveToNext())
+                {
+                    EngagementStep step = new EngagementStep();
+                    step.TrackName = engagement.TrackName;
+                    step.StepName = cursor.getString(0);
+                    step.StepDescription = cursor.getString(1);
+                    step.StepSequence = cursor.getInt(2);
+                    steps[step.StepSequence - 1] = step;
+                }
+
+                cursor.close();
+            }
 
             return null;
         }
@@ -136,14 +264,14 @@ public class EngagementDetailActivity extends AppCompatActivity
         {
             super.onPostExecute(aVoid);
 
-            for (int i = 0; i < steps.size(); i++) {
-                if (steps.get(i).StepName.equals(engagement.StepName)) {
-                    currentProgress = steps.get(i).StepSequence;
+            for (EngagementStep step : steps) {
+                if (step.StepName.equals(engagement.StepName)) {
+                    currentProgress = step.StepSequence;
                     break;
                 }
             }
 
-            maxProgress = steps.size();
+            maxProgress = steps.length;
             secondaryProgress = currentProgress + 1;
 
             progressBar.setMaxStateNumber(numberToStateNumber(maxProgress));

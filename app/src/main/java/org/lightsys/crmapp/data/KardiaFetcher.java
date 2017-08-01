@@ -294,39 +294,7 @@ public class KardiaFetcher {
                 String engagementJsonString = Request(account, engagementApi);
                 JSONObject engagementJsonBody = new JSONObject(engagementJsonString);
 
-                if (engagementJsonBody.length() < 2)
-                    continue;
-
-                JSONArray names = engagementJsonBody.names();
-                for (int i = 0; i < names.length(); i++)
-                {
-                    String trackName = names.getString(i);
-                    if (trackName.equals("@id"))
-                        continue;
-
-                    JSONObject engagementValues = engagementJsonBody.getJSONObject(trackName);
-
-                    Engagement engagement = new Engagement();
-                    engagement.PartnerId = partner.PartnerId;
-                    engagement.EngagementId = engagementValues.getString("engagement_id");
-                    engagement.Description = engagementValues.getString("engagement_description");
-                    engagement.TrackName = trackName.substring(0, trackName.length() - 2);
-                    engagement.StepName = engagementValues.getString("engagement_step");
-                    engagement.Comments = engagementValues.getString("engagement_comments");
-                    engagement.CompletionStatus = engagementValues.getString("completion_status");
-
-                    Calendar c = Calendar.getInstance();
-                    JSONObject createdDate = engagementValues.getJSONObject("date_created");
-                    c.set(  createdDate.getInt("year"), createdDate.getInt("month"),
-                            createdDate.getInt("day"), createdDate.getInt("hour"),
-                            createdDate.getInt("minute"));
-                    engagement.CreatedDate = c.getTime();
-
-                    engagement.PartnerName = partner.PartnerName;
-                    engagement.Archived = engagementValues.getInt("is_archived") == 1;
-
-                    engagements.add(engagement);
-                }
+                parseEngagement(engagements, partner, engagementJsonBody);
             }
             return engagements;
         } catch (JSONException e)
@@ -334,6 +302,43 @@ public class KardiaFetcher {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void parseEngagement(ArrayList<Engagement> engagements, Partner partner, JSONObject engagementJsonBody) throws JSONException
+    {
+        if (engagementJsonBody.length() < 2)
+            return;
+
+        JSONArray names = engagementJsonBody.names();
+        for (int i = 0; i < names.length(); i++)
+        {
+            String trackName = names.getString(i);
+            if (trackName.equals("@id"))
+                continue;
+
+            JSONObject engagementValues = engagementJsonBody.getJSONObject(trackName);
+
+            Engagement engagement = new Engagement();
+            engagement.PartnerId = partner.PartnerId;
+            engagement.EngagementId = engagementValues.getString("engagement_id");
+            engagement.Description = engagementValues.getString("engagement_description");
+            engagement.TrackName = trackName.substring(0, trackName.length() - 2);
+            engagement.StepName = engagementValues.getString("engagement_step");
+            engagement.Comments = engagementValues.getString("engagement_comments");
+            engagement.CompletionStatus = engagementValues.getString("completion_status");
+
+            Calendar c = Calendar.getInstance();
+            JSONObject createdDate = engagementValues.getJSONObject("date_created");
+            c.set(  createdDate.getInt("year"), createdDate.getInt("month"),
+                    createdDate.getInt("day"), createdDate.getInt("hour"),
+                    createdDate.getInt("minute"));
+            engagement.CreatedDate = c.getTime();
+
+            engagement.PartnerName = partner.PartnerName;
+            engagement.Archived = engagementValues.getInt("is_archived") == 1;
+
+            engagements.add(engagement);
+        }
     }
 
     //Fills a list of collaboratees based on a json string
