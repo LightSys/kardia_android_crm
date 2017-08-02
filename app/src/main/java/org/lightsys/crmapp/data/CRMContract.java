@@ -119,10 +119,10 @@ public class CRMContract {
         public static final String PARTNER_ID = "partnerId";
         public static final String NOTES = "notes";
 
-        public static final String CREATE_TABLE = "CREATE TABLE" + NotificationsTable.TABLE_NAME + "(" +
-                NOTIFICATION_ID + " PRIMARY KEY, " +
-                TIME + ", " +
-                PARTNER_ID + ", " +
+        public static final String CREATE_TABLE = "CREATE TABLE " + NotificationsTable.TABLE_NAME + " (" +
+                NOTIFICATION_ID + " PRIMARY KEY," +
+                TIME + "," +
+                PARTNER_ID + "," +
                 NOTES + ")";
     }
 }

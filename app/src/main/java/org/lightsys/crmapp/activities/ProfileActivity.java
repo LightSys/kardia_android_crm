@@ -207,6 +207,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent i = new Intent(getApplicationContext(), NewInteractionActivity.class);
                 i.putExtra(PARTNER_ID_KEY, mPartnerId);
+                i.putExtra(NAME_KEY, mName);
                 startActivity(i);
             }
         });
@@ -345,6 +346,7 @@ public class ProfileActivity extends AppCompatActivity {
                         intent.putExtra(TYPE_KEY, type);
                         intent.putExtra(SPECIFIC_CONTACT_KEY, specificContact);
                         intent.putExtra(PARTNER_ID_KEY, mPartnerId);
+                        intent.putExtra(NAME_KEY, mName);
                         startActivity(intent);
                     }
                 })

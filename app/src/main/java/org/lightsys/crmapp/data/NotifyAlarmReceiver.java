@@ -15,6 +15,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import org.lightsys.crmapp.R;
+import org.lightsys.crmapp.activities.ProfileActivity;
 import org.lightsys.crmapp.data.Notification;
 
 import java.text.SimpleDateFormat;
@@ -22,14 +23,19 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
+import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
+
 /**
- * Created by Andrew Lockridge on 6/2/2015.
+ * Created by Daniel Garcia on 02/Aug/2017,
+ * based on the model created by Andrew Lockridge on 6/2/2015.
  *
  * This class receives a signal when the alarm goes off and sends a notification
  * This class also takes care of receiving the signal of a boot up completed
  * When the device boots up, all alarms need to be reset
  */
 public class NotifyAlarmReceiver extends BroadcastReceiver {
+
+    public static final String PARTNER_ID_KEY = "EXTRA_PARTNER_ID";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -62,7 +68,7 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
                     null
             );
 
-            while(cursor.moveToNext()) {
+            while (cursor.moveToNext()) {
                 Notification n = new Notification();
                 n.setId(Integer.parseInt(cursor.getString(0)));
                 n.setNotificationTime(Long.parseLong(cursor.getString(1)));
@@ -105,18 +111,27 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder nBuild;
         android.app.Notification n;
-        String name, subject;
+        String name, subject, partnerID;
         int notificationID;
+        Intent profileIntent;
+        PendingIntent pendingIntent;
 
+        notificationID = intent.getIntExtra("notificationId", 0);
         name = intent.getStringExtra("name");
+        partnerID = intent.getStringExtra("partnerID");
         subject = intent.getStringExtra("note");
-        notificationID = intent.getIntExtra("id", 0);
+
+        profileIntent = new Intent(context, ProfileActivity.class);
+        profileIntent.putExtra(PARTNER_ID_KEY, partnerID);
+        profileIntent.putExtra(PARTNER_NAME, name);
+        pendingIntent = PendingIntent.getActivity(context, notificationID, profileIntent, 0);
 
         // Build the notification to be sent
         // BigTextStyle allows notification to be expanded if text is more than one line
         nBuild = new NotificationCompat.Builder(context)
-                .setContentTitle("Prayer Reminder")
+                .setContentTitle("Followup Reminder")
                 .setContentText(name + ": " + subject)
+                .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.kardiabeat_v3)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(name + ": " + subject));
 
@@ -124,7 +139,26 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
         notificationManager.notify(notificationID, n);
 
         // Delete notification from database once sent as it will not be needed again
-        context.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI, CRMContract.NotificationsTable.NOTIFICATION_ID + " = ?",
-                new String[] {Integer.toString(notificationID)});
+        //context.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI,
+        //        CRMContract.NotificationsTable.NOTIFICATION_ID + " = ?",
+        //        new String[] {Integer.toString(notificationID)});
+
+        //Delete notification, plus any notifications still stored whose time has already passed
+        Cursor c = context.getContentResolver().query(
+                CRMContract.NotificationsTable.CONTENT_URI,
+                new String[] {CRMContract.NotificationsTable.NOTIFICATION_ID,
+                        CRMContract.NotificationsTable.TIME},
+                null, null, null);
+
+        //TODO: Only delete everything before yesterday; find out how to get today in Millis
+        while(c.moveToNext()){
+            if(Long.parseLong(c.getString(1)) < Calendar.getInstance().getTimeInMillis()){
+                context.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI,
+                        CRMContract.NotificationsTable.NOTIFICATION_ID + " + ?",
+                        new String[] {c.getString(0)});
+            }
+        }
+
+        c.close();
     }
 }

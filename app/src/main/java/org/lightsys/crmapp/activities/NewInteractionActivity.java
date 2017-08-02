@@ -9,6 +9,7 @@ import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CursorAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -52,11 +54,13 @@ public class NewInteractionActivity extends AppCompatActivity {
     public static final String TYPE_KEY = "EXTRA_TYPE";
     public static final String SPECIFIC_CONTACT_KEY = "EXTRA_SPECIFIC_CONTACT";
     public static final String PARTNER_ID_KEY = "EXTRA_PARTNER_ID";
+    public static final String NAME_KEY = "EXTRA_NAME";
 
     public int mTypeId;
     public String mType;
     public String mSpecificContact;
     public String mPartnerId;
+    public String mName;
     public String subject;
     public String notes;
 
@@ -68,6 +72,7 @@ public class NewInteractionActivity extends AppCompatActivity {
     public Button dateButton, followupDateButton, backButton, submitButton;
     public CheckBox followupCheckBox;
     public EditText subjectText, notesText, followupNoteText;
+    public String fNotes;
 
     // Values for getting user account info
     private AccountManager mAccountManager;
@@ -82,11 +87,9 @@ public class NewInteractionActivity extends AppCompatActivity {
     public int date;
     public boolean today = false;
 
-    //Values for setting followup notification
-    private int notificationID;
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
 
         // Gets user account
@@ -119,7 +122,7 @@ public class NewInteractionActivity extends AppCompatActivity {
         mHour = c.get(Calendar.HOUR_OF_DAY);
         mMinute = c.get(Calendar.MINUTE);
         mSecond = c.get(Calendar.SECOND);
-        mDate = mDay + "-" + mMonth + "-" + mYear;
+        mDate = mDay + "-" + (mMonth + 1) + "-" + mYear;
 
         //Set followup date by default to today's date
         fYear = mYear;
@@ -134,7 +137,9 @@ public class NewInteractionActivity extends AppCompatActivity {
         //and set date to today's date
         Bundle extras = getIntent().getExtras();
         mPartnerId = extras.getString(PARTNER_ID_KEY);
+        mName = extras.getString(NAME_KEY);
         extras.remove(PARTNER_ID_KEY);
+        extras.remove(NAME_KEY);
         if(extras.size() != 0) {
             mType = extras.getString(TYPE_KEY);
             mSpecificContact = extras.getString(SPECIFIC_CONTACT_KEY);
@@ -168,7 +173,7 @@ public class NewInteractionActivity extends AppCompatActivity {
                         mYear = year;
                         mMonth = month;
                         mDay = day;
-                        mDate = mDay + "-" + mMonth + "-" + mYear;
+                        mDate = mDay + "-" + (mMonth + 1) + "-" + mYear;
                         dateButton.setText(mDate);
                     }
                 }, mYear, mMonth, mDay).show();
@@ -193,7 +198,7 @@ public class NewInteractionActivity extends AppCompatActivity {
                         fYear = year;
                         fMonth = month;
                         fDay = day;
-                        fDate = fDay + "-" + fMonth + "-" + fYear;
+                        fDate = fDay + "-" + (fMonth + 1) + "-" + fYear;
                         followupDateButton.setText(fDate);
                     }
                 }, fYear, fMonth, fDay).show();
@@ -209,6 +214,7 @@ public class NewInteractionActivity extends AppCompatActivity {
                     followupNoteTable.setVisibility(View.VISIBLE);
                     followupNoteText.setText("Followup from " + typeSpinner.getSelectedItem() +
                     " on " + mDate);
+                    fNotes = followupNoteText.getText().toString();
                 } else {
                     followupDateTable.setVisibility(View.INVISIBLE);
                     followupNoteTable.setVisibility(View.INVISIBLE);
@@ -232,7 +238,8 @@ public class NewInteractionActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed() {
+    public void onBackPressed()
+    {
         showCancelConfirmation();
     }
 
@@ -261,6 +268,7 @@ public class NewInteractionActivity extends AppCompatActivity {
 
         subject = subjectText.getText().toString();
         notes = notesText.getText().toString();
+        fNotes = followupNoteText.getText().toString();
 
         //Get current date
         java.util.Date date = new Date();
@@ -284,7 +292,7 @@ public class NewInteractionActivity extends AppCompatActivity {
             } else {
                 jsonDate = new JSONObject();
                 jsonDate.put("year", mYear);
-                jsonDate.put("month", mMonth);
+                jsonDate.put("month", mMonth + 1); //Calendar returns a 0-based month, added 1 to match Kardia
                 jsonDate.put("day", mDay);
                 jsonDate.put("hour", mHour);
                 jsonDate.put("minute", mMinute);
@@ -347,57 +355,57 @@ public class NewInteractionActivity extends AppCompatActivity {
                     + "/ContactHistory?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
 
             //Create new Async Task and post interaction
-            AsyncTask<String, Void, String> uploadJson;
+            final AsyncTask<String, Void, String> uploadJson;
             uploadJson = new PostJson(NewInteractionActivity.this, postUrl, createInteractionJson(), mAccount, true);
-            uploadJson.execute();
+
+
+            if(followupCheckBox.isChecked()) {
+                if(!followupDateButton.getText().toString().equals(getString(R.string.choose_date))) {
+
+                    // Ask user if notifications should be set as they can not be edited later
+                    new AlertDialog.Builder(NewInteractionActivity.this)
+                            .setCancelable(false)
+                            .setTitle("Set Notifications")
+                            .setMessage("Set notification? You will not be able to edit this later.")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    new NotificationCreator().execute("");
+                                    uploadJson.execute();
+                                    finish();
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                } else {
+                    Toast.makeText(NewInteractionActivity.this, "Please choose a date", Toast.LENGTH_LONG).show();
+                }
+
+            } else {
+                uploadJson.execute();
+                finish();
+            }
 
         }
         catch(Exception e) {
             e.printStackTrace();
         }
 
-        if(followupCheckBox.isChecked()) {
-            if(!followupDateButton.getText().equals(R.string.choose_date)) {
-                Toast.makeText(NewInteractionActivity.this, "Notification has not yet been implemented", Toast.LENGTH_LONG).show();
-                finish();
-
-                //Set notification ID based on unique ID of the interaction submitted
-
-
-
-                // Ask user if notifications should be set as they can not be edited later
-                new AlertDialog.Builder(NewInteractionActivity.this)
-                        .setCancelable(false)
-                        .setTitle("Set Notifications")
-                        .setMessage("Set notification? You will not be able to edit this later.")
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                new NotificationCreator().execute("");
-                            }
-                        })
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-            } else {
-                Toast.makeText(NewInteractionActivity.this, "Please choose a date", Toast.LENGTH_LONG).show();
-            }
-        } else {
-            finish();
-        }
-
     }
 
     // Class uses an asynchronous thread to set alarms
-    private class NotificationCreator extends AsyncTask<String, Void, String> {
+    private class NotificationCreator extends AsyncTask<String, Void, String>
+    {
 
         public NotificationCreator() {}
 
         @Override
-        protected String doInBackground(String... params) {
-            remind(mPartnerId, notes);
+        protected String doInBackground(String... params)
+        {
+            remind(mPartnerId, fNotes);
             return null;
         }
 
@@ -409,6 +417,7 @@ public class NewInteractionActivity extends AppCompatActivity {
         private void remind (String name, String note)
         {
             Notification notification;
+            int notificationID = 0;
             Intent alarmIntent;
             PendingIntent pendingIntent;
 
@@ -436,10 +445,24 @@ public class NewInteractionActivity extends AppCompatActivity {
                 // If alarm time is not in the past, set alarm for notification
                 if (alarmTime > Calendar.getInstance().getTimeInMillis()) {
 
+                    //Set notificationID by getting last ID and incrementing
+                    Cursor cursor = NewInteractionActivity.this.getContentResolver().query(
+                            CRMContract.NotificationsTable.CONTENT_URI,
+                            new String[] {CRMContract.NotificationsTable.NOTIFICATION_ID},
+                            null, null, null);
+
+                    while (cursor.moveToNext()){
+                        if (cursor.isLast()){
+                            notificationID = Integer.parseInt(cursor.getString(0)) + 1;
+                        }
+                    }
+
+                    cursor.close();
+
                     alarmIntent = new Intent(NewInteractionActivity.this, NotifyAlarmReceiver.class);
                     alarmIntent.putExtra("notificationId", Integer.toString(notificationID));
-                    alarmIntent.putExtra("time", alarmTime);
-                    alarmIntent.putExtra("partnerId", name);
+                    alarmIntent.putExtra("name", mName);
+                    alarmIntent.putExtra("partnerID", name);
                     alarmIntent.putExtra("note", note);
 
                     pendingIntent = PendingIntent.getBroadcast(NewInteractionActivity.this,
@@ -454,10 +477,10 @@ public class NewInteractionActivity extends AppCompatActivity {
 
                     //Store notifications in local database
                     ContentValues values = new ContentValues();
-                    values.put("notificationId", notificationID);
-                    values.put("time", time);
-                    values.put("partnerId", name);
-                    values.put("notes", note);
+                    values.put(CRMContract.NotificationsTable.NOTIFICATION_ID, notificationID);
+                    values.put(CRMContract.NotificationsTable.TIME, time);
+                    values.put(CRMContract.NotificationsTable.PARTNER_ID, name);
+                    values.put(CRMContract.NotificationsTable.NOTES, note);
                     getContentResolver().insert(CRMContract.NotificationsTable.CONTENT_URI, values);
 
                     // Set alarm
