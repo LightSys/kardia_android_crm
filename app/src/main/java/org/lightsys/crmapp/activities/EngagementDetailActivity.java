@@ -152,7 +152,7 @@ public class EngagementDetailActivity extends AppCompatActivity {
 
     private void StartNewStep(Context context) {
 
-            /* Post Next Step */
+        // Post Next Step
         String postStepUrl = Uri.parse(accountManager.getUserData(mAccount, "server"))
                 .buildUpon()
                 .appendEncodedPath("apps/kardia/api/crm/Partners/" + engagement.PartnerId + "/Tracks")
@@ -160,7 +160,12 @@ public class EngagementDetailActivity extends AppCompatActivity {
                 .appendEncodedPath("History")
                 .build().toString() + "?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
 
-        //Post new step.
+        /*
+        * Post New Step
+        *
+        * This gives us an error on return but still works.
+        * Greg knows about this fact.
+        * */
         PostJson postStep = new PostJson(context, postStepUrl, createStepPostJson(), mAccount, false);
         postStep.execute();
 
