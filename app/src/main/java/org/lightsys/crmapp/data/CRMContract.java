@@ -121,6 +121,7 @@ public class CRMContract {
         public static final String ENGAGEMENT_STEP = "step";
         public static final String ENGAGEMENT_COMMENTS = "comments";
         public static final String COMPLETION_STATUS = "completionStatus";
+        public static final String IS_ARCHIVED = "isArchived";
         public static final String DATE = "date";
 
         public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
@@ -130,7 +131,8 @@ public class CRMContract {
                 ENGAGEMENT_TRACK + "," +
                 ENGAGEMENT_STEP + "," +
                 ENGAGEMENT_COMMENTS + "," +
-                COMPLETION_STATUS+ "," +
+                COMPLETION_STATUS + "," +
+                IS_ARCHIVED + "," +
                 DATE + ")";
 
     }

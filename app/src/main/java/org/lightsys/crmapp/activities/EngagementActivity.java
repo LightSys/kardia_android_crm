@@ -41,12 +41,15 @@ import org.lightsys.crmapp.models.Partner;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
+
 public class EngagementActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     private AccountManager mAccountManager;
 
     private RecyclerView mRecyclerView;
     private List<Engagement> mEngagements;
+    private List<Engagement> nonArchivedEngagements = new ArrayList<>();
     private Account mAccount;
     private List<Partner> collaboratees;
     public static String PARTNER_ID = "partnerId";
@@ -200,6 +203,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
             i.putExtra(STEP_NAME, engagement.StepName);
             i.putExtra(COMMENTS, engagement.Comments);
             i.putExtra(COMPLETON_STATUS, engagement.CompletionStatus);
+            i.putExtra(PARTNER_NAME, engagement.PartnerName);
             startActivity(i);
         }
     }
@@ -223,7 +227,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         @Override
         public void onBindViewHolder(EngagementHolder holder, int position)
         {
-            Engagement engagement = mEngagements.get(position);
+            Engagement engagement = engagements.get(position);
             holder.bindProfile(engagement);
         }
 
@@ -242,7 +246,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
             //get collaborateeIds from the database
             Cursor cursor = getContentResolver().query(
                     CRMContract.CollaborateeTable.CONTENT_URI,
-                    new String[] { CRMContract.CollaborateeTable.PARTNER_ID, CRMContract.CollaborateeTable.PARTNER_NAME },
+                    new String[] { CRMContract.CollaborateeTable.PARTNER_ID, PARTNER_NAME },
                     CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
                     new String[] { mAccountManager.getUserData(mAccount, "partnerId") },
                     null
@@ -259,6 +263,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
                 }
                 cursor.close();
             }
+
             return null;
         }
 
@@ -280,25 +285,32 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
             ContentResolver contentResolver = getContentResolver();
             for (Engagement engagement : mEngagements)
             {
-                ContentValues values = new ContentValues();
-                values.put(CRMContract.EngagementTable.PARTNER_ID, engagement.PartnerId);
-                values.put(CRMContract.EngagementTable.ENGAGEMENT_ID, engagement.EngagementId);
-                values.put(CRMContract.EngagementTable.DESCRIPTION, engagement.Description);
-                values.put(CRMContract.EngagementTable.ENGAGEMENT_TRACK, engagement.TrackName);
-                values.put(CRMContract.EngagementTable.ENGAGEMENT_STEP, engagement.StepName);
-                values.put(CRMContract.EngagementTable.ENGAGEMENT_COMMENTS, engagement.Comments);
-                values.put(CRMContract.EngagementTable.COMPLETION_STATUS, engagement.CompletionStatus);
+                if (!engagement.Archived) {
 
-                contentResolver.insert(CRMContract.EngagementTable.CONTENT_URI, values);
+                    nonArchivedEngagements.add(engagement);
+
+                    ContentValues values = new ContentValues();
+                    values.put(CRMContract.EngagementTable.PARTNER_ID, engagement.PartnerId);
+                    values.put(CRMContract.EngagementTable.ENGAGEMENT_ID, engagement.EngagementId);
+                    values.put(CRMContract.EngagementTable.DESCRIPTION, engagement.Description);
+                    values.put(CRMContract.EngagementTable.ENGAGEMENT_TRACK, engagement.TrackName);
+                    values.put(CRMContract.EngagementTable.ENGAGEMENT_STEP, engagement.StepName);
+                    values.put(CRMContract.EngagementTable.ENGAGEMENT_COMMENTS, engagement.Comments);
+                    values.put(CRMContract.EngagementTable.COMPLETION_STATUS, engagement.CompletionStatus);
+                    values.put(CRMContract.EngagementTable.IS_ARCHIVED, engagement.Archived);
+
+                    contentResolver.insert(CRMContract.EngagementTable.CONTENT_URI, values);
+                }
             }
             return null;
         }
-        
+
         @Override
         protected void onPostExecute(Void aVoid)
         {
             super.onPostExecute(aVoid);
-            setupAdapter(mEngagements);
+
+            setupAdapter(nonArchivedEngagements);
         }
     }
 
