@@ -129,7 +129,7 @@ public class EngagementDetailActivity extends AppCompatActivity {
 
             //Post new step.
             PostJson postStep = new PostJson(this, postStepUrl, createStepPostJson(), mAccount, false);
-            postStep.execute();
+            //postStep.execute();
 
 
             setTextFields();
@@ -141,12 +141,12 @@ public class EngagementDetailActivity extends AppCompatActivity {
 
         try {
             JSONObject currentDate = getCurrentDate();
-            step.put("e_desc", descriptionTextView.getText());
-            step.put("e_comments", commentsTextView.getText());
-            step.put("e_completion_status", "C");
-//            step.put("completion_date", getCurrentDate());
-//            step.put("completed_by_partner_id", accountManager.getUserData(mAccount, "partnerId"));
-//            step.put("completed_by_partner_ref", "/apps/kardia/api/partner/Partners/" + accountManager.getUserData(mAccount, "partnerId"));
+            step.put("engagement_description", descriptionTextView.getText());
+            step.put("engagement_comments", commentsTextView.getText());
+            step.put("completion_status_code", "C");
+            step.put("completion_date", getCurrentDate());
+            step.put("completed_by_partner_id", accountManager.getUserData(mAccount, "partnerId"));
+            step.put("date_modified", currentDate);
 
         } catch (JSONException e) {
             e.printStackTrace();
