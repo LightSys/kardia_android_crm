@@ -112,6 +112,22 @@ public class EngagementDetailActivity extends AppCompatActivity {
         }
     }
 
+    public void SaveEngagement(View view) {
+        UpdateCurrentStep(this);
+    }
+
+    private void UpdateCurrentStep(Context context) {
+        String patchStepUrl = Uri.parse(accountManager.getUserData(mAccount, "server"))
+                .buildUpon()
+                .appendEncodedPath("apps/kardia/api/crm/Partners/" + engagement.PartnerId + "/Tracks")
+                .appendEncodedPath(engagement.TrackName + "-" + engagement.EngagementId)
+                .appendEncodedPath("History/" + currentProgress)
+                .build().toString() + "?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=element";
+
+        PatchJson patchStep = new PatchJson(context, patchStepUrl, createStepPatchUpdateJson(), mAccount, false);
+        patchStep.execute();
+    }
+
     private void CompleteCurrentStep(Context context) {
         String patchStepUrl = Uri.parse(accountManager.getUserData(mAccount, "server"))
                 .buildUpon()
@@ -171,31 +187,47 @@ public class EngagementDetailActivity extends AppCompatActivity {
         return step;
     }
 
-    private JSONObject createStepPostJson() {
-        JSONObject step = new JSONObject();
+    private JSONObject createStepPatchUpdateJson() {
+        JSONObject stepJson = new JSONObject();
 
         try {
             JSONObject currentDate = getCurrentDate();
-            step.put("p_partner_key", engagement.PartnerId);
-            step.put("e_engagement_id", Integer.parseInt(engagement.EngagementId));
-            step.put("e_track_id", trackId);
-            step.put("e_step_id", currentProgress);
-            step.put("e_is_archived", 0);
-            step.put("e_completion_status", "I");
-            step.put("e_desc", descriptionTextView.getText());
-            step.put("e_comments", null);
-            step.put("e_start_date", currentDate);
-            step.put("e_started_by", accountManager.getUserData(mAccount, "partnerId"));
-            step.put("s_date_created", currentDate);
-            step.put("s_date_modified", currentDate);
-            step.put("s_created_by", mAccount.name);
-            step.put("s_modified_by", mAccount.name);
+            stepJson.put("engagement_description", descriptionTextView.getText());
+            stepJson.put("engagement_comments", commentsTextView.getText());
+            stepJson.put("date_modified", currentDate);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        return step;
+        return stepJson;
+    }
+
+    private JSONObject createStepPostJson() {
+        JSONObject stepJson = new JSONObject();
+
+        try {
+            JSONObject currentDate = getCurrentDate();
+            stepJson.put("p_partner_key", engagement.PartnerId);
+            stepJson.put("e_engagement_id", Integer.parseInt(engagement.EngagementId));
+            stepJson.put("e_track_id", trackId);
+            stepJson.put("e_step_id", currentProgress);
+            stepJson.put("e_is_archived", 0);
+            stepJson.put("e_completion_status", "I");
+            stepJson.put("e_desc", descriptionTextView.getText());
+            stepJson.put("e_comments", null);
+            stepJson.put("e_start_date", currentDate);
+            stepJson.put("e_started_by", accountManager.getUserData(mAccount, "partnerId"));
+            stepJson.put("s_date_created", currentDate);
+            stepJson.put("s_date_modified", currentDate);
+            stepJson.put("s_created_by", mAccount.name);
+            stepJson.put("s_modified_by", mAccount.name);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return stepJson;
     }
 
     private JSONObject getCurrentDate() {
@@ -204,23 +236,23 @@ public class EngagementDetailActivity extends AppCompatActivity {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
 
-        JSONObject jsonDate = new JSONObject();
+        JSONObject dateJson = new JSONObject();
 
         try {
-            jsonDate.put("month", cal.get(Calendar.MONTH));
-            jsonDate.put("year", cal.get(Calendar.YEAR));
-            jsonDate.put("day", cal.get(Calendar.DAY_OF_MONTH));
-            jsonDate.put("minute", cal.get(Calendar.MINUTE));
-            jsonDate.put("second", cal.get(Calendar.SECOND));
-            jsonDate.put("hour", cal.get(Calendar.HOUR));
+            dateJson.put("month", cal.get(Calendar.MONTH));
+            dateJson.put("year", cal.get(Calendar.YEAR));
+            dateJson.put("day", cal.get(Calendar.DAY_OF_MONTH));
+            dateJson.put("minute", cal.get(Calendar.MINUTE));
+            dateJson.put("second", cal.get(Calendar.SECOND));
+            dateJson.put("hour", cal.get(Calendar.HOUR));
         } catch (JSONException ex) {
             ex.printStackTrace();
         }
 
-        return jsonDate;
+        return dateJson;
     }
 
-    public class GetStepsforTrack extends AsyncTask<Void, Void, Void> {
+    private class GetStepsforTrack extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
             Cursor cursor = getContentResolver().query(
@@ -291,81 +323,6 @@ public class EngagementDetailActivity extends AppCompatActivity {
                 cursor.close();
             }
             return null;
-        }
-    }
-
-    private class UpdateCurrentStep extends AsyncTask<Void, Void, Void> {
-
-        Context context;
-
-        public UpdateCurrentStep(Context context) {
-            super();
-
-            this.context = context;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            CompleteCurrentStep(context);
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-//            StartNewStepTask(context);
-        }
-    }
-
-    private class StartNewStepTask extends AsyncTask<Void, Void, Void> {
-
-        private final Context context;
-
-        public StartNewStepTask(Context context) {
-            super();
-
-            this.context = context;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            StartNewStep(context);
-
-            return null;
-        }
-    }
-
-    private class UpdateStartStep extends AsyncTask<Void, Void, Void> {
-
-        private final Context context;
-
-        public UpdateStartStep(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-//            try {
-//                new UpdateCurrentStep(context).execute().get();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            } catch (ExecutionException e) {
-//                e.printStackTrace();
-//            }
-
-            new StartNewStepTask(context).doInBackground();
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-
         }
     }
 
