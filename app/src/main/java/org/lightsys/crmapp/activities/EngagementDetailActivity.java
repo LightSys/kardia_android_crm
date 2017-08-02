@@ -22,6 +22,7 @@ import org.lightsys.crmapp.data.PatchJson;
 import org.lightsys.crmapp.data.PostJson;
 import org.lightsys.crmapp.models.Engagement;
 import org.lightsys.crmapp.models.EngagementStep;
+import org.lightsys.crmapp.models.EngagementTrack;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -34,8 +35,7 @@ import static org.lightsys.crmapp.activities.EngagementActivity.PARTNER_ID;
 import static org.lightsys.crmapp.activities.EngagementActivity.STEP_NAME;
 import static org.lightsys.crmapp.activities.EngagementActivity.TRACK_NAME;
 
-public class EngagementDetailActivity extends AppCompatActivity
-{
+public class EngagementDetailActivity extends AppCompatActivity {
     StateProgressBar progressBar;
     int currentProgress;
     int secondaryProgress;
@@ -47,11 +47,10 @@ public class EngagementDetailActivity extends AppCompatActivity
     EngagementStep[] steps;
     private AccountManager accountManager;
     private Account mAccount;
-    private String partnerName;
+    private int trackId;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_engagement_detail);
 
@@ -70,30 +69,28 @@ public class EngagementDetailActivity extends AppCompatActivity
         progressBar = (StateProgressBar) findViewById(R.id.engagementProgress);
 
         new GetStepsforTrack().execute();
+        new GetTrackId().execute();
 
         setTextFields();
 
         accountManager = AccountManager.get(this);
         final Account[] accounts = accountManager.getAccounts();
-        if(accounts.length > 0) {
+        if (accounts.length > 0) {
             mAccount = accounts[0];
         }
     }
 
-    private void setTextFields()
-    {
+    private void setTextFields() {
         setTrackStepText(engagement.StepName);
         descriptionTextView.setText(engagement.Description);
         commentsTextView.setText(engagement.Comments);
     }
 
-    private void setTrackStepText(String stepName)
-    {
+    private void setTrackStepText(String stepName) {
         trackStepTextView.setText(engagement.TrackName + ": " + stepName);
     }
 
-    public void FinishStep(View view)
-    {
+    public void FinishStep(View view) {
         if (currentProgress >= maxProgress) {
             //TODO: Possibly Toast or Dialog then Return to List of Engagements
             Toast.makeText(this, "Finished Track", Toast.LENGTH_SHORT).show();
@@ -135,71 +132,57 @@ public class EngagementDetailActivity extends AppCompatActivity
             postStep.execute();
 
 
-
             setTextFields();
         }
     }
 
-    private JSONObject createStepPatchJson()
-    {
+    private JSONObject createStepPatchJson() {
         JSONObject step = new JSONObject();
 
-        try
-        {
+        try {
             JSONObject currentDate = getCurrentDate();
-            step.put("engagement_description", descriptionTextView.getText());
-            step.put("engagement_comments", commentsTextView.getText());
-            step.put("completion_status", "Complete");
-            step.put("completion_date", getCurrentDate());
+            step.put("e_desc", descriptionTextView.getText());
+            step.put("e_comments", commentsTextView.getText());
+            step.put("e_completion_status", "C");
+//            step.put("completion_date", getCurrentDate());
 //            step.put("completed_by_partner_id", accountManager.getUserData(mAccount, "partnerId"));
 //            step.put("completed_by_partner_ref", "/apps/kardia/api/partner/Partners/" + accountManager.getUserData(mAccount, "partnerId"));
 
-        } catch (JSONException e)
-        {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
         return step;
-
     }
 
-    private JSONObject createStepPostJson()
-    {
+    private JSONObject createStepPostJson() {
         JSONObject step = new JSONObject();
 
-        try
-        {
+        try {
             JSONObject currentDate = getCurrentDate();
-            step.put("history_id", currentProgress);
-            step.put("partner_id", engagement.PartnerId);
-//            step.put("partner_ref", "/apps/kardia/api/partner/Partners/" + engagement.PartnerId);
-            step.put("engagement_description", descriptionTextView.getText());
-            step.put("engagement_track", engagement.TrackName);
-            step.put("engagement_step", engagement.StepName);
-            step.put("engagement_comments", null);
-            step.put("completion_status", "Incomplete");
-            step.put("start_date", currentDate);
-            step.put("started_by_partner_id", accountManager.getUserData(mAccount, "partnerId"));
-//            step.put("started_by_partner_ref", "/apps/kardia/api/partner/Partners/" + accountManager.getUserData(mAccount, "partnerId"));
-            step.put("completion_date", null);
-            step.put("completed_by_partner_id", null);
-            step.put("completed_by_partner_ref", null);
-            step.put("completed_by_partner", null);
-            step.put("exited_date", null);
-            step.put("exited_by_partner_id", null);
-            step.put("exited_by_partner_ref", null);
-            step.put("exited_by_partner", null);
+            step.put("p_partner_key", engagement.PartnerId);
+            step.put("e_engagement_id", Integer.parseInt(engagement.EngagementId));
+            step.put("e_track_id", trackId);
+            step.put("e_step_id", currentProgress);
+            step.put("e_is_archived", 0);
+            step.put("e_completion_status", "I");
+            step.put("e_desc", descriptionTextView.getText());
+            step.put("e_comments", null);
+            step.put("e_start_date", currentDate);
+            step.put("e_started_by", accountManager.getUserData(mAccount, "partnerId"));
+            step.put("s_date_created", currentDate);
+            step.put("s_date_modified", currentDate);
+            step.put("s_created_by", mAccount.name);
+            step.put("s_modified_by", mAccount.name);
 
-        } catch (JSONException e)
-        {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
-
+///apps/kardia/api/crm/Partners/100048/Tracks/Intern-5/History/100048|5|3
         return step;
     }
 
-    private JSONObject getCurrentDate()
-    {
+    private JSONObject getCurrentDate() {
         //Get current date
         java.util.Date date = new Date();
         Calendar cal = Calendar.getInstance();
@@ -207,44 +190,37 @@ public class EngagementDetailActivity extends AppCompatActivity
 
         JSONObject jsonDate = new JSONObject();
 
-        try
-        {
+        try {
             jsonDate.put("month", cal.get(Calendar.MONTH));
             jsonDate.put("year", cal.get(Calendar.YEAR));
             jsonDate.put("day", cal.get(Calendar.DAY_OF_MONTH));
             jsonDate.put("minute", cal.get(Calendar.MINUTE));
             jsonDate.put("second", cal.get(Calendar.SECOND));
             jsonDate.put("hour", cal.get(Calendar.HOUR));
-        }
-        catch (JSONException ex)
-        {
+        } catch (JSONException ex) {
             ex.printStackTrace();
         }
 
         return jsonDate;
     }
 
-    public class GetStepsforTrack extends AsyncTask<Void, Void, Void>
-    {
+    public class GetStepsforTrack extends AsyncTask<Void, Void, Void> {
         @Override
-        protected Void doInBackground(Void... params)
-        {
+        protected Void doInBackground(Void... params) {
             Cursor cursor = getContentResolver().query(
                     CRMContract.EngagementStepTable.CONTENT_URI,
                     new String[]{CRMContract.EngagementStepTable.STEP_NAME,
                             CRMContract.EngagementStepTable.STEP_DESCRIPTION,
                             CRMContract.EngagementStepTable.STEP_SEQUENCE},
                     CRMContract.EngagementStepTable.TRACK_NAME + " = ?",
-                    new String[]{ engagement.TrackName },
+                    new String[]{engagement.TrackName},
                     null
             );
 
-            if (cursor != null)
-            {
+            if (cursor != null) {
                 steps = new EngagementStep[cursor.getCount()];
 
-                while (cursor.moveToNext())
-                {
+                while (cursor.moveToNext()) {
                     EngagementStep step = new EngagementStep();
                     step.TrackName = engagement.TrackName;
                     step.StepName = cursor.getString(0);
@@ -260,8 +236,7 @@ public class EngagementDetailActivity extends AppCompatActivity
         }
 
         @Override
-        protected void onPostExecute(Void aVoid)
-        {
+        protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
             for (EngagementStep step : steps) {
@@ -279,16 +254,45 @@ public class EngagementDetailActivity extends AppCompatActivity
         }
     }
 
-    private StateProgressBar.StateNumber numberToStateNumber(int i)
-    {
-        switch (i)
-        {
-            case 1: return StateProgressBar.StateNumber.ONE;
-            case 2: return StateProgressBar.StateNumber.TWO;
-            case 3: return StateProgressBar.StateNumber.THREE;
-            case 4: return StateProgressBar.StateNumber.FOUR;
-            case 5: return StateProgressBar.StateNumber.FIVE;
-            default: return StateProgressBar.StateNumber.ONE;
+    private class GetTrackId extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Cursor cursor = getContentResolver().query(
+                    CRMContract.EngagementTrackTable.CONTENT_URI,
+                    new String[]{
+                            CRMContract.EngagementTrackTable.TRACK_ID,
+                            CRMContract.EngagementTrackTable.TRACK_NAME
+                    },
+                    CRMContract.EngagementTrackTable.TRACK_NAME + " = ?",
+                    new String[]{engagement.TrackName},
+                    null);
+
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    trackId = cursor.getInt(0);
+                }
+
+                cursor.close();
+            }
+            return null;
+        }
+    }
+
+    private StateProgressBar.StateNumber numberToStateNumber(int i) {
+        switch (i) {
+            case 1:
+                return StateProgressBar.StateNumber.ONE;
+            case 2:
+                return StateProgressBar.StateNumber.TWO;
+            case 3:
+                return StateProgressBar.StateNumber.THREE;
+            case 4:
+                return StateProgressBar.StateNumber.FOUR;
+            case 5:
+                return StateProgressBar.StateNumber.FIVE;
+            default:
+                return StateProgressBar.StateNumber.ONE;
         }
     }
 }
