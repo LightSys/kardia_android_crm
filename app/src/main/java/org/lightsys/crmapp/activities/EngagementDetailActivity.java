@@ -2,12 +2,15 @@ package org.lightsys.crmapp.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,10 +25,10 @@ import org.lightsys.crmapp.data.PatchJson;
 import org.lightsys.crmapp.data.PostJson;
 import org.lightsys.crmapp.models.Engagement;
 import org.lightsys.crmapp.models.EngagementStep;
-import org.lightsys.crmapp.models.EngagementTrack;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 import static org.lightsys.crmapp.activities.EngagementActivity.COMMENTS;
 import static org.lightsys.crmapp.activities.EngagementActivity.COMPLETON_STATUS;
@@ -34,11 +37,11 @@ import static org.lightsys.crmapp.activities.EngagementActivity.ENGAGEMENT_ID;
 import static org.lightsys.crmapp.activities.EngagementActivity.PARTNER_ID;
 import static org.lightsys.crmapp.activities.EngagementActivity.STEP_NAME;
 import static org.lightsys.crmapp.activities.EngagementActivity.TRACK_NAME;
+import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
 
 public class EngagementDetailActivity extends AppCompatActivity {
     StateProgressBar progressBar;
     int currentProgress;
-    int secondaryProgress;
     int maxProgress;
     Engagement engagement = new Engagement();
     TextView trackStepTextView;
@@ -62,6 +65,7 @@ public class EngagementDetailActivity extends AppCompatActivity {
         engagement.StepName = intent.getStringExtra(STEP_NAME);
         engagement.Comments = intent.getStringExtra(COMMENTS);
         engagement.CompletionStatus = intent.getStringExtra(COMPLETON_STATUS);
+        engagement.PartnerName = intent.getStringExtra(PARTNER_NAME);
 
         trackStepTextView = (TextView) findViewById(R.id.trackStepText);
         descriptionTextView = (TextView) findViewById(R.id.descriptionText);
@@ -92,48 +96,60 @@ public class EngagementDetailActivity extends AppCompatActivity {
 
     public void FinishStep(View view) {
         if (currentProgress >= maxProgress) {
-            //TODO: Possibly Toast or Dialog then Return to List of Engagements
-            Toast.makeText(this, "Finished Track", Toast.LENGTH_SHORT).show();
+            CompleteCurrentStep(this);
+
+            Toast.makeText(this, engagement.PartnerName + " Finished " + engagement.TrackName + " Track", Toast.LENGTH_SHORT).show();
             finish();
         } else {
+            CompleteCurrentStep(this);
 
-            String patchStepUrl = Uri.parse(accountManager.getUserData(mAccount, "server"))
-                    .buildUpon()
-                    .appendEncodedPath("apps/kardia/api/crm/Partners/" + engagement.PartnerId + "/Tracks")
-                    .appendEncodedPath(engagement.TrackName + "-" + engagement.EngagementId)
-                    .appendEncodedPath("History/" + currentProgress)
-                    .build().toString() + "?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=element";
+            currentProgress += 1;
+
+            engagement.StepName = steps[currentProgress - 1].StepName;
+            engagement.Description = steps[currentProgress - 1].StepDescription;
+
+            StartNewStep(this);
+        }
+    }
+
+    private void CompleteCurrentStep(Context context) {
+        String patchStepUrl = Uri.parse(accountManager.getUserData(mAccount, "server"))
+                .buildUpon()
+                .appendEncodedPath("apps/kardia/api/crm/Partners/" + engagement.PartnerId + "/Tracks")
+                .appendEncodedPath(engagement.TrackName + "-" + engagement.EngagementId)
+                .appendEncodedPath("History/" + currentProgress)
+                .build().toString() + "?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=element";
 
             /*
             * The Rest API this relies on will change eventually - Greg Beeley
             *
             * Patch current step
             * */
-            PatchJson patchStep = new PatchJson(this, patchStepUrl, createStepPatchJson(), mAccount, false);
-            patchStep.execute();
-
-            currentProgress += 1;
-            secondaryProgress += 1;
-
-            progressBar.setCurrentStateNumber(numberToStateNumber(currentProgress));
-
-            engagement.StepName = steps[currentProgress - 1].StepName;
-            engagement.Description = steps[currentProgress - 1].StepDescription;
-
-            String postStepUrl = Uri.parse(accountManager.getUserData(mAccount, "server"))
-                    .buildUpon()
-                    .appendEncodedPath("apps/kardia/api/crm/Partners/" + engagement.PartnerId + "/Tracks")
-                    .appendEncodedPath(engagement.TrackName + "-" + engagement.EngagementId)
-                    .appendEncodedPath("History")
-                    .build().toString() + "?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
-
-            //Post new step.
-            PostJson postStep = new PostJson(this, postStepUrl, createStepPostJson(), mAccount, false);
-            //postStep.execute();
-
-
-            setTextFields();
+        PatchJson patchStep = new PatchJson(context, patchStepUrl, createStepPatchJson(), mAccount, false);
+        try {
+            patchStep.execute().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
         }
+
+    }
+
+    private void StartNewStep(Context context) {
+
+            /* Post Next Step */
+        String postStepUrl = Uri.parse(accountManager.getUserData(mAccount, "server"))
+                .buildUpon()
+                .appendEncodedPath("apps/kardia/api/crm/Partners/" + engagement.PartnerId + "/Tracks")
+                .appendEncodedPath(engagement.TrackName + "-" + engagement.EngagementId)
+                .appendEncodedPath("History")
+                .build().toString() + "?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
+
+        //Post new step.
+        PostJson postStep = new PostJson(context, postStepUrl, createStepPostJson(), mAccount, false);
+        postStep.execute();
+
+        setTextFields();
+        progressBar.setCurrentStateNumber(numberToStateNumber(currentProgress));
     }
 
     private JSONObject createStepPatchJson() {
@@ -178,7 +194,7 @@ public class EngagementDetailActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-///apps/kardia/api/crm/Partners/100048/Tracks/Intern-5/History/100048|5|3
+
         return step;
     }
 
@@ -247,7 +263,6 @@ public class EngagementDetailActivity extends AppCompatActivity {
             }
 
             maxProgress = steps.length;
-            secondaryProgress = currentProgress + 1;
 
             progressBar.setMaxStateNumber(numberToStateNumber(maxProgress));
             progressBar.setCurrentStateNumber(numberToStateNumber(currentProgress));
@@ -276,6 +291,81 @@ public class EngagementDetailActivity extends AppCompatActivity {
                 cursor.close();
             }
             return null;
+        }
+    }
+
+    private class UpdateCurrentStep extends AsyncTask<Void, Void, Void> {
+
+        Context context;
+
+        public UpdateCurrentStep(Context context) {
+            super();
+
+            this.context = context;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            CompleteCurrentStep(context);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+//            StartNewStepTask(context);
+        }
+    }
+
+    private class StartNewStepTask extends AsyncTask<Void, Void, Void> {
+
+        private final Context context;
+
+        public StartNewStepTask(Context context) {
+            super();
+
+            this.context = context;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            StartNewStep(context);
+
+            return null;
+        }
+    }
+
+    private class UpdateStartStep extends AsyncTask<Void, Void, Void> {
+
+        private final Context context;
+
+        public UpdateStartStep(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+//            try {
+//                new UpdateCurrentStep(context).execute().get();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            } catch (ExecutionException e) {
+//                e.printStackTrace();
+//            }
+
+            new StartNewStepTask(context).doInBackground();
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+
         }
     }
 
