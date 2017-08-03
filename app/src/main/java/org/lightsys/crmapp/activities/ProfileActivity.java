@@ -43,9 +43,14 @@ import org.lightsys.crmapp.models.TimelineItem;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -405,6 +410,7 @@ public class ProfileActivity extends AppCompatActivity {
                 newItem.put("subject", item.getSubject());
                 newItem.put("date", Formatter.getFormattedDate(item.getDate()));
                 newItem.put("text", item.getNotes());
+                newItem.put("date_created", item.getDateCreated());
                 items.add(newItem);
             }
 
@@ -452,6 +458,7 @@ public class ProfileActivity extends AppCompatActivity {
                 values.put(CRMContract.TimelineTable.SUBJECT, item.getSubject());
                 values.put(CRMContract.TimelineTable.NOTES, item.getNotes());
                 values.put(CRMContract.TimelineTable.DATE, item.getDate());
+                values.put(CRMContract.TimelineTable.DATE_CREATED, item.getDateCreated());
                 getContentResolver().insert(CRMContract.TimelineTable.CONTENT_URI, values);
             }
 
@@ -459,11 +466,16 @@ public class ProfileActivity extends AppCompatActivity {
             //Since new items are added above, both old and new items will be returned
             Cursor cursor = getContentResolver().query(
                     CRMContract.TimelineTable.CONTENT_URI,
-                    new String[] {CRMContract.TimelineTable.CONTACT_ID, CRMContract.TimelineTable.PARTNER_ID,
-                            CRMContract.TimelineTable.COLLABORATEE_ID, CRMContract.TimelineTable.COLLABORATEE_NAME,
-                            CRMContract.TimelineTable.CONTACT_HISTORY_ID, CRMContract.TimelineTable.CONTACT_HISTORY_TYPE,
-                            CRMContract.TimelineTable.SUBJECT, CRMContract.TimelineTable.NOTES,
-                            CRMContract.TimelineTable.DATE},
+                    new String[] {CRMContract.TimelineTable.CONTACT_ID,
+                            CRMContract.TimelineTable.PARTNER_ID,
+                            CRMContract.TimelineTable.COLLABORATEE_ID,
+                            CRMContract.TimelineTable.COLLABORATEE_NAME,
+                            CRMContract.TimelineTable.CONTACT_HISTORY_ID,
+                            CRMContract.TimelineTable.CONTACT_HISTORY_TYPE,
+                            CRMContract.TimelineTable.SUBJECT,
+                            CRMContract.TimelineTable.NOTES,
+                            CRMContract.TimelineTable.DATE,
+                            CRMContract.TimelineTable.DATE_CREATED},
                     CRMContract.TimelineTable.PARTNER_ID + " = ?",
                     new String[] {mPartnerId},
                     null
@@ -484,6 +496,7 @@ public class ProfileActivity extends AppCompatActivity {
                 item.setSubject(cursor.getString(6));
                 item.setNotes(cursor.getString(7));
                 item.setDate(cursor.getString(8));
+                item.setDateCreated(cursor.getString(9));
                 items.add(item);
             }
             cursor.close();
@@ -543,6 +556,9 @@ public class ProfileActivity extends AppCompatActivity {
             rowView.subject = pieces.get("subject");
             rowView.date = pieces.get("date");
             rowView.textText = pieces.get("text");
+            //rowView.followup = pieces.get("date_created");
+
+            rowView.followup = checkForFollowup(pieces.get("date_created"));
 
             rowView.setItemViewText(pieces.get("type") + ": " + pieces.get("name") +
                     " on " + pieces.get("date"));
@@ -557,13 +573,13 @@ public class ProfileActivity extends AppCompatActivity {
 
         TextView itemView = new TextView(getContext());
         CardView button;
-        //Button addInteraction = (Button) findViewById(R.id.addInteraction);
 
         public String type = "";
         public String name = "";
         public String subject = "";
         public String date = "";
         public String textText = "";
+        public String followup = "";
 
         public TimelineLayout(Context context) {
             super(context);
@@ -579,6 +595,10 @@ public class ProfileActivity extends AppCompatActivity {
                     i.putExtra("subject", subject);
                     i.putExtra("date", date);
                     i.putExtra("text", textText);
+                    //TODO TODO TODO TODO
+                    i.putExtra("followup", followup);
+                    //i.putExtra("followup", checkForFollowup());
+                    //if there is a notification with the same ID as this, add the followup note
                     startActivity(i);
                 }
             });
@@ -878,8 +898,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    public static void saveImageFromUrl(String server, Context context, String profilePictureFilename)
-    {
+    public static void saveImageFromUrl(String server, Context context, String profilePictureFilename) {
         if (profilePictureFilename == null || profilePictureFilename.equals(""))
             return;
 
@@ -930,11 +949,58 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     //Checks if app is connected to a network
-    private boolean networkConnected(){
+    private boolean networkConnected() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
+
+    private String checkForFollowup(String dateCreated) {
+
+        String followupDate = "";
+        //TODO:
+
+        try {
+
+            //Convert item date created int a String
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+            Date mDateCreated = format.parse(dateCreated);
+            String itemDateCreated = format.format(mDateCreated);
+
+            // Open notification database with a cursor
+            Cursor cursor = ProfileActivity.this.getContentResolver().query(
+                    CRMContract.NotificationsTable.CONTENT_URI,
+                    new String[] {CRMContract.NotificationsTable.TIME,
+                            CRMContract.NotificationsTable.DATE_CREATED},
+                    null, null, null);
+
+            while (cursor.moveToNext()){
+
+                //Convert notification date created into a String
+                Calendar cal = Calendar.getInstance();
+                long notificationInMillis = Long.parseLong(cursor.getString(1));
+                cal.setTimeInMillis(notificationInMillis);
+                String notificationDateCreated = format.format(cal.getTime());
+
+                // Check if any of the item's created dates match the created date of a followup notification
+                if(notificationDateCreated.equals(itemDateCreated)) {
+                    long mFollowupDate = Long.parseLong(cursor.getString(0));
+
+                    // Convert the actual followup date to a regular date and time
+                    Calendar c = Calendar.getInstance();
+                    c.setTimeInMillis(mFollowupDate);
+                    followupDate = format.format(c.getTime());
+                }
+            }
+
+            cursor.close();
+        }
+        catch (ParseException p) {
+            p.printStackTrace();
+        }
+
+        return followupDate;
     }
 }
 

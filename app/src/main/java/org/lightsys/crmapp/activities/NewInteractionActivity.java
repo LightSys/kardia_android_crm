@@ -85,6 +85,7 @@ public class NewInteractionActivity extends AppCompatActivity {
     public String mDate;
     public String fDate;
     public int date;
+    public long todayInMillis;
     public boolean today = false;
 
     @Override
@@ -282,9 +283,10 @@ public class NewInteractionActivity extends AppCompatActivity {
             jsonToday.put("year", cal.get(Calendar.YEAR));
             jsonToday.put("month", cal.get(Calendar.MONTH) + 1); //Calendar returns a 0-based month, added 1 to match Kardia
             jsonToday.put("day", cal.get(Calendar.DAY_OF_MONTH));
-            jsonToday.put("hour", cal.get(Calendar.HOUR));
+            jsonToday.put("hour", cal.get(Calendar.HOUR_OF_DAY));
             jsonToday.put("minute", cal.get(Calendar.MINUTE));
             jsonToday.put("second", cal.get(Calendar.SECOND));
+            todayInMillis = cal.getTimeInMillis();
 
             //If date is auto-set, make jsonDate today's date
             if(today){
@@ -360,7 +362,9 @@ public class NewInteractionActivity extends AppCompatActivity {
 
 
             if(followupCheckBox.isChecked()) {
-                if(!followupDateButton.getText().toString().equals(getString(R.string.choose_date))) {
+                //Only allow notification to be set if date is set and is not in the past
+                if(!followupDateButton.getText().toString().equals(getString(R.string.choose_date)) &&
+                        (setTimeInMillis() > Calendar.getInstance().getTimeInMillis())) {
 
                     // Ask user if notifications should be set as they can not be edited later
                     new AlertDialog.Builder(NewInteractionActivity.this)
@@ -381,7 +385,7 @@ public class NewInteractionActivity extends AppCompatActivity {
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
                 } else {
-                    Toast.makeText(NewInteractionActivity.this, "Please choose a date", Toast.LENGTH_LONG).show();
+                    Toast.makeText(NewInteractionActivity.this, "Please choose a valid followup date", Toast.LENGTH_LONG).show();
                 }
 
             } else {
@@ -394,6 +398,22 @@ public class NewInteractionActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+    }
+
+    private long setTimeInMillis()
+    {
+        long timeInMillis;
+        Calendar cal;
+        cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, fYear);
+        cal.set(Calendar.MONTH, fMonth);
+        cal.set(Calendar.DAY_OF_MONTH, fDay);
+        cal.set(Calendar.HOUR_OF_DAY, fHour);
+        cal.set(Calendar.MINUTE, fMinute);
+        cal.set(Calendar.SECOND, fSecond);
+        timeInMillis = cal.getTimeInMillis();
+
+        return timeInMillis;
     }
 
     // Class uses an asynchronous thread to set alarms
@@ -418,31 +438,26 @@ public class NewInteractionActivity extends AppCompatActivity {
         {
             Notification notification;
             int notificationID = 0;
+            String time;
+            String todaysDate;
             Intent alarmIntent;
             PendingIntent pendingIntent;
 
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
+            //Set year, month, and day of calendar for notification date
             Calendar c = Calendar.getInstance();
-            // Set year, month, and day of calendar for notification date
             c.set(fYear, fMonth, fDay);
 
-            // alarm times will be set and stored in millisecond form
+            //Alarm times will be set and stored in millisecond form
             long alarmTime;
 
-            // Setting alarms requires sdk version 19 or higher
+            //Setting alarms requires sdk version 19 or higher
             if (Build.VERSION.SDK_INT >= 19) {
-                c = Calendar.getInstance();
-                c.set(Calendar.YEAR, fYear);
-                c.set(Calendar.MONTH, fMonth);
-                c.set(Calendar.DAY_OF_MONTH, fDay);
-                c.set(Calendar.HOUR_OF_DAY, fHour);
-                c.set(Calendar.MINUTE, fMinute);
-                c.set(Calendar.SECOND, fSecond);
-                alarmTime = c.getTimeInMillis();
-                String time = Long.toString(alarmTime);
+                alarmTime = setTimeInMillis();
+                time = Long.toString(alarmTime);
 
-                // If alarm time is not in the past, set alarm for notification
+                //If alarm time is not in the past, set alarm for notification
                 if (alarmTime > Calendar.getInstance().getTimeInMillis()) {
 
                     //Set notificationID by getting last ID and incrementing
@@ -475,15 +490,20 @@ public class NewInteractionActivity extends AppCompatActivity {
                     notification.setPartnerID(name);
                     notification.setNote(note);
 
+                    //Convert todayInMillis to a String
+                    //This will serve as a unique ID to associate each notification with one Interaction
+                    todaysDate = Long.toString(todayInMillis);
+
                     //Store notifications in local database
                     ContentValues values = new ContentValues();
                     values.put(CRMContract.NotificationsTable.NOTIFICATION_ID, notificationID);
                     values.put(CRMContract.NotificationsTable.TIME, time);
                     values.put(CRMContract.NotificationsTable.PARTNER_ID, name);
                     values.put(CRMContract.NotificationsTable.NOTES, note);
+                    values.put(CRMContract.NotificationsTable.DATE_CREATED, todaysDate);
                     getContentResolver().insert(CRMContract.NotificationsTable.CONTENT_URI, values);
 
-                    // Set alarm
+                    //Set alarm
                     alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent);
 
                     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);

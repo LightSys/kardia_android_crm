@@ -111,12 +111,11 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder nBuild;
         android.app.Notification n;
-        String name, subject, partnerID;
-        int notificationID;
+        String notificationID, name, subject, partnerID;
         Intent profileIntent;
         PendingIntent pendingIntent;
 
-        notificationID = intent.getIntExtra("notificationId", 0);
+        notificationID = intent.getStringExtra("notificationId");
         name = intent.getStringExtra("name");
         partnerID = intent.getStringExtra("partnerID");
         subject = intent.getStringExtra("note");
@@ -124,7 +123,7 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
         profileIntent = new Intent(context, ProfileActivity.class);
         profileIntent.putExtra(PARTNER_ID_KEY, partnerID);
         profileIntent.putExtra(PARTNER_NAME, name);
-        pendingIntent = PendingIntent.getActivity(context, notificationID, profileIntent, 0);
+        pendingIntent = PendingIntent.getActivity(context, Integer.parseInt(notificationID), profileIntent, 0);
 
         // Build the notification to be sent
         // BigTextStyle allows notification to be expanded if text is more than one line
@@ -136,29 +135,12 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(name + ": " + subject));
 
         n = nBuild.build();
-        notificationManager.notify(notificationID, n);
+        notificationManager.notify(Integer.parseInt(notificationID), n);
 
         // Delete notification from database once sent as it will not be needed again
-        //context.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI,
-        //        CRMContract.NotificationsTable.NOTIFICATION_ID + " = ?",
-        //        new String[] {Integer.toString(notificationID)});
+        context.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI,
+                CRMContract.NotificationsTable.NOTIFICATION_ID + " = ?",
+                new String[] {notificationID});
 
-        //Delete notification, plus any notifications still stored whose time has already passed
-        Cursor c = context.getContentResolver().query(
-                CRMContract.NotificationsTable.CONTENT_URI,
-                new String[] {CRMContract.NotificationsTable.NOTIFICATION_ID,
-                        CRMContract.NotificationsTable.TIME},
-                null, null, null);
-
-        //TODO: Only delete everything before yesterday; find out how to get today in Millis
-        while(c.moveToNext()){
-            if(Long.parseLong(c.getString(1)) < Calendar.getInstance().getTimeInMillis()){
-                context.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI,
-                        CRMContract.NotificationsTable.NOTIFICATION_ID + " + ?",
-                        new String[] {c.getString(0)});
-            }
-        }
-
-        c.close();
     }
 }

@@ -391,6 +391,16 @@ public class KardiaFetcher {
                 String date = jsonDate.getInt("year") + "-" + jsonDate.getInt("month") + "-" + jsonDate.getInt("day");
                 item.setDate(date);
 
+                //This pulls in the date the timeline item was created,
+                //specifically for use in the Followup functionality
+                JSONObject jsonDateCreated = jsonItem.getJSONObject("date_created");
+                String dateCreated = jsonDateCreated.getInt("year") + "-" +
+                        jsonDateCreated.getInt("month") + "-" +
+                        jsonDateCreated.getInt("day") + " " +
+                        jsonDateCreated.getInt("hour") + ":" +
+                        jsonDateCreated.getInt("minute") + ":" +
+                        jsonDateCreated.getInt("second");
+                item.setDateCreated(dateCreated);
 
                 timelineItems.add(item);
             }
