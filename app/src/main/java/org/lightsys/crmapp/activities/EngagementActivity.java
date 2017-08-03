@@ -195,7 +195,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
             ((TextView) mLinearLayout.findViewById(R.id.engagementTrack)).setText(engagement.TrackName);
             ((TextView) mLinearLayout.findViewById(R.id.engagementStep)).setText(engagement.StepName);
             ((TextView) mLinearLayout.findViewById(R.id.engagementComment)).setText(engagement.Comments);
-
+            
             if (engagement.ProfilePicture == null || engagement.ProfilePicture.equals(""))
             {
                 Picasso.with(getApplication())
@@ -310,24 +310,26 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
             KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
             mEngagements = fetcher.getEngagements(mAccount, collaboratees);
 
-            ContentResolver contentResolver = getContentResolver();
-            for (Engagement engagement : mEngagements)
-            {
-                if (!engagement.Archived) {
+            if (mEngagements != null) {
 
-                    nonArchivedEngagements.add(engagement);
+                ContentResolver contentResolver = getContentResolver();
+                for (Engagement engagement : mEngagements) {
+                    if (!engagement.Archived) {
 
-                    ContentValues values = new ContentValues();
-                    values.put(CRMContract.EngagementTable.PARTNER_ID, engagement.PartnerId);
-                    values.put(CRMContract.EngagementTable.ENGAGEMENT_ID, engagement.EngagementId);
-                    values.put(CRMContract.EngagementTable.DESCRIPTION, engagement.Description);
-                    values.put(CRMContract.EngagementTable.ENGAGEMENT_TRACK, engagement.TrackName);
-                    values.put(CRMContract.EngagementTable.ENGAGEMENT_STEP, engagement.StepName);
-                    values.put(CRMContract.EngagementTable.ENGAGEMENT_COMMENTS, engagement.Comments);
-                    values.put(CRMContract.EngagementTable.COMPLETION_STATUS, engagement.CompletionStatus);
-                    values.put(CRMContract.EngagementTable.IS_ARCHIVED, engagement.Archived);
+                        nonArchivedEngagements.add(engagement);
 
-                    contentResolver.insert(CRMContract.EngagementTable.CONTENT_URI, values);
+                        ContentValues values = new ContentValues();
+                        values.put(CRMContract.EngagementTable.PARTNER_ID, engagement.PartnerId);
+                        values.put(CRMContract.EngagementTable.ENGAGEMENT_ID, engagement.EngagementId);
+                        values.put(CRMContract.EngagementTable.DESCRIPTION, engagement.Description);
+                        values.put(CRMContract.EngagementTable.ENGAGEMENT_TRACK, engagement.TrackName);
+                        values.put(CRMContract.EngagementTable.ENGAGEMENT_STEP, engagement.StepName);
+                        values.put(CRMContract.EngagementTable.ENGAGEMENT_COMMENTS, engagement.Comments);
+                        values.put(CRMContract.EngagementTable.COMPLETION_STATUS, engagement.CompletionStatus);
+                        values.put(CRMContract.EngagementTable.IS_ARCHIVED, engagement.Archived);
+
+                        contentResolver.insert(CRMContract.EngagementTable.CONTENT_URI, values);
+                    }
                 }
             }
             return null;

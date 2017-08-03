@@ -294,9 +294,12 @@ public class KardiaFetcher {
                         .appendQueryParameter("cx__res_type", "collection")
                         .build().toString();
                 String engagementJsonString = Request(account, engagementApi);
-                JSONObject engagementJsonBody = new JSONObject(engagementJsonString);
 
-                parseEngagement(engagements, partner, engagementJsonBody);
+                if (!engagementJsonString.equals("")) {
+                    JSONObject engagementJsonBody = new JSONObject(engagementJsonString);
+
+                    parseEngagement(engagements, partner, engagementJsonBody);
+                }
             }
             return engagements;
         } catch (JSONException e)
@@ -328,6 +331,7 @@ public class KardiaFetcher {
             engagement.StepName = engagementValues.getString("engagement_step");
             engagement.Comments = engagementValues.getString("engagement_comments");
             engagement.CompletionStatus = engagementValues.getString("completion_status");
+            engagement.ProfilePicture = partner.ProfilePictureFilename;
 
             Calendar c = Calendar.getInstance();
             JSONObject createdDate = engagementValues.getJSONObject("date_created");
