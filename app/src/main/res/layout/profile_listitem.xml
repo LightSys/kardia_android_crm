@@ -8,9 +8,9 @@
 
     <ImageView
         android:id="@+id/profile_photo"
-        android:layout_gravity="center"
         android:layout_width="64dp"
-        android:layout_height="64dp" />
+        android:layout_height="64dp"
+        android:layout_gravity="center"/>
 
     <TextView
         android:id="@+id/profile_name"
@@ -18,6 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:textColor="#000" />
+        android:textColor="@color/primary_text"
+        android:text="otter57"/>
 
 </LinearLayout>

@@ -526,9 +526,11 @@ public class KardiaFetcher {
                     .build().toString();
 
             String stepJsonString = Request(account, stepApi);
-            JSONObject stepJsonBody = new JSONObject(stepJsonString);
 
-            parseEngagementSteps(steps, stepJsonBody);
+            if (!stepJsonString.equals("")) {
+                JSONObject stepJsonBody = new JSONObject(stepJsonString);
+                parseEngagementSteps(steps, stepJsonBody);
+            }
         }
 
         return steps;

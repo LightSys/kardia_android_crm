@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -25,9 +26,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.lightsys.crmapp.R;
@@ -38,6 +42,7 @@ import org.lightsys.crmapp.models.EngagementStep;
 import org.lightsys.crmapp.models.EngagementTrack;
 import org.lightsys.crmapp.models.Partner;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -188,6 +193,28 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
             this.engagement = engagement;
             ((TextView) mLinearLayout.findViewById(R.id.engagementName)).setText(engagement.PartnerName);
             ((TextView) mLinearLayout.findViewById(R.id.engagementTrack)).setText(engagement.TrackName);
+            ((TextView) mLinearLayout.findViewById(R.id.engagementStep)).setText(engagement.StepName);
+            ((TextView) mLinearLayout.findViewById(R.id.engagementComment)).setText(engagement.Comments);
+
+            if (engagement.ProfilePicture == null || engagement.ProfilePicture.equals(""))
+            {
+                Picasso.with(getApplication())
+                        .load(R.drawable.persona)
+                        .resize(64,64)
+                        .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
+            }
+            else
+            {
+                File directory = getDir("imageDir", Context.MODE_PRIVATE);
+                int indexoffileName = engagement.ProfilePicture.lastIndexOf("/");
+                String finalPath = directory + "/" + engagement.ProfilePicture.substring(indexoffileName + 1);
+
+                Picasso.with(getApplication())
+                        .load(new File(finalPath))
+                        .resize(64,64)
+                        .placeholder(R.drawable.ic_person_black_24dp)
+                        .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
+            }
         }
 
         /**
@@ -246,7 +273,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
             //get collaborateeIds from the database
             Cursor cursor = getContentResolver().query(
                     CRMContract.CollaborateeTable.CONTENT_URI,
-                    new String[] { CRMContract.CollaborateeTable.PARTNER_ID, PARTNER_NAME },
+                    new String[] { CRMContract.CollaborateeTable.PARTNER_ID, PARTNER_NAME, CRMContract.CollaborateeTable.PROFILE_PICTURE },
                     CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
                     new String[] { mAccountManager.getUserData(mAccount, "partnerId") },
                     null
@@ -259,6 +286,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
                     Partner partner = new Partner();
                     partner.PartnerId = cursor.getString(0);
                     partner.PartnerName = cursor.getString(1);
+                    partner.ProfilePictureFilename = cursor.getString(2);
                     collaboratees.add(partner);
                 }
                 cursor.close();

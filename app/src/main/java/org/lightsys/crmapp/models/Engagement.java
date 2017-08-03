@@ -16,6 +16,7 @@ public class Engagement
     public String Comments;
     public String CompletionStatus;
     public Date CreatedDate;
+    public String ProfilePicture;
 
     public boolean Archived;
     public String PartnerName;
