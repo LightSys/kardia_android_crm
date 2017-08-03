@@ -124,8 +124,10 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
             String jsonString = Request(account, api);//get json string from network
-            JSONObject jsonBody = new JSONObject(jsonString);//build json object from json string
-            parseStaffJson(staff, jsonBody);//fills staff list with members
+            if (!jsonString.equals("")) {
+                JSONObject jsonBody = new JSONObject(jsonString);//build json object from json string
+                parseStaffJson(staff, jsonBody);//fills staff list with members
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -162,7 +164,7 @@ public class KardiaFetcher {
                         .build().toString();
 
                 String pictureJsonString = Request(account, profilePictureApi);
-                if (!pictureJsonString.startsWith("HTTP/1.0 404 Not Found"))
+                if (!pictureJsonString.startsWith("HTTP/1.0 404 Not Found") && !pictureJsonString.equals(""))
                 {
                     JSONObject pictureJsonBody = new JSONObject(pictureJsonString);//build json object
                     collaboratee.ProfilePictureFilename = pictureJsonBody.getString("photo_folder") + "/" + pictureJsonBody.getString("photo_filename");
