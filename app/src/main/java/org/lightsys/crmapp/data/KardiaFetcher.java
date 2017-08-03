@@ -59,7 +59,8 @@ public class KardiaFetcher {
                                 .header("Authorization", Credential)
                                 .build();
                     }
-                }).build();
+                })
+                .build();
     }
 
     //Makes Requests to the Kardia Server and returns response
@@ -260,6 +261,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .appendQueryParameter("cx__res_type", "element")
                     .build().toString();
+
             String partnerKeyJsonString = Request(account, partnerKeyApi);//get partnerKey Json string from network
             JSONObject partnerKeyJsonBody = new JSONObject(partnerKeyJsonString);//build json object
             partnerKey = partnerKeyJsonBody.getString("partner_id");
@@ -269,6 +271,51 @@ public class KardiaFetcher {
         }
 
         return partnerKey;
+    }
+
+    public List<Partner> partnerSearch(Account account, String search) {
+        List<Partner> partners = new ArrayList<>();
+
+        String partnerSearchApi = Uri.parse("/apps/kardia/api/partnersearch")
+                .buildUpon()
+                .appendQueryParameter("cx__mode", "rest")
+                .appendQueryParameter("cx__res_format", "attrs")
+                .appendQueryParameter("cx__res_attrs", "basic")
+                .appendQueryParameter("cx__res_type", "collection")
+                .appendQueryParameter("string", search).toString();
+
+        try {
+            String partnerSearchJsonString = Request(account, partnerSearchApi);
+
+            if (!partnerSearchJsonString.equals("")) {
+                JSONObject partnerSearchJsonBody = new JSONObject(partnerSearchJsonString);
+
+                parsePartnerSearch(partners, partnerSearchJsonBody);
+            }
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return partners;
+    }
+
+    private void parsePartnerSearch(List<Partner> partners, JSONObject partnerSearchJsonBody) throws JSONException {
+        Iterator<String> partnerSearchKeys = partnerSearchJsonBody.keys();
+
+        while(partnerSearchKeys.hasNext()) {
+            String key = partnerSearchKeys.next();
+            if (!key.equals("@id")) {
+                JSONObject jsonPartner = partnerSearchJsonBody.getJSONObject(key);
+
+                Partner partner = new Partner();
+
+                partner.setPartnerId(jsonPartner.getString("partner_id"));
+                partner.setPartnerName(jsonPartner.getString("partner_name"));
+
+                partners.add(partner);
+            }
+        }
     }
 
     //Fills a list of collaboratees based on a json string

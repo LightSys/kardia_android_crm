@@ -32,6 +32,7 @@ import com.squareup.picasso.Picasso;
 
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
+import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.models.Partner;
 
 import java.io.File;
@@ -104,7 +105,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Runs when a search is submitted.
             @Override
             public boolean onQueryTextSubmit(String s) {
-                return false;
+                search(s);
+                return true;
             }
 
             /**
@@ -112,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
              */
             @Override
             public boolean onQueryTextChange(String s) {
-                search(s);
                 return true;
             }
         });
@@ -228,6 +229,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .placeholder(R.drawable.ic_person_black_24dp)
                         .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
             }
+
             ((TextView) mLinearLayout.findViewById(R.id.profile_name)).setText(partner.getPartnerName());
 
             mPartner = partner;
@@ -333,13 +335,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Searches through a list of profile names for a particular substring.
      */
     public void search(String searchText) {
-        ArrayList<Partner> profiles = new ArrayList<>();
-        for(Partner profile : mProfiles) {
-            if(profile.getPartnerName().toLowerCase().contains(searchText.toLowerCase())) {
-                profiles.add(profile);
-            }
-        }
-        setupAdapter(profiles);
+        new PartnerSearchTask().execute(searchText);
     }
 
     /**
@@ -347,5 +343,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void setupAdapter(List<Partner> profiles) {
         mRecyclerView.setAdapter(new ProfileAdapter(profiles));
+    }
+
+    private class PartnerSearchTask extends AsyncTask<String, Void, List<Partner>> {
+
+        @Override
+        protected List<Partner> doInBackground(String... params) {
+            KardiaFetcher fetcher = new KardiaFetcher(MainActivity.this);
+            return fetcher.partnerSearch(mAccount, params[0]);
+        }
+
+        @Override
+        protected void onPostExecute(List<Partner> partners) {
+            setupAdapter(partners);
+        }
     }
 }
