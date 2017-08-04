@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.lightsys.crmapp.activities.ProfileActivity.PARTNER_ID_KEY;
+import static org.lightsys.crmapp.activities.ProfileActivity.saveImageFromUrl;
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PROFILE_PICTURE;
 
@@ -226,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             else
             {
+                saveImageFromUrl(mAccountManager.getUserData(mAccount, "server"), getApplicationContext(), partner.ProfilePictureFilename);
                 File directory = getDir("imageDir", Context.MODE_PRIVATE);
                 int indexoffileName = partner.ProfilePictureFilename.lastIndexOf("/");
                 String finalPath = directory + "/" + partner.ProfilePictureFilename.substring(indexoffileName + 1);

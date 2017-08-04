@@ -90,7 +90,7 @@ public class KardiaFetcher {
 
             Log.e(TAG, "responseCode : " + responseCode);
             boolean success;
-
+            
             //if the things were sent properly, get the result code
             if (responseCode == HttpsURLConnection.HTTP_OK && response.isSuccessful())
             {
