@@ -384,7 +384,7 @@ public class NewInteractionActivity extends AppCompatActivity {
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
                 } else {
-                    Toast.makeText(NewInteractionActivity.this, "Please choose a valid followup date", Toast.LENGTH_LONG).show();
+                    Toast.makeText(NewInteractionActivity.this, "Please choose a valid followup date and time", Toast.LENGTH_LONG).show();
                 }
 
             } else {

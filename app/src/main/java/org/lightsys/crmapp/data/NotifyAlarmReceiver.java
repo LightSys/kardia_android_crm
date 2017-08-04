@@ -20,6 +20,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
+import static org.lightsys.crmapp.data.CRMContract.NotificationsTable.NOTIFICATION_ID;
 
 /**
  * Created by Daniel Garcia on 02/Aug/2017,
@@ -35,9 +36,13 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        String action = intent.getAction();
+
         // If signal received was from bootup, go through process to reset notification alarms
-        if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+        if (action != null && (action.equals(Intent.ACTION_BOOT_COMPLETED) || action.equals("android.intent.ACTION_BOOT_COMPLETED"))) {
             resetAlarms(context);
+            //TODO: This doesn't reset the alarms upon bootup
         } else { // Signal came from alarm going off and notification should be sent to user
             sendNotification(context, intent);
         }
@@ -95,8 +100,10 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
 
                     alarmManager.setExact(AlarmManager.RTC_WAKEUP, notification.getNotificationTime(), pendingIntent);
                 } else { // Time has passed and notification can be deleted from database
-                    context.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI, CRMContract.NotificationsTable.NOTIFICATION_ID + " = ?",
+                    context.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI,
+                            CRMContract.NotificationsTable.NOTIFICATION_ID + " = ?",
                             new String[] {Integer.toString(notification.getId())});
+                    //TODO: Delete function is not working properly
                 }
             }
         }
@@ -119,6 +126,7 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
         profileIntent = new Intent(context, ProfileActivity.class);
         profileIntent.putExtra(PARTNER_ID_KEY, partnerID);
         profileIntent.putExtra(PARTNER_NAME, name);
+        profileIntent.putExtra(NOTIFICATION_ID, notificationID);
         pendingIntent = PendingIntent.getActivity(context, Integer.parseInt(notificationID), profileIntent, 0);
 
         // Build the notification to be sent
@@ -128,16 +136,12 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
                 .setSmallIcon(R.drawable.kardiabeat_v3)
                 .setContentText(name + ": " + subject)
                 .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setVibrate(new long[] {NotificationCompat.DEFAULT_VIBRATE})
                 .setAutoCancel(true)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(name + ": " + subject));
 
         n = nBuild.build();
         notificationManager.notify(Integer.parseInt(notificationID), n);
-
-        // Delete notification from database once sent as it will not be needed again
-        context.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI,
-                CRMContract.NotificationsTable.NOTIFICATION_ID + " = ?",
-                new String[] {notificationID});
-
     }
 }

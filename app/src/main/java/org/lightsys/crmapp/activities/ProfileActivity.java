@@ -61,6 +61,7 @@ import okhttp3.Response;
 import okhttp3.Route;
 
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
+import static org.lightsys.crmapp.data.CRMContract.NotificationsTable.NOTIFICATION_ID;
 
 /**
  * Created by cubemaster on 3/10/16.
@@ -110,8 +111,9 @@ public class ProfileActivity extends AppCompatActivity {
     public static final String SPECIFIC_CONTACT_KEY = "EXTRA_SPECIFIC_CONTACT";
 
     //Variables that hold the stuff retrieved from the intent
-    public String mName;
     public String mPartnerId;
+    public String mName;
+    public String mNotificationId;
 
     public String mEmail;
     public String mPhone;
@@ -161,6 +163,15 @@ public class ProfileActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mPartnerId = intent.getStringExtra(PARTNER_ID_KEY);
         mName = intent.getStringExtra(PARTNER_NAME);
+        mNotificationId = intent.getStringExtra(NOTIFICATION_ID);
+
+        //If activity was opened from a notification, delete notification from the database
+        if(mNotificationId != null) {
+            ProfileActivity.this.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI,
+                    CRMContract.NotificationsTable.NOTIFICATION_ID + " = ?",
+                    new String[] {mNotificationId});
+            //TODO: This doesn't actually delete anything
+        }
 
         //get stuff from saved instance state
         if(savedInstanceState != null) {
@@ -594,10 +605,7 @@ public class ProfileActivity extends AppCompatActivity {
                     i.putExtra("subject", subject);
                     i.putExtra("date", date);
                     i.putExtra("text", textText);
-                    //TODO TODO TODO TODO
                     i.putExtra("followup", followup);
-                    //i.putExtra("followup", checkForFollowup());
-                    //if there is a notification with the same ID as this, add the followup note
                     startActivity(i);
                 }
             });
