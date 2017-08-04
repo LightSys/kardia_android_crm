@@ -168,6 +168,8 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, CRMContract.accountType);
             setAccountAuthenticatorResult(bundle);
 
+            Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
+
             new GetCollaborateesTask().execute(account);
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)

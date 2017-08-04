@@ -123,7 +123,28 @@ public class KardiaProvider extends ContentProvider {
     //function that deletes stuffs from the database
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+        String table;
+
+        //determine what table we are dealing with
+        switch (sUriMatcher.match(uri)) {
+            case 1:
+                table = CRMContract.StaffTable.TABLE_NAME;
+                break;
+            case 2:
+                table = CRMContract.CollaborateeTable.TABLE_NAME;
+                break;
+            case 3:
+                table = CRMContract.TimelineTable.TABLE_NAME;
+                break;
+            case 4:
+                table = CRMContract.NotificationsTable.TABLE_NAME;
+                break;
+            default:
+                table = "";
+                break;
+        }
+
+        return mDatabase.delete(table, selection, selectionArgs);
     }
 
     //function that updates stuffs in the database

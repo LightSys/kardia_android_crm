@@ -1,22 +1,18 @@
 package org.lightsys.crmapp.data;
 
-import android.content.BroadcastReceiver;
-
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentValues;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
-import android.support.annotation.IntegerRes;
 import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.activities.ProfileActivity;
-import org.lightsys.crmapp.data.Notification;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -129,9 +125,10 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
         // BigTextStyle allows notification to be expanded if text is more than one line
         nBuild = new NotificationCompat.Builder(context)
                 .setContentTitle("Followup Reminder")
+                .setSmallIcon(R.drawable.kardiabeat_v3)
                 .setContentText(name + ": " + subject)
                 .setContentIntent(pendingIntent)
-                .setSmallIcon(R.drawable.kardiabeat_v3)
+                .setAutoCancel(true)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(name + ": " + subject));
 
         n = nBuild.build();

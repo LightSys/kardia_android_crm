@@ -55,7 +55,6 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -957,9 +956,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private String checkForFollowup(String dateCreated) {
-
         String followupDate = "";
-        //TODO:
 
         try {
 
