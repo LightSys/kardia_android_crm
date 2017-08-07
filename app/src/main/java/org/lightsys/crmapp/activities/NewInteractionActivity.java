@@ -474,7 +474,7 @@ public class NewInteractionActivity extends AppCompatActivity {
                     cursor.close();
 
                     alarmIntent = new Intent(NewInteractionActivity.this, NotifyAlarmReceiver.class);
-                    alarmIntent.putExtra("notificationId", Integer.toString(notificationID));
+                    alarmIntent.putExtra("notificationID", Integer.toString(notificationID));
                     alarmIntent.putExtra("name", mName);
                     alarmIntent.putExtra("partnerID", name);
                     alarmIntent.putExtra("note", note);
@@ -490,7 +490,6 @@ public class NewInteractionActivity extends AppCompatActivity {
                     notification.setNote(note);
 
                     //Convert todayInMillis to a String
-                    //This will serve as a unique ID to associate each notification with one Interaction
                     todaysDate = Long.toString(todayInMillis);
 
                     //Store notifications in local database

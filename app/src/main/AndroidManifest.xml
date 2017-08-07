@@ -71,7 +71,7 @@
         <receiver android:name="org.lightsys.crmapp.data.NotifyAlarmReceiver">
             <intent-filter>
                 <action android:name="android.intent.ACTION_BOOT_COMPLETED" />
-                <!-- FIX THIS TODO -->
+                <!-- TODO FIX THIS -->
             </intent-filter>
         </receiver>
 

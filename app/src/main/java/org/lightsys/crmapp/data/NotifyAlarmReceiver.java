@@ -43,6 +43,7 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
         if (action != null && (action.equals(Intent.ACTION_BOOT_COMPLETED) || action.equals("android.intent.ACTION_BOOT_COMPLETED"))) {
             resetAlarms(context);
             //TODO: This doesn't reset the alarms upon bootup
+            //TODO: //adb shell am broadcast -a android.intent.ACTION_BOOT_COMPLETED org.lightsys.crmapp
         } else { // Signal came from alarm going off and notification should be sent to user
             sendNotification(context, intent);
         }
@@ -82,6 +83,7 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
 
             Intent alarmIntent;
             PendingIntent pendingIntent;
+
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
             // Loop through all notifications
@@ -89,9 +91,23 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
                 // If notification time has not passed, set alarm
                 if (notification.getNotificationTime() > Calendar.getInstance().getTimeInMillis()) {
                     alarmIntent = new Intent(context, NotifyAlarmReceiver.class);
-                    alarmIntent.putExtra("name", notification.getPartnerID());
+                    alarmIntent.putExtra("partnerID", notification.getPartnerID());
                     alarmIntent.putExtra("note", notification.getNote());
-                    alarmIntent.putExtra("id", Integer.toString(notification.getId()));
+                    alarmIntent.putExtra("notificationID", Integer.toString(notification.getId()));
+
+                    //Get partner name from Collaboratee Table using partner ID
+                    Cursor c = context.getContentResolver().query(
+                            CRMContract.CollaborateeTable.CONTENT_URI,
+                            new String[] {CRMContract.CollaborateeTable.PARTNER_NAME},
+                            CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
+                            new String[] {notification.getPartnerID()},
+                            null);
+
+                    while(c.moveToNext()){
+                        alarmIntent.putExtra("name", c.getString(0));
+                    }
+                    c.close();
+
                     pendingIntent = PendingIntent.getBroadcast(context, notification.getId(), alarmIntent, 0);
 
                     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
@@ -101,9 +117,8 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
                     alarmManager.setExact(AlarmManager.RTC_WAKEUP, notification.getNotificationTime(), pendingIntent);
                 } else { // Time has passed and notification can be deleted from database
                     context.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI,
-                            CRMContract.NotificationsTable.NOTIFICATION_ID + " = ?",
-                            new String[] {Integer.toString(notification.getId())});
-                    //TODO: Delete function is not working properly
+                            CRMContract.NotificationsTable.NOTIFICATION_ID + " = " + Integer.toString(notification.getId()),
+                            null);
                 }
             }
         }
@@ -118,10 +133,10 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
         Intent profileIntent;
         PendingIntent pendingIntent;
 
-        notificationID = intent.getStringExtra("notificationId");
-        name = intent.getStringExtra("name");
+        notificationID = intent.getStringExtra("notificationID");
         partnerID = intent.getStringExtra("partnerID");
         subject = intent.getStringExtra("note");
+        name = intent.getStringExtra("name");
 
         profileIntent = new Intent(context, ProfileActivity.class);
         profileIntent.putExtra(PARTNER_ID_KEY, partnerID);

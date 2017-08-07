@@ -37,6 +37,7 @@ import org.lightsys.crmapp.Formatter;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
+import org.lightsys.crmapp.data.Notification;
 import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.TimelineItem;
 
@@ -168,9 +169,8 @@ public class ProfileActivity extends AppCompatActivity {
         //If activity was opened from a notification, delete notification from the database
         if(mNotificationId != null) {
             ProfileActivity.this.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI,
-                    CRMContract.NotificationsTable.NOTIFICATION_ID + " = ?",
-                    new String[] {mNotificationId});
-            //TODO: This doesn't actually delete anything
+                    CRMContract.NotificationsTable.NOTIFICATION_ID + " = " + mNotificationId,
+                    null);
         }
 
         //get stuff from saved instance state
