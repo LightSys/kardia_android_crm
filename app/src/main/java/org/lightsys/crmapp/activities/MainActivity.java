@@ -5,6 +5,7 @@ import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,8 +32,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
@@ -349,7 +352,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         protected List<Partner> doInBackground(String... params) {
             KardiaFetcher fetcher = new KardiaFetcher(MainActivity.this);
-            return fetcher.partnerSearch(mAccount, params[0]);
+            List<Partner> partners = fetcher.partnerSearch(mAccount, params[0]);
+            for (Partner partner : partners) {
+                try {
+                    partner.setProfilePictureFilename(fetcher.getProfilePictureUrl(mAccount, partner.getPartnerId()));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            return partners;
         }
 
         @Override
@@ -399,11 +410,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 int indexoffileName = partner.getProfilePictureFilename().lastIndexOf("/");
                 String finalPath = directory + "/" + partner.getProfilePictureFilename().substring(indexoffileName + 1);
 
-                Picasso.with(getApplication())
-                        .load(new File(finalPath))
-                        .resize(64, 64)
-                        .placeholder(R.drawable.ic_person_black_24dp)
-                        .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
+                File pictureFile = new File(finalPath);
+
+                if (pictureFile.exists()) {
+                    Log.d("Main Activity", "Loading image from: " + pictureFile.getPath());
+                    Picasso.with(getApplication())
+                            .load(pictureFile)
+                            .resize(64, 64)
+                            .placeholder(R.drawable.persona)
+                            .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
+                } else {
+                    Log.d("Main Activity","Loading image from: " + mAccountManager.getUserData(mAccount, "server") + partner.getProfilePictureFilename());
+                    Picasso.with(getApplication())
+                            .load(mAccountManager.getUserData(mAccount, "server") + partner.getProfilePictureFilename())
+                            .resize(64, 64)
+                            .memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE)
+                            .placeholder(R.drawable.persona)
+                            .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
+                }
             }
 
             ((TextView) mLinearLayout.findViewById(R.id.profile_name)).setText(partner.getPartnerName());
@@ -418,6 +442,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(MainActivity.this, mPartner.getPartnerName() + " Selected", Toast.LENGTH_SHORT).show();
             mProfiles.add(mPartner);
             mRecyclerView.getAdapter().notifyItemInserted(mProfiles.size() - 1);
+        }
+    }
+
+    private class addPartner extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
         }
     }
 
