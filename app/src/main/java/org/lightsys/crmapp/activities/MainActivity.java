@@ -278,7 +278,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     /**
      * Fetches a list of collaboratee IDs and names.
-     * ToDo make this asyncTask get stuffs from kardia
      * if this doesn't get things from kardia, new partners will never be registered.
      */
     private class GetCollaborateesTask extends AsyncTask<Void, Void, List<Partner>> {
@@ -293,8 +292,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             CRMContract.CollaborateeTable.PARTNER_ID,
                             CRMContract.CollaborateeTable.PARTNER_NAME,
                             CRMContract.CollaborateeTable.PROFILE_PICTURE },
-                    null,//CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
-                    null,//new String[] { partnerId },
+                    null,
+                    null,
                     null
             );
 

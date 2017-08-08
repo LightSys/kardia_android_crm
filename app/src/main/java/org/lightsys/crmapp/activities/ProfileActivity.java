@@ -420,6 +420,8 @@ public class ProfileActivity extends AppCompatActivity {
                 newItem.put("date", Formatter.getFormattedDate(item.getDate()));
                 newItem.put("text", item.getNotes());
                 newItem.put("date_created", item.getDateCreated());
+                newItem.put("profile_picture_filename", "");
+                //TODO: Add profile picture filename
                 items.add(newItem);
             }
 
@@ -515,7 +517,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
 
-        //Sort items and, if there are none, hide timeline bar
+        //Sort items
         @Override
         protected void onPostExecute(List<TimelineItem> items) {
             mItems = sortByDate(items);
@@ -565,9 +567,8 @@ public class ProfileActivity extends AppCompatActivity {
             rowView.subject = pieces.get("subject");
             rowView.date = pieces.get("date");
             rowView.textText = pieces.get("text");
-            //rowView.followup = pieces.get("date_created");
-
             rowView.followup = checkForFollowup(pieces.get("date_created"));
+            rowView.profilePictureFilename = pieces.get("profile_picture_filename");
 
             rowView.setItemViewText(pieces.get("type") + ": " + pieces.get("name") +
                     " on " + pieces.get("date"));
@@ -589,6 +590,7 @@ public class ProfileActivity extends AppCompatActivity {
         public String date = "";
         public String textText = "";
         public String followup = "";
+        public String profilePictureFilename = "";
 
         public TimelineLayout(Context context) {
             super(context);
@@ -605,6 +607,7 @@ public class ProfileActivity extends AppCompatActivity {
                     i.putExtra("date", date);
                     i.putExtra("text", textText);
                     i.putExtra("followup", followup);
+                    i.putExtra("profilePictureFilename", profilePictureFilename);
                     startActivity(i);
                 }
             });
