@@ -68,10 +68,12 @@
             android:windowSoftInputMode="adjustPan">
         </activity>
         
-        <receiver android:name="org.lightsys.crmapp.data.NotifyAlarmReceiver">
+        <receiver
+            android:name="org.lightsys.crmapp.data.NotifyAlarmReceiver"
+            android:exported="true"
+            android:enabled="true">
             <intent-filter>
-                <action android:name="android.intent.ACTION_BOOT_COMPLETED" />
-                <!-- TODO FIX THIS -->
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 

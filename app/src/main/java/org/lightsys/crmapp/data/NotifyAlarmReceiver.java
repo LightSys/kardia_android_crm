@@ -42,8 +42,6 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
         // If signal received was from bootup, go through process to reset notification alarms
         if (action != null && (action.equals(Intent.ACTION_BOOT_COMPLETED) || action.equals("android.intent.ACTION_BOOT_COMPLETED"))) {
             resetAlarms(context);
-            //TODO: This doesn't reset the alarms upon bootup
-            //TODO: //adb shell am broadcast -a android.intent.ACTION_BOOT_COMPLETED org.lightsys.crmapp
         } else { // Signal came from alarm going off and notification should be sent to user
             sendNotification(context, intent);
         }
