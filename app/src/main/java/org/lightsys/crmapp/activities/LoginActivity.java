@@ -273,13 +273,9 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         @Override
         protected void onPostExecute(Void nothing) {
             if (error == null)
-            {
                 mainActivity();
-            }
             else
-            {
                 Toast.makeText(getApplicationContext(), "Network Issues: Server rejected request.", Toast.LENGTH_SHORT).show();
-            }
         }
     }
 }

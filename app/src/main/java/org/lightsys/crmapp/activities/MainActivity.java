@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -27,7 +28,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.picasso.Picasso;
 
 import org.lightsys.crmapp.R;
@@ -43,7 +46,6 @@ import static org.lightsys.crmapp.activities.ProfileActivity.PARTNER_ID_KEY;
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PROFILE_PICTURE;
 
-
 /**
  * Edited by Daniel Garcia on 30/June/2017
  * to merge unnecessary Fragment into MainActivity
@@ -51,7 +53,6 @@ import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PROFILE_PIC
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-
     private AccountManager mAccountManager;
 
     private RecyclerView mRecyclerView;
@@ -60,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     Partner mPartner2 = new Partner();
+    private SearchView searchView;
+
     /**
      * Retrieves account information.
      * Sets up main activity view.
@@ -99,22 +102,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        // Gets text to search for.
-        final SearchView search = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            // Runs when a search is submitted.
+        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String s) {
-                search(s);
+            public boolean onQueryTextSubmit(String query) {
+                if (query.equals(""))
+                    return true;
+
+                searchView.clearFocus();
+                search(query);
                 return true;
             }
 
-            /**
-             * Runs a search every time the search input is changed.
-             */
             @Override
-            public boolean onQueryTextChange(String s) {
-                return true;
+            public boolean onQueryTextChange(String newText) {
+                return false;
             }
         });
         return true;
@@ -155,8 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item)
-    {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         switch (itemId)
         {
@@ -194,11 +195,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /**
      * View that holds collaboratee information
      */
-    private class ProfileHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class PersonHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private LinearLayout mLinearLayout;
         private Partner mPartner;
 
-        public ProfileHolder(View view) {
+        public PersonHolder(View view) {
             super(view);
 
             mLinearLayout = (LinearLayout) view;
@@ -217,15 +218,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .resize(64,64)
                         .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
             }
-            else
-            {
+            else {
                 File directory = getDir("imageDir", Context.MODE_PRIVATE);
                 int indexoffileName = partner.getProfilePictureFilename().lastIndexOf("/");
                 String finalPath = directory + "/" + partner.getProfilePictureFilename().substring(indexoffileName + 1);
 
                 Picasso.with(getApplication())
                         .load(new File(finalPath))
-                        .resize(64,64)
+                        .resize(64, 64)
                         .placeholder(R.drawable.ic_person_black_24dp)
                         .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
             }
@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /**
      * Lists profiles.
      */
-    private class ProfileAdapter extends RecyclerView.Adapter<ProfileHolder> {
+    private class ProfileAdapter extends RecyclerView.Adapter<PersonHolder> {
         private List<Partner> mCollaboratees;
 
         public ProfileAdapter(List<Partner> collaboratees) {
@@ -259,17 +259,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
-        public ProfileHolder onCreateViewHolder(ViewGroup container, int viewType) {
+        public PersonHolder onCreateViewHolder(ViewGroup container, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(getApplication());
             View rootView = inflater.inflate(R.layout.profile_listitem, container, false);
 
-            return new ProfileHolder(rootView);
+            return new PersonHolder(rootView);
         }
 
         @Override
-        public void onBindViewHolder(ProfileHolder profileHolder, int position) {
+        public void onBindViewHolder(PersonHolder partnerHolder, int position) {
             Partner collaboratee = mCollaboratees.get(position);
-            profileHolder.bindProfile(collaboratee);
+            partnerHolder.bindProfile(collaboratee);
         }
 
         @Override
@@ -295,8 +295,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             CRMContract.CollaborateeTable.PARTNER_ID,
                             CRMContract.CollaborateeTable.PARTNER_NAME,
                             CRMContract.CollaborateeTable.PROFILE_PICTURE },
-                    null,//CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
-                    null,//new String[] { partnerId },
+                    CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
+                    new String[] { partnerId },
                     null
             );
 
@@ -346,7 +346,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private class PartnerSearchTask extends AsyncTask<String, Void, List<Partner>> {
-
         @Override
         protected List<Partner> doInBackground(String... params) {
             KardiaFetcher fetcher = new KardiaFetcher(MainActivity.this);
@@ -355,7 +354,100 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         protected void onPostExecute(List<Partner> partners) {
-            setupAdapter(partners);
+            if (partners == null || partners.size() < 1) {
+                Toast.makeText(MainActivity.this, "No Partners found", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
+
+            new MaterialDialog.Builder(MainActivity.this)
+                    .title("Partners to Collaborate with")
+                    .adapter(new PartnerSearchAdapter(partners), null)
+                    .show();
+        }
+    }
+
+    /**
+     * View that holds collaboratee information
+     */
+    private class PartnerHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private LinearLayout mLinearLayout;
+        private Partner mPartner;
+
+        public PartnerHolder(View view) {
+            super(view);
+
+            mLinearLayout = (LinearLayout) view;
+        }
+
+        /**
+         * Binds profile information to the view.
+         */
+        public void bindProfile(Partner partner) {
+            mPartner = partner;
+
+            if (partner.getProfilePictureFilename() == null || partner.getProfilePictureFilename().equals(""))
+            {
+                Picasso.with(getApplication())
+                        .load(R.drawable.persona)
+                        .resize(64,64)
+                        .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
+            }
+            else {
+                File directory = getDir("imageDir", Context.MODE_PRIVATE);
+                int indexoffileName = partner.getProfilePictureFilename().lastIndexOf("/");
+                String finalPath = directory + "/" + partner.getProfilePictureFilename().substring(indexoffileName + 1);
+
+                Picasso.with(getApplication())
+                        .load(new File(finalPath))
+                        .resize(64, 64)
+                        .placeholder(R.drawable.ic_person_black_24dp)
+                        .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
+            }
+
+            ((TextView) mLinearLayout.findViewById(R.id.profile_name)).setText(partner.getPartnerName());
+            mLinearLayout.findViewById(R.id.add_button).setOnClickListener(this);
+        }
+
+        /**
+         * Goes to get further information regarding a collaboratee after a collaboratee is selected.
+         */
+        @Override
+        public void onClick(View v) {
+            Toast.makeText(MainActivity.this, mPartner.getPartnerName() + " Selected", Toast.LENGTH_SHORT).show();
+            mProfiles.add(mPartner);
+            mRecyclerView.getAdapter().notifyItemInserted(mProfiles.size() - 1);
+        }
+    }
+
+    /**
+     * Lists profiles.
+     */
+    private class PartnerSearchAdapter extends RecyclerView.Adapter<PartnerHolder> {
+        private List<Partner> mCollaboratees;
+
+        PartnerSearchAdapter(List<Partner> collaboratees) {
+            mCollaboratees = collaboratees;
+        }
+
+        @Override
+        public PartnerHolder onCreateViewHolder(ViewGroup container, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(getApplication());
+            View rootView = inflater.inflate(R.layout.partner_listitem, container, false);
+
+            return new PartnerHolder(rootView);
+        }
+
+        @Override
+        public void onBindViewHolder(PartnerHolder partnerHolder, int position) {
+            Partner collaboratee = mCollaboratees.get(position);
+            partnerHolder.bindProfile(collaboratee);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mCollaboratees.size();
         }
     }
 }
