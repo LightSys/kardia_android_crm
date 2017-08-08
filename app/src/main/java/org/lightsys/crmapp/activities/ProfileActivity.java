@@ -37,7 +37,6 @@ import org.lightsys.crmapp.Formatter;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
-import org.lightsys.crmapp.data.Notification;
 import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.TimelineItem;
 
