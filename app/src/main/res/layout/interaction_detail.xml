@@ -78,7 +78,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:popupBackground="@drawable/divider"/>
+                android:popupBackground="@drawable/divider"
+                android:visibility="gone"/>
+            <!-- This hasn't been implemented, not sure how useful it would be to keep it -->
 
         </LinearLayout>
 

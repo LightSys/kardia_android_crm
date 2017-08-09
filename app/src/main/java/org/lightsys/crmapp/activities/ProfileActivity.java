@@ -420,8 +420,7 @@ public class ProfileActivity extends AppCompatActivity {
                 newItem.put("date", Formatter.getFormattedDate(item.getDate()));
                 newItem.put("text", item.getNotes());
                 newItem.put("date_created", item.getDateCreated());
-                newItem.put("profile_picture_filename", "");
-                //TODO: Add profile picture filename
+                newItem.put("profile_picture_filename", getProfilePictureFilename(item.getPartnerId()));
                 items.add(newItem);
             }
 
@@ -1008,6 +1007,26 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         return followupDate;
+    }
+
+    private String getProfilePictureFilename(String partnerID) {
+        String filename = "";
+
+        //Open cursor to access collaboratee table
+        Cursor cursor = getContentResolver().query(
+                CRMContract.CollaborateeTable.CONTENT_URI,
+                new String[] {CRMContract.CollaborateeTable.PROFILE_PICTURE},
+                CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
+                new String[] {partnerID},
+                null);
+
+        while(cursor.moveToNext()){
+            filename = cursor.getString(0);
+        }
+
+        cursor.close();
+
+        return filename;
     }
 }
 
