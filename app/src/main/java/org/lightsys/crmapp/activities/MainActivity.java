@@ -5,6 +5,7 @@ import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -36,14 +37,19 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.CRMContract;
 import org.lightsys.crmapp.data.KardiaFetcher;
+import org.lightsys.crmapp.data.PostJson;
 import org.lightsys.crmapp.models.Partner;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static org.lightsys.crmapp.activities.ProfileActivity.PARTNER_ID_KEY;
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
@@ -62,9 +68,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private List<Partner> mProfiles = new ArrayList<>();
     private Account mAccount;
 
-
     Partner mPartner2 = new Partner();
     private SearchView searchView;
+    private MaterialDialog materialDialog;
+    private static String TAG = "Main Activity";
+    private LinearLayoutManager linearLayoutManager;
+    private ProfileAdapter profileAdapter;
 
     /**
      * Retrieves account information.
@@ -73,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("Main Activity", "Created");
+        Log.d(TAG, "Created");
 
         mAccountManager = AccountManager.get(this);
         Account[] accounts = mAccountManager.getAccountsByType(CRMContract.accountType);
@@ -92,7 +101,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setupFAB();
 
         mRecyclerView = (android.support.v7.widget.RecyclerView) findViewById(R.id.recyclerview_profiles);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplication()));
+        linearLayoutManager = new LinearLayoutManager(getApplication());
+        mRecyclerView.setLayoutManager(linearLayoutManager);
 
         setupAdapter(mProfiles);
     }
@@ -166,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             case R.id.action_logout:
                 Account[] accounts = mAccountManager.getAccountsByType(CRMContract.accountType);
-                Log.d("Main Activity", "# of Accounts: " + accounts.length);
+                Log.d(TAG, "# of Accounts: " + accounts.length);
                 Account account = accounts[0];
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
                 {
@@ -271,8 +281,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         public void onBindViewHolder(PersonHolder partnerHolder, int position) {
-            Partner collaboratee = mCollaboratees.get(position);
-            partnerHolder.bindProfile(collaboratee);
+            partnerHolder.bindProfile(mCollaboratees.get(position));
         }
 
         @Override
@@ -345,7 +354,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Sets up adapter after Async task is complete.
      */
     private void setupAdapter(List<Partner> profiles) {
-        mRecyclerView.setAdapter(new ProfileAdapter(profiles));
+        profileAdapter = new ProfileAdapter(profiles);
+        mRecyclerView.setAdapter(profileAdapter);
     }
 
     private class PartnerSearchTask extends AsyncTask<String, Void, List<Partner>> {
@@ -371,8 +381,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
 
-
-            new MaterialDialog.Builder(MainActivity.this)
+            materialDialog = new MaterialDialog.Builder(MainActivity.this)
                     .title("Partners to Collaborate with")
                     .adapter(new PartnerSearchAdapter(partners), null)
                     .show();
@@ -413,14 +422,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 File pictureFile = new File(finalPath);
 
                 if (pictureFile.exists()) {
-                    Log.d("Main Activity", "Loading image from: " + pictureFile.getPath());
+                    Log.d(TAG, "Loading image from: " + pictureFile.getPath());
                     Picasso.with(getApplication())
                             .load(pictureFile)
                             .resize(64, 64)
                             .placeholder(R.drawable.persona)
                             .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
                 } else {
-                    Log.d("Main Activity","Loading image from: " + mAccountManager.getUserData(mAccount, "server") + partner.getProfilePictureFilename());
+                    Log.d(TAG,"Loading image from: " + mAccountManager.getUserData(mAccount, "server") + partner.getProfilePictureFilename());
                     Picasso.with(getApplication())
                             .load(mAccountManager.getUserData(mAccount, "server") + partner.getProfilePictureFilename())
                             .resize(64, 64)
@@ -440,22 +449,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onClick(View v) {
             Toast.makeText(MainActivity.this, mPartner.getPartnerName() + " Selected", Toast.LENGTH_SHORT).show();
-            mProfiles.add(mPartner);
-            mRecyclerView.getAdapter().notifyItemInserted(mProfiles.size() - 1);
-        }
-    }
-
-    private class addPartner extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+            new addPartner().execute(mPartner);
         }
     }
 
@@ -486,6 +480,87 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public int getItemCount() {
             return mCollaboratees.size();
+        }
+    }
+
+    private class addPartner extends AsyncTask<Partner, Void, Partner> {
+
+        String collaboratorId;
+
+        @Override
+        protected Partner doInBackground(Partner... params) {
+
+            final Partner partner = params[0];
+            collaboratorId = partner.getPartnerId();
+
+            String url = Uri.parse(mAccountManager.getUserData(mAccount, "server"))
+                    .buildUpon()
+                    .appendEncodedPath("apps/kardia/api/crm/Partners/" + mAccountManager.getUserData(mAccount, "partnerId") + "/Collaborators")
+                    .appendQueryParameter("cx__mode", "rest")
+                    .appendQueryParameter("cx__res_format", "attrs")
+                    .appendQueryParameter("cx__res_attrs", "basic")
+                    .appendQueryParameter("cx__res_type", "collection")
+                    .build().toString();
+
+            final PostJson createCollaborator = new PostJson(MainActivity.this, url, createCollaboratorJson(), mAccount, true);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //createCollaborator.execute();
+                }
+            });
+
+            return partner;
+        }
+
+        private JSONObject createCollaboratorJson() {
+            JSONObject collaborator = new JSONObject();
+
+            //Get current date
+            java.util.Date date = new Date();
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+
+            try
+            {
+                //Create Date Json object of current datetime
+                JSONObject jsonDate = new JSONObject();
+                jsonDate.put("month", cal.get(Calendar.MONTH));
+                jsonDate.put("year", cal.get(Calendar.YEAR));
+                jsonDate.put("day", cal.get(Calendar.DAY_OF_MONTH));
+                jsonDate.put("minute", cal.get(Calendar.MINUTE));
+                jsonDate.put("second", cal.get(Calendar.SECOND));
+                jsonDate.put("hour", cal.get(Calendar.HOUR));
+
+                collaborator.put("p_partner_key", mAccountManager.getUserData(mAccount, "partnerId"));
+                collaborator.put("e_collaborator", collaboratorId);
+                collaborator.put("e_collab_type_id", 1);
+                collaborator.put("e_collaborator_status", "A");
+                collaborator.put("e_is_automatic", 0);
+                collaborator.put("s_date_created", jsonDate);
+                collaborator.put("s_date_modified", jsonDate);
+                collaborator.put("s_created_by", mAccountManager.getUserData(mAccount, "partnerId"));
+                collaborator.put("s_modified_by", mAccountManager.getUserData(mAccount, "partnerId"));
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return collaborator;
+        }
+
+        @Override
+        protected void onPostExecute(Partner partner) {
+            super.onPostExecute(partner);
+
+            int newPosition = mProfiles.size() + 1;
+
+            mProfiles.add(partner);
+            materialDialog.dismiss();
+            mRecyclerView.getAdapter().notifyItemInserted(newPosition);
+            linearLayoutManager.scrollToPosition(newPosition);
+            Log.d(TAG, "New RecyclerView Size: " + newPosition);
         }
     }
 }
