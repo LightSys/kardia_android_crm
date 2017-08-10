@@ -2,11 +2,11 @@ package org.lightsys.crmapp.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,7 +49,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import static org.lightsys.crmapp.activities.ProfileActivity.PARTNER_ID_KEY;
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
@@ -449,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onClick(View v) {
             Toast.makeText(MainActivity.this, mPartner.getPartnerName() + " Selected", Toast.LENGTH_SHORT).show();
-            new addPartner().execute(mPartner);
+            new addCollaboratee().execute(mPartner);
         }
     }
 
@@ -483,37 +482,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private class addPartner extends AsyncTask<Partner, Void, Partner> {
+    private class addCollaboratee extends AsyncTask<Partner, Void, Partner> {
 
         String collaboratorId;
 
         @Override
         protected Partner doInBackground(Partner... params) {
 
-            final Partner partner = params[0];
-            collaboratorId = partner.getPartnerId();
+            final Partner collaboratee = params[0];
+            collaboratorId = mAccountManager.getUserData(mAccount, "partnerId");
 
             String url = Uri.parse(mAccountManager.getUserData(mAccount, "server"))
                     .buildUpon()
-                    .appendEncodedPath("apps/kardia/api/crm/Partners/" + mAccountManager.getUserData(mAccount, "partnerId") + "/Collaborators")
+                    .appendEncodedPath("apps/kardia/api/crm/Partners/" + collaboratorId + "/Collaboratees")
                     .appendQueryParameter("cx__mode", "rest")
                     .appendQueryParameter("cx__res_format", "attrs")
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .appendQueryParameter("cx__res_type", "collection")
                     .build().toString();
 
-            final PostJson createCollaborator = new PostJson(MainActivity.this, url, createCollaboratorJson(), mAccount, true);
+            final PostJson createCollaboratee = new PostJson(MainActivity.this, url, createCollaborateeJson(collaboratee), mAccount, true);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    //createCollaborator.execute();
+                    createCollaboratee.execute();
                 }
             });
 
-            return partner;
+            ContentValues values = new ContentValues();
+            values.put(CRMContract.CollaborateeTable.PARTNER_ID, collaboratorId);
+            values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, mAccountManager.getUserData(mAccount, "partnerId"));
+            values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.getPartnerName());
+            values.put(CRMContract.CollaborateeTable.PROFILE_PICTURE, collaboratee.getProfilePictureFilename());
+
+            getContentResolver().insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
+
+            return collaboratee;
         }
 
-        private JSONObject createCollaboratorJson() {
+        private JSONObject createCollaborateeJson(Partner collaboratee) {
             JSONObject collaborator = new JSONObject();
 
             //Get current date
@@ -532,16 +539,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 jsonDate.put("second", cal.get(Calendar.SECOND));
                 jsonDate.put("hour", cal.get(Calendar.HOUR));
 
-                collaborator.put("p_partner_key", mAccountManager.getUserData(mAccount, "partnerId"));
+                collaborator.put("p_partner_key", collaboratee.getPartnerId());
                 collaborator.put("e_collaborator", collaboratorId);
                 collaborator.put("e_collab_type_id", 1);
                 collaborator.put("e_collaborator_status", "A");
                 collaborator.put("e_is_automatic", 0);
                 collaborator.put("s_date_created", jsonDate);
                 collaborator.put("s_date_modified", jsonDate);
-                collaborator.put("s_created_by", mAccountManager.getUserData(mAccount, "partnerId"));
-                collaborator.put("s_modified_by", mAccountManager.getUserData(mAccount, "partnerId"));
-
+                collaborator.put("s_created_by", collaboratorId);
+                collaborator.put("s_modified_by", collaboratorId);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -550,6 +556,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return collaborator;
         }
 
+        // TODO: Fix issue where Main Activity is Recreated after adding new Collaboratee to list.
         @Override
         protected void onPostExecute(Partner partner) {
             super.onPostExecute(partner);

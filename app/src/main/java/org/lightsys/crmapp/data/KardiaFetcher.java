@@ -76,6 +76,7 @@ public class KardiaFetcher {
                     .get()
                     .build();
 
+            Log.d("Kardia Fetcher", "GET: " + url);
             Response response = client.newCall(request).execute();
 
             int responseCode = response.code();
