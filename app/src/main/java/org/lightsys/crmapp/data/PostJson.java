@@ -1,5 +1,6 @@
 package org.lightsys.crmapp.data;
 
+import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
@@ -8,31 +9,20 @@ import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONObject;
-import org.lightsys.crmapp.activities.LoginActivity;
 import org.lightsys.crmapp.activities.MainActivity;
 
-import android.accounts.Account;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.Authenticator;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
+import javax.net.ssl.HttpsURLConnection;
+
 import okhttp3.Credentials;
-import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.Route;
-
-import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by Judah Sistrunk on 7/7/2016.

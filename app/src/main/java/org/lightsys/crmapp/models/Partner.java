@@ -3,6 +3,8 @@ package org.lightsys.crmapp.models;
 
 /**
  * Created by nathan on 3/9/16.
+ *
+ * Edited by tparr on 8/10/17
  */
 public class Partner {
     public String PartnerId;

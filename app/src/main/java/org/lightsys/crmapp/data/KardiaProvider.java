@@ -42,6 +42,7 @@ public class KardiaProvider extends ContentProvider {
         sUriMatcher.addURI(CRMContract.providerAuthority, CRMContract.EngagementTable.TABLE_NAME, 4);
         sUriMatcher.addURI(CRMContract.providerAuthority, CRMContract.EngagementStepTable.TABLE_NAME, 5);
         sUriMatcher.addURI(CRMContract.providerAuthority, CRMContract.EngagementTrackTable.TABLE_NAME, 6);
+        sUriMatcher.addURI(CRMContract.providerAuthority, CRMContract.NotificationsTable.TABLE_NAME, 7);
     }
 
 
@@ -78,6 +79,9 @@ public class KardiaProvider extends ContentProvider {
                 break;
             case 6:
                 builder.setTables(CRMContract.EngagementTrackTable.TABLE_NAME);
+                break;
+            case 7:
+                builder.setTables(CRMContract.NotificationsTable.TABLE_NAME);
                 break;
             default:
                 break;
@@ -125,6 +129,10 @@ public class KardiaProvider extends ContentProvider {
                 table = CRMContract.EngagementTrackTable.TABLE_NAME;
                 id = values.getAsInteger(CRMContract.EngagementTrackTable.TRACK_ID);
                 break;
+            case 7:
+                table = CRMContract.NotificationsTable.TABLE_NAME;
+                id = values.getAsInteger(CRMContract.NotificationsTable.NOTIFICATION_ID);
+                break;
             default:
                 table = "";
                 id = 0;
@@ -139,7 +147,37 @@ public class KardiaProvider extends ContentProvider {
     //function that deletes stuffs from the database
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+        String table;
+
+        //determine what table we are dealing with
+        switch (sUriMatcher.match(uri)) {
+            case 1:
+                table = CRMContract.StaffTable.TABLE_NAME;
+                break;
+            case 2:
+                table = CRMContract.CollaborateeTable.TABLE_NAME;
+                break;
+            case 3:
+                table = CRMContract.TimelineTable.TABLE_NAME;
+                break;
+            case 4:
+                table = CRMContract.EngagementTable.TABLE_NAME;
+                break;
+            case 5:
+                table = CRMContract.EngagementStepTable.TABLE_NAME;
+                break;
+            case 6:
+                table = CRMContract.EngagementTrackTable.TABLE_NAME;
+                break;
+            case 7:
+                table = CRMContract.NotificationsTable.TABLE_NAME;
+                break;
+            default:
+                table = "";
+                break;
+        }
+
+        return mDatabase.delete(table, selection, selectionArgs);
     }
 
     //function that updates stuffs in the database
@@ -166,6 +204,9 @@ public class KardiaProvider extends ContentProvider {
                 break;
             case 6:
                 table = CRMContract.EngagementTrackTable.TABLE_NAME;
+                break;
+            case 7:
+                table = CRMContract.NotificationsTable.TABLE_NAME;
                 break;
             default:
                 table = "";

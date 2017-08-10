@@ -168,6 +168,8 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, CRMContract.accountType);
             setAccountAuthenticatorResult(bundle);
 
+            Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
+
             new GetCollaborateesTask().execute(account);
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
@@ -275,13 +277,9 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         @Override
         protected void onPostExecute(Void nothing) {
             if (error == null)
-            {
                 mainActivity();
-            }
             else
-            {
                 Toast.makeText(getApplicationContext(), "Network Issues: Server rejected request.", Toast.LENGTH_SHORT).show();
-            }
         }
     }
 }

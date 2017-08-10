@@ -25,6 +25,7 @@ public class CRMOpenHelper extends SQLiteOpenHelper {
         db.execSQL(CRMContract.EngagementTable.CREATE_TABLE);
         db.execSQL(CRMContract.EngagementStepTable.CREATE_TABLE);
         db.execSQL(CRMContract.EngagementTrackTable.CREATE_TABLE);
+        db.execSQL(CRMContract.NotificationsTable.CREATE_TABLE);
     }
 
     @Override

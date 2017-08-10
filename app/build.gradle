@@ -1,5 +1,5 @@
+//noinspection GradleCompatible
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
 
 android {
     compileSdkVersion 25
@@ -32,4 +32,6 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.kofigyan.stateprogressbar:stateprogressbar:0.0.6'
+    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.afollestad.material-dialogs:core:0.9.4.5'
 }

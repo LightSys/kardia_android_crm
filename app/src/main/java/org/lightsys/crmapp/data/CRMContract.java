@@ -97,6 +97,7 @@ public class CRMContract {
         public static final String SUBJECT = "subject";
         public static final String NOTES = "notes";
         public static final String DATE = "date";
+        public static final String DATE_CREATED = "dateCreated";
 
         public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ("  +
                 CONTACT_ID + "," +
@@ -107,7 +108,26 @@ public class CRMContract {
                 CONTACT_HISTORY_TYPE + "," +
                 SUBJECT + "," +
                 NOTES + "," +
-                DATE + ")";
+                DATE + "," +
+                DATE_CREATED + ")";
+    }
+
+    public static final class NotificationsTable {
+        public static final String TABLE_NAME = "notifications";
+        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path("notifications").build();
+
+        public static final String NOTIFICATION_ID = "notificationId";
+        public static final String TIME = "time";
+        public static final String PARTNER_ID = "partnerId";
+        public static final String NOTES = "notes";
+        public static final String DATE_CREATED = "contactId";
+
+        public static final String CREATE_TABLE = "CREATE TABLE " + NotificationsTable.TABLE_NAME + " (" +
+                NOTIFICATION_ID + " PRIMARY KEY," +
+                TIME + "," +
+                PARTNER_ID + "," +
+                NOTES + "," +
+                DATE_CREATED + ")";
     }
 
     public static final class EngagementTable {

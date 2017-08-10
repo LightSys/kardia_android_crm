@@ -17,14 +17,11 @@ import org.lightsys.crmapp.models.Staff;
 import org.lightsys.crmapp.models.TimelineItem;
 
 import java.io.IOException;
-import java.net.CookieHandler;
-import java.net.CookieManager;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.net.ssl.HttpsURLConnection;
 
 import okhttp3.Credentials;
@@ -32,6 +29,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
+import okhttp3.Authenticator;
 
 import static org.lightsys.crmapp.activities.LoginActivity.Credential;
 
@@ -44,28 +42,28 @@ import static org.lightsys.crmapp.activities.LoginActivity.Credential;
  */
 
 public class KardiaFetcher {
+    private final Authenticator authorization;
     private Context mContext;
     private AccountManager mAccountManager;
-    private static CookieManager cookieManager = new CookieManager();
     private OkHttpClient client;
     private String TAG = "CRM Fetcher";
 
     public KardiaFetcher(Context context) {
         mContext = context;
         mAccountManager = AccountManager.get(context);
-        CookieHandler.setDefault(cookieManager);
+        authorization = new Authenticator() {
+            @Override
+            public Request authenticate(Route route, Response response) throws IOException {
+                return response.request().newBuilder()
+                        .header("Authorization", Credential)
+                        .build();
+            }
+        };
         client = new OkHttpClient.Builder()
                 .cookieJar(new MyCookieJar())
-                .authenticator(new okhttp3.Authenticator()
-                {
-                    @Override
-                    public Request authenticate(Route route, Response response) throws IOException
-                    {
-                        return response.request().newBuilder()
-                                .header("Authorization", Credential)
-                                .build();
-                    }
-                }).build();
+                .authenticator(authorization)
+                .retryOnConnectionFailure(true)
+                .build();
     }
 
     //Makes Requests to the Kardia Server and returns response
@@ -84,6 +82,7 @@ public class KardiaFetcher {
                     .get()
                     .build();
 
+            Log.d("Kardia Fetcher", "GET: " + url);
             Response response = client.newCall(request).execute();
 
             int responseCode = response.code();
@@ -269,6 +268,7 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .appendQueryParameter("cx__res_type", "element")
                     .build().toString();
+
             String partnerKeyJsonString = Request(account, partnerKeyApi);//get partnerKey Json string from network
             JSONObject partnerKeyJsonBody = new JSONObject(partnerKeyJsonString);//build json object
             partnerKey = partnerKeyJsonBody.getString("partner_id");
@@ -309,14 +309,12 @@ public class KardiaFetcher {
         return null;
     }
 
-    private void parseEngagement(ArrayList<Engagement> engagements, Partner partner, JSONObject engagementJsonBody) throws JSONException
-    {
+    private void parseEngagement(ArrayList<Engagement> engagements, Partner partner, JSONObject engagementJsonBody) throws JSONException {
         if (engagementJsonBody.length() < 2)
             return;
 
         JSONArray names = engagementJsonBody.names();
-        for (int i = 0; i < names.length(); i++)
-        {
+        for (int i = 0; i < names.length(); i++) {
             String trackName = names.getString(i);
             if (trackName.equals("@id"))
                 continue;
@@ -335,7 +333,7 @@ public class KardiaFetcher {
 
             Calendar c = Calendar.getInstance();
             JSONObject createdDate = engagementValues.getJSONObject("date_created");
-            c.set(  createdDate.getInt("year"), createdDate.getInt("month"),
+            c.set(createdDate.getInt("year"), createdDate.getInt("month"),
                     createdDate.getInt("day"), createdDate.getInt("hour"),
                     createdDate.getInt("minute"));
             engagement.CreatedDate = c.getTime();
@@ -344,6 +342,67 @@ public class KardiaFetcher {
             engagement.Archived = engagementValues.getInt("is_archived") == 1;
 
             engagements.add(engagement);
+        }
+    }
+    public String getProfilePictureUrl(Account account, String partnerId) throws JSONException {
+        String profilePictureApi = Uri.parse("/apps/kardia/api/crm/Partners/" + partnerId + "/ProfilePicture")
+                .buildUpon()
+                .appendQueryParameter("cx__mode", "rest")
+                .appendQueryParameter("cx__res_type", "element")
+                .appendQueryParameter("cx__res_format", "attrs")
+                .appendQueryParameter("cx__res_attrs", "basic")
+                .build().toString();
+
+        String pictureJsonString = Request(account, profilePictureApi);
+        JSONObject pictureJsonBody = pictureJsonString.equals("") ? null : new JSONObject(pictureJsonString);
+        Partner partner = new Partner();
+        parseProfilePictureJson(partner, pictureJsonBody);
+
+        return partner.ProfilePictureFilename;
+    }
+
+    public List<Partner> partnerSearch(Account account, String search) {
+        List<Partner> partners = new ArrayList<>();
+
+        String partnerSearchApi = Uri.parse("/apps/kardia/api/partnersearch")
+                .buildUpon()
+                .appendQueryParameter("cx__mode", "rest")
+                .appendQueryParameter("cx__res_format", "attrs")
+                .appendQueryParameter("cx__res_attrs", "basic")
+                .appendQueryParameter("cx__res_type", "collection")
+                .appendQueryParameter("string", search).toString();
+
+        try {
+            String partnerSearchJsonString = Request(account, partnerSearchApi);
+
+            if (!partnerSearchJsonString.equals("")) {
+                JSONObject partnerSearchJsonBody = new JSONObject(partnerSearchJsonString);
+
+                parsePartnerSearch(partners, partnerSearchJsonBody);
+            }
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return partners;
+    }
+
+    private void parsePartnerSearch(List<Partner> partners, JSONObject partnerSearchJsonBody) throws JSONException {
+        Iterator<String> partnerSearchKeys = partnerSearchJsonBody.keys();
+
+        while(partnerSearchKeys.hasNext()) {
+            String key = partnerSearchKeys.next();
+            if (!key.equals("@id")) {
+                JSONObject jsonPartner = partnerSearchJsonBody.getJSONObject(key);
+
+                Partner partner = new Partner();
+
+                partner.PartnerId = jsonPartner.getString("partner_id");
+                partner.PartnerName = jsonPartner.getString("partner_name");
+
+                partners.add(partner);
+            }
         }
     }
 
@@ -373,6 +432,14 @@ public class KardiaFetcher {
         collaboratee.GivenNames = partnerJsonBody.getString("given_names");
         collaboratee.PartnerJsonId = partnerJsonBody.getString("@id");
 
+        parseAddressJson(collaboratee, addressJsonBody);
+        parseContactInfoJson(collaboratee, contactJsonBody);
+        parseProfilePictureJson(collaboratee, profilePictureJsonBody);
+
+        return collaboratee;
+    }
+
+    private void parseAddressJson(Partner collaboratee, JSONObject addressJsonBody) throws JSONException {
         Iterator<String> addressKeys = addressJsonBody.keys();
 
         while(addressKeys.hasNext()) {
@@ -387,7 +454,9 @@ public class KardiaFetcher {
                 collaboratee.AddressJsonId = jsonAddress.getString("@id");
             }
         }
+    }
 
+    private void parseContactInfoJson(Partner collaboratee, JSONObject contactJsonBody) throws JSONException {
         Iterator<String> contactKeys = contactJsonBody.keys();
 
         while(contactKeys.hasNext()) {
@@ -413,15 +482,14 @@ public class KardiaFetcher {
                     collaboratee.Phone = jsonContact.getString("contact");
                     collaboratee.PhoneId = jsonContact.getString("contact_id");
                     collaboratee.PhoneJsonId = jsonContact.getString("@id");
-
                 }
             }
         }
+    }
 
+    private void parseProfilePictureJson(Partner collaboratee, JSONObject profilePictureJsonBody) throws JSONException {
         if (profilePictureJsonBody != null)
             collaboratee.ProfilePictureFilename = profilePictureJsonBody.getString("photo_folder") + "/" + profilePictureJsonBody.getString("photo_filename");
-
-        return collaboratee;
     }
 
     //Fills a list of staff based on a json object
@@ -463,10 +531,20 @@ public class KardiaFetcher {
                 item.setSubject(jsonItem.getString("subject"));
                 item.setNotes(jsonItem.getString("notes"));
 
-                JSONObject jsonDate = jsonItem.getJSONObject("date_created");
+                JSONObject jsonDate = jsonItem.getJSONObject("contact_date");
                 String date = jsonDate.getInt("year") + "-" + jsonDate.getInt("month") + "-" + jsonDate.getInt("day");
                 item.setDate(date);
 
+                //This pulls in the date the timeline item was created,
+                //specifically for use in the Followup functionality
+                JSONObject jsonDateCreated = jsonItem.getJSONObject("date_created");
+                String dateCreated = jsonDateCreated.getInt("year") + "-" +
+                        jsonDateCreated.getInt("month") + "-" +
+                        jsonDateCreated.getInt("day") + " " +
+                        jsonDateCreated.getInt("hour") + ":" +
+                        jsonDateCreated.getInt("minute") + ":" +
+                        jsonDateCreated.getInt("second");
+                item.setDateCreated(dateCreated);
 
                 timelineItems.add(item);
             }
