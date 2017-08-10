@@ -1030,5 +1030,3 @@ public class ProfileActivity extends AppCompatActivity {
         return filename;
     }
 }
-
-
