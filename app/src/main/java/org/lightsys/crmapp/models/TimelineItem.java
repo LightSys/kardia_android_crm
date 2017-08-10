@@ -15,6 +15,7 @@ public class TimelineItem {
     private String subject;
     private String notes;
     private String date;
+    private String dateCreated;
 
     public TimelineItem () {
 
@@ -94,6 +95,14 @@ public class TimelineItem {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(String dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
 }

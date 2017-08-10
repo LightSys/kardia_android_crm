@@ -19,7 +19,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import javax.net.ssl.HttpsURLConnection;
 
 import okhttp3.*;
@@ -458,10 +457,20 @@ public class KardiaFetcher {
                 item.setSubject(jsonItem.getString("subject"));
                 item.setNotes(jsonItem.getString("notes"));
 
-                JSONObject jsonDate = jsonItem.getJSONObject("date_created");
+                JSONObject jsonDate = jsonItem.getJSONObject("contact_date");
                 String date = jsonDate.getInt("year") + "-" + jsonDate.getInt("month") + "-" + jsonDate.getInt("day");
                 item.setDate(date);
 
+                //This pulls in the date the timeline item was created,
+                //specifically for use in the Followup functionality
+                JSONObject jsonDateCreated = jsonItem.getJSONObject("date_created");
+                String dateCreated = jsonDateCreated.getInt("year") + "-" +
+                        jsonDateCreated.getInt("month") + "-" +
+                        jsonDateCreated.getInt("day") + " " +
+                        jsonDateCreated.getInt("hour") + ":" +
+                        jsonDateCreated.getInt("minute") + ":" +
+                        jsonDateCreated.getInt("second");
+                item.setDateCreated(dateCreated);
 
                 timelineItems.add(item);
             }

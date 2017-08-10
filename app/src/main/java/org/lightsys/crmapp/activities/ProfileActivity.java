@@ -2,8 +2,10 @@ package org.lightsys.crmapp.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -22,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -40,20 +43,25 @@ import org.lightsys.crmapp.models.TimelineItem;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
 
 import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
+import static org.lightsys.crmapp.data.CRMContract.NotificationsTable.NOTIFICATION_ID;
 
 /**
  * Created by cubemaster on 3/10/16.
@@ -98,9 +106,14 @@ public class ProfileActivity extends AppCompatActivity {
     public static final String TWITTER_KEY = "EXTRA_TWITTER";
     public static final String WEBSITE_KEY = "EXTRA_WEBSITE";
 
+    //Constants specifically for NewInteractionActivity
+    public static final String TYPE_KEY = "EXTRA_TYPE";
+    public static final String SPECIFIC_CONTACT_KEY = "EXTRA_SPECIFIC_CONTACT";
+
     //Variables that hold the stuff retrieved from the intent
-    public String mName;
     public String mPartnerId;
+    public String mName;
+    public String mNotificationId;
 
     public String mEmail;
     public String mPhone;
@@ -132,6 +145,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     public Toolbar mToolbar;
     public CollapsingToolbarLayout mCollapsingToolbarLayout;
+    public Button addInteraction;
 
     private String phones = "";
 
@@ -149,6 +163,14 @@ public class ProfileActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mPartnerId = intent.getStringExtra(PARTNER_ID_KEY);
         mName = intent.getStringExtra(PARTNER_NAME);
+        mNotificationId = intent.getStringExtra(NOTIFICATION_ID);
+
+        //If activity was opened from a notification, delete notification from the database
+        if(mNotificationId != null) {
+            ProfileActivity.this.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI,
+                    CRMContract.NotificationsTable.NOTIFICATION_ID + " = " + mNotificationId,
+                    null);
+        }
 
         //get stuff from saved instance state
         if(savedInstanceState != null) {
@@ -192,6 +214,17 @@ public class ProfileActivity extends AppCompatActivity {
         if(mName != null) {
             mCollapsingToolbarLayout.setTitle(mName);
         }
+
+        addInteraction = (Button) findViewById(R.id.addInteraction);
+        addInteraction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getApplicationContext(), NewInteractionActivity.class);
+                i.putExtra(PARTNER_ID_KEY, mPartnerId);
+                i.putExtra(NAME_KEY, mName);
+                startActivity(i);
+            }
+        });
 
         mAccountManager = AccountManager.get(getApplicationContext());
 
@@ -286,6 +319,59 @@ public class ProfileActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        final String type;
+        final String specificContact;
+
+        //Set correct contact form based on code from the activity
+        switch(requestCode){
+            case 0:
+                //email messge
+                type = "Email Message";
+                specificContact = mEmail;
+                break;
+            case 1:
+                //phone call
+                type = "Phone Call";
+                specificContact = phones;
+                break;
+            default:
+                //nothing
+                type = "";
+                specificContact = "";
+                break;
+        }
+
+        /**
+         * Ask if user wants to record interaction,
+         * and if so start a new interaction activity
+         * with type and date automatically filled
+         */
+        new AlertDialog.Builder(ProfileActivity.this)
+                .setCancelable(false)
+                .setMessage("Record Interaction?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(getApplicationContext(), NewInteractionActivity.class);
+                        intent.putExtra(TYPE_KEY, type);
+                        intent.putExtra(SPECIFIC_CONTACT_KEY, specificContact);
+                        intent.putExtra(PARTNER_ID_KEY, mPartnerId);
+                        intent.putExtra(NAME_KEY, mName);
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    }
+                })
+                .show();
+    }
+
     //Sorts timeline items by date
     //and puts newest items first
     private ArrayList<TimelineItem> sortByDate(List<TimelineItem> items) {
@@ -302,7 +388,7 @@ public class ProfileActivity extends AppCompatActivity {
                     highestItem = item;
                 }
                 else if (date[0] == highestDate[0]){//if the years are the same look at the month
-                    if (date[1] > highestDate[1]){//if the month in bigger the date is newer
+                    if (date[1] > highestDate[1]){//if the month is bigger the date is newer
                         highestDate = date;
                         highestItem = item;
                     }
@@ -333,6 +419,8 @@ public class ProfileActivity extends AppCompatActivity {
                 newItem.put("subject", item.getSubject());
                 newItem.put("date", Formatter.getFormattedDate(item.getDate()));
                 newItem.put("text", item.getNotes());
+                newItem.put("date_created", item.getDateCreated());
+                newItem.put("profile_picture_filename", getProfilePictureFilename(item.getCollaborateeId()));
                 items.add(newItem);
             }
 
@@ -380,6 +468,7 @@ public class ProfileActivity extends AppCompatActivity {
                 values.put(CRMContract.TimelineTable.SUBJECT, item.getSubject());
                 values.put(CRMContract.TimelineTable.NOTES, item.getNotes());
                 values.put(CRMContract.TimelineTable.DATE, item.getDate());
+                values.put(CRMContract.TimelineTable.DATE_CREATED, item.getDateCreated());
                 getContentResolver().insert(CRMContract.TimelineTable.CONTENT_URI, values);
             }
 
@@ -387,11 +476,16 @@ public class ProfileActivity extends AppCompatActivity {
             //Since new items are added above, both old and new items will be returned
             Cursor cursor = getContentResolver().query(
                     CRMContract.TimelineTable.CONTENT_URI,
-                    new String[] {CRMContract.TimelineTable.CONTACT_ID, CRMContract.TimelineTable.PARTNER_ID,
-                            CRMContract.TimelineTable.COLLABORATEE_ID, CRMContract.TimelineTable.COLLABORATEE_NAME,
-                            CRMContract.TimelineTable.CONTACT_HISTORY_ID, CRMContract.TimelineTable.CONTACT_HISTORY_TYPE,
-                            CRMContract.TimelineTable.SUBJECT, CRMContract.TimelineTable.NOTES,
-                            CRMContract.TimelineTable.DATE},
+                    new String[] {CRMContract.TimelineTable.CONTACT_ID,
+                            CRMContract.TimelineTable.PARTNER_ID,
+                            CRMContract.TimelineTable.COLLABORATEE_ID,
+                            CRMContract.TimelineTable.COLLABORATEE_NAME,
+                            CRMContract.TimelineTable.CONTACT_HISTORY_ID,
+                            CRMContract.TimelineTable.CONTACT_HISTORY_TYPE,
+                            CRMContract.TimelineTable.SUBJECT,
+                            CRMContract.TimelineTable.NOTES,
+                            CRMContract.TimelineTable.DATE,
+                            CRMContract.TimelineTable.DATE_CREATED},
                     CRMContract.TimelineTable.PARTNER_ID + " = ?",
                     new String[] {mPartnerId},
                     null
@@ -412,6 +506,7 @@ public class ProfileActivity extends AppCompatActivity {
                 item.setSubject(cursor.getString(6));
                 item.setNotes(cursor.getString(7));
                 item.setDate(cursor.getString(8));
+                item.setDateCreated(cursor.getString(9));
                 items.add(item);
             }
             cursor.close();
@@ -421,7 +516,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
 
-        //Sort items and, if there are none, hide timeline bar
+        //Sort items
         @Override
         protected void onPostExecute(List<TimelineItem> items) {
             mItems = sortByDate(items);
@@ -429,7 +524,6 @@ public class ProfileActivity extends AppCompatActivity {
             if (mItems.size() == 0)
             {
                 timelineCardView.setEnabled(false);
-                timelineCardView.setVisibility(View.INVISIBLE);
             }
         }
 
@@ -472,6 +566,8 @@ public class ProfileActivity extends AppCompatActivity {
             rowView.subject = pieces.get("subject");
             rowView.date = pieces.get("date");
             rowView.textText = pieces.get("text");
+            rowView.followup = checkForFollowup(pieces.get("date_created"));
+            rowView.profilePictureFilename = pieces.get("profile_picture_filename");
 
             rowView.setItemViewText(pieces.get("type") + ": " + pieces.get("name") +
                     " on " + pieces.get("date"));
@@ -492,6 +588,8 @@ public class ProfileActivity extends AppCompatActivity {
         public String subject = "";
         public String date = "";
         public String textText = "";
+        public String followup = "";
+        public String profilePictureFilename = "";
 
         public TimelineLayout(Context context) {
             super(context);
@@ -507,12 +605,13 @@ public class ProfileActivity extends AppCompatActivity {
                     i.putExtra("subject", subject);
                     i.putExtra("date", date);
                     i.putExtra("text", textText);
+                    i.putExtra("followup", followup);
+                    i.putExtra("profilePictureFilename", profilePictureFilename);
                     startActivity(i);
                 }
             });
 
         }
-
 
         public void setItemViewText(final String text){
             itemView.setText(text);
@@ -740,64 +839,63 @@ public class ProfileActivity extends AppCompatActivity {
 
             String profilePictureFilename = mPartner2.getProfilePictureFilename();
             View appBarView = findViewById(R.id.appbarlayout_profile);
-            int width = appBarView.getWidth();
-            int height = appBarView.getHeight();
+            int width = appBarView.getMeasuredWidth();
+            int height = appBarView.getMeasuredHeight();
 
-            if (profilePictureFilename == null || profilePictureFilename.equals(""))
-            {
-                Picasso.with(getApplication())
-                        .load(R.drawable.ic_person_black_24dp)
-                        .resize(width, height)
-                        .into(((ImageView) findViewById(R.id.backdrop_profile)));
+            //TODO: Fix issue where width and height are not read properly
+            if(width != 0 && height != 0) {
+                if (profilePictureFilename == null || profilePictureFilename.equals("")) {
+                    Picasso.with(getApplication())
+                            .load(R.drawable.ic_person_black_24dp)
+                            .resize(width, height)
+                            .into(((ImageView) findViewById(R.id.backdrop_profile)));
+                } else {
+                    int indexoffileName = profilePictureFilename.lastIndexOf("/");
+                    String finalPath = directory + "/" + profilePictureFilename.substring(indexoffileName + 1);
+                    Picasso.with(getApplication())
+                            .load(new File(finalPath))
+                            .placeholder(R.drawable.ic_person_black_24dp)
+                            .resize(width, height)
+                            .into(((ImageView) findViewById(R.id.backdrop_profile)));
+                }
             }
-            else
-            {
-                int indexoffileName = profilePictureFilename.lastIndexOf("/");
-                String finalPath = directory + "/" + profilePictureFilename.substring(indexoffileName + 1);
-                Picasso.with(getApplication())
-                        .load(new File(finalPath))
-                        .placeholder(R.drawable.ic_person_black_24dp)
-                        .resize(width, height)
-                        .into(((ImageView) findViewById(R.id.backdrop_profile)));
-            }
+            TextView emailTextView = (TextView) findViewById(R.id.e_address);
+            emailTextView.setText(mEmail);
 
-            //TODO: Rename this crap
-            TextView mTextView = (TextView) findViewById(R.id.e_address);
-            mTextView.setText(mEmail);
-
-            mTextView.setOnClickListener(new View.OnClickListener() {
+            emailTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent eIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", mEmail, null));
-                    startActivity(Intent.createChooser(eIntent, "Send email..."));
-                    //TODO: Ask to record
+                    //TODO: Set email for autofill
+                    startActivityForResult(Intent.createChooser(eIntent, "Send email..."), 0);
                 }
             });
 
-            TextView mTextView2 = (TextView) findViewById(R.id.phone_number);
+            TextView phoneTextView = (TextView) findViewById(R.id.phone_number);
             if(mCell != null) {
-                mTextView2.setText(mCell);
+                phoneTextView.setText(mCell);
                 phones = mCell;
             }
             else if (mPhone!=null){
-                mTextView2.setText(mPhone);
+                phoneTextView.setText(mPhone);
                 phones = mPhone;
             }
-            mTextView2.setOnClickListener(new View.OnClickListener() {
+            phoneTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String tele = "+" + phones.replaceAll("[^0-9.]", "");
                     Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", tele, null));
-                    startActivity(intent);
-                    //TODO: Ask to record
+                    //TODO: Set phone for autofill
+                    //use phones String
+                    startActivityForResult(intent, 1);
                 }
             });
 
 
-            TextView mTextView3 = (TextView) findViewById(R.id.s_address);
-            mTextView3.setText(mAddress + ", " + mCity + ", " + mState + ", " + mPostalCode);
+            TextView addressTextView = (TextView) findViewById(R.id.s_address);
+            addressTextView.setText(mAddress + ", " + mCity + ", " + mState + ", " + mPostalCode);
 
-            mTextView3.setOnClickListener(new View.OnClickListener() {
+            addressTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String url = "https://www.google.com/maps/search/?api=1&query=" + mAddress + "%2C+" + mCity + "%2C+" + mState + "%2C+" + mPostalCode;
@@ -808,8 +906,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    public static void saveImageFromUrl(String server, Context context, String profilePictureFilename)
-    {
+    public static void saveImageFromUrl(String server, Context context, String profilePictureFilename) {
         if (profilePictureFilename == null || profilePictureFilename.equals(""))
             return;
 
@@ -860,12 +957,76 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     //Checks if app is connected to a network
-    private boolean networkConnected(){
+    private boolean networkConnected() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
+
+    private String checkForFollowup(String dateCreated) {
+        String followupDate = "";
+
+        try {
+
+            //Convert item date created int a String
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+            Date mDateCreated = format.parse(dateCreated);
+            String itemDateCreated = format.format(mDateCreated);
+
+            // Open notification database with a cursor
+            Cursor cursor = ProfileActivity.this.getContentResolver().query(
+                    CRMContract.NotificationsTable.CONTENT_URI,
+                    new String[] {CRMContract.NotificationsTable.TIME,
+                            CRMContract.NotificationsTable.DATE_CREATED},
+                    null, null, null);
+
+            while (cursor.moveToNext()){
+
+                //Convert notification date created into a String
+                Calendar cal = Calendar.getInstance();
+                long notificationInMillis = Long.parseLong(cursor.getString(1));
+                cal.setTimeInMillis(notificationInMillis);
+                String notificationDateCreated = format.format(cal.getTime());
+
+                // Check if any of the item's created dates match the created date of a followup notification
+                if(notificationDateCreated.equals(itemDateCreated)) {
+                    long mFollowupDate = Long.parseLong(cursor.getString(0));
+
+                    // Convert the actual followup date to a regular date and time
+                    Calendar c = Calendar.getInstance();
+                    c.setTimeInMillis(mFollowupDate);
+                    followupDate = format.format(c.getTime());
+                }
+            }
+
+            cursor.close();
+        }
+        catch (ParseException p) {
+            p.printStackTrace();
+        }
+
+        return followupDate;
+    }
+
+    private String getProfilePictureFilename(String collaborateeID) {
+        String filename = "";
+
+        //Open cursor to access collaboratee table adnd get
+        //profile picture filename for the collaboratee
+        Cursor cursor = getContentResolver().query(
+                CRMContract.CollaborateeTable.CONTENT_URI,
+                new String[] {CRMContract.CollaborateeTable.PROFILE_PICTURE},
+                CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
+                new String[] {collaborateeID},
+                null);
+
+        while(cursor.moveToNext()){
+            filename = cursor.getString(0);
+        }
+
+        cursor.close();
+
+        return filename;
+    }
 }
-
-

@@ -91,13 +91,29 @@
             android:background="@android:color/background_light"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/timelineText"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/card_profile_padding"
-                android:text="@string/timeline"
-                android:textColor="@color/primary_text" />
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/timelineText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="@dimen/card_profile_padding"
+                    android:text="@string/timeline"
+                    android:textColor="@color/primary_text" />
+
+                <Button
+                    android:id="@+id/addInteraction"
+                    style="@style/Widget.AppCompat.Button.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ic_add_black" />
+
+            </LinearLayout>
 
             <include layout="@layout/divider" />
 
@@ -105,10 +121,6 @@
                 android:id="@+id/timelineList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
-
-            <include layout="@layout/divider_small" />
-
-            <include layout="@layout/divider_small" />
 
             <include layout="@layout/divider" />
 

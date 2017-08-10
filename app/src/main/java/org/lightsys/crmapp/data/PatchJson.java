@@ -10,10 +10,8 @@ import android.widget.Toast;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.Authenticator;
 import java.net.CookieHandler;
 import java.net.CookieManager;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;

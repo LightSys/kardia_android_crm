@@ -54,7 +54,6 @@ public class Partner {
         this.partnerName = partnerName;
     }
 
-
     //get and set ID and names for a contact
     public String getPartnerId() {
 
@@ -102,8 +101,6 @@ public class Partner {
         this.givenNames = givenNames;
     }
 
-
-
     //gets full/ complete address for when display address within a contact's profile
     public String getFullAddress() {
         return getAddress1() + ", " + getCity() + ", " + getStateProvince() + " " + getPostalCode();
@@ -115,7 +112,6 @@ public class Partner {
         this.stateProvince = state;
         this.postalCode = zipCode;
     }
-
 
     //get and set various components of a contact's address
     public String getAddress1() {
