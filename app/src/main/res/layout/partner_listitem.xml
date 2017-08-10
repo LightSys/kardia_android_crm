@@ -21,13 +21,4 @@
         android:textColor="#000"
         android:text="otter57"/>
 
-    <ImageButton
-        android:id="@+id/add_button"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:src="@drawable/ic_add_black"
-        android:layout_marginLeft="@dimen/profile_listitem_name_marginleft"
-        android:gravity="center_vertical"
-        android:background="@color/white"/>
-
 </LinearLayout>

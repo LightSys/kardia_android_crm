@@ -407,6 +407,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super(view);
 
             mLinearLayout = (LinearLayout) view;
+            mLinearLayout.setOnClickListener(this);
         }
 
         /**
@@ -448,7 +449,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
             ((TextView) mLinearLayout.findViewById(R.id.profile_name)).setText(partner.PartnerName);
-            mLinearLayout.findViewById(R.id.add_button).setOnClickListener(this);
         }
 
         /**

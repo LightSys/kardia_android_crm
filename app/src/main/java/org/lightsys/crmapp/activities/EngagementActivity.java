@@ -26,11 +26,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -50,6 +55,7 @@ import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAM
 
 public class EngagementActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
+    private static final String TAG = "Engagement Activity";
     private AccountManager mAccountManager;
 
     private RecyclerView mRecyclerView;
@@ -66,6 +72,8 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
     public static String COMPLETON_STATUS = "completionStatus";
     private List<EngagementTrack> tracks;
     private List<EngagementStep> steps;
+    private MaterialDialog partnerResultsDialog;
+    private MaterialDialog partnerDetailDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,6 +180,173 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
 
     private void setupAdapter(List<Engagement> engagements) {
         mRecyclerView.setAdapter(new EngagementAdapter(engagements));
+    }
+
+    private class PartnerSearchTask extends AsyncTask<String, Void, List<Partner>> {
+        @Override
+        protected List<Partner> doInBackground(String... params) {
+            KardiaFetcher fetcher = new KardiaFetcher(EngagementActivity.this);
+            List<Partner> partners = fetcher.partnerSearch(mAccount, params[0]);
+            for (Partner partner : partners) {
+                try {
+                    partner.ProfilePictureFilename = fetcher.getProfilePictureUrl(mAccount, partner.PartnerId);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            //TODO: keep only current collaboratees.
+            return partners;
+        }
+
+        @Override
+        protected void onPostExecute(List<Partner> partners) {
+            if (partners == null || partners.size() < 1) {
+                Toast.makeText(EngagementActivity.this, "No Partners found", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            partnerResultsDialog = new MaterialDialog.Builder(EngagementActivity.this)
+                    .title("Start Partner on new Engagement")
+                    .adapter(new PartnerSearchAdapter(partners), null)
+                    .show();
+        }
+    }
+
+    /**
+     * View that holds collaboratee information
+     */
+    private class PartnerHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private LinearLayout mLinearLayout;
+        private Partner mPartner;
+
+        public PartnerHolder(View view) {
+            super(view);
+
+            mLinearLayout = (LinearLayout) view;
+        }
+
+        /**
+         * Binds profile information to the view.
+         */
+        public void bindProfile(Partner partner) {
+            mPartner = partner;
+
+            if (partner.ProfilePictureFilename == null || partner.ProfilePictureFilename.equals("")) {
+                Picasso.with(getApplication())
+                        .load(R.drawable.persona)
+                        .resize(64, 64)
+                        .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
+            } else {
+                File directory = getDir("imageDir", Context.MODE_PRIVATE);
+                int indexoffileName = partner.ProfilePictureFilename.lastIndexOf("/");
+                String finalPath = directory + "/" + partner.ProfilePictureFilename.substring(indexoffileName + 1);
+
+                File pictureFile = new File(finalPath);
+
+                if (pictureFile.exists()) {
+                    Log.d(TAG, "Loading image from: " + pictureFile.getPath());
+                    Picasso.with(getApplication())
+                            .load(pictureFile)
+                            .resize(64, 64)
+                            .placeholder(R.drawable.persona)
+                            .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
+                } else {
+                    Log.d(TAG, "Loading image from: " + mAccountManager.getUserData(mAccount, "server") + partner.ProfilePictureFilename);
+                    Picasso.with(getApplication())
+                            .load(mAccountManager.getUserData(mAccount, "server") + partner.ProfilePictureFilename)
+                            .resize(64, 64)
+                            .memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE)
+                            .placeholder(R.drawable.persona)
+                            .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
+                }
+            }
+
+            ((TextView) mLinearLayout.findViewById(R.id.profile_name)).setText(partner.PartnerName);
+            mLinearLayout.findViewById(R.id.add_button).setOnClickListener(this);
+        }
+
+        /**
+         * Goes to get further information regarding a collaboratee after a collaboratee is selected.
+         */
+        @Override
+        public void onClick(View v) {
+            Toast.makeText(EngagementActivity.this, mPartner.PartnerName + " Selected", Toast.LENGTH_SHORT).show();
+
+            View customView = getLayoutInflater().inflate(R.layout.engagement_dialog_detail, null);
+            ImageView image = (ImageView) customView.findViewById(R.id.profile_photo);
+
+            if (mPartner.ProfilePictureFilename == null || mPartner.ProfilePictureFilename.equals("")) {
+                Picasso.with(EngagementActivity.this)
+                        .load(R.drawable.persona)
+                        .resize(64, 64)
+                        .into(image);
+            } else {
+                Picasso.with(EngagementActivity.this)
+                        .load(mPartner.ProfilePictureFilename)
+                        .resize(64, 64)
+                        .placeholder(R.drawable.persona)
+                        .into(image);
+            }
+
+            TextView profileName = (TextView) customView.findViewById(R.id.profile_name);
+            profileName.setText(mPartner.PartnerName);
+
+            Spinner trackSpinner = (Spinner) customView.findViewById(R.id.trackSpinner);
+            ArrayAdapter<String> adapter;
+            List<String> list = new ArrayList<>();
+
+            for (EngagementTrack track : tracks) {
+                list.add(track.TrackName);
+            }
+
+            adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, list);
+
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            trackSpinner.setAdapter(adapter);
+
+            Button submitButton = (Button) customView.findViewById(R.id.submit);
+            submitButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //TODO: AsyncTask to Add new engagement Track to REST API/Database
+                }
+            });
+
+            partnerResultsDialog = new MaterialDialog.Builder(EngagementActivity.this)
+                    .title("Start Partner on new Engagement")
+                    .customView(customView, false)
+                    .show();
+        }
+    }
+
+    /**
+     * Lists profiles.
+     */
+    private class PartnerSearchAdapter extends RecyclerView.Adapter<PartnerHolder> {
+        private List<Partner> mCollaboratees;
+
+        PartnerSearchAdapter(List<Partner> collaboratees) {
+            mCollaboratees = collaboratees;
+        }
+
+        @Override
+        public PartnerHolder onCreateViewHolder(ViewGroup container, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(getApplication());
+            View rootView = inflater.inflate(R.layout.partner_listitem, container, false);
+
+            return new PartnerHolder(rootView);
+        }
+
+        @Override
+        public void onBindViewHolder(PartnerHolder partnerHolder, int position) {
+            Partner collaboratee = mCollaboratees.get(position);
+            partnerHolder.bindProfile(collaboratee);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mCollaboratees.size();
+        }
     }
 
     private class EngagementHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -346,8 +521,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
 
     private class GetEngagementTracksTask extends AsyncTask<Void, Void, Void> {
         @Override
-        protected Void doInBackground(Void... params)
-        {
+        protected Void doInBackground(Void... params) {
             KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
             try
             {
