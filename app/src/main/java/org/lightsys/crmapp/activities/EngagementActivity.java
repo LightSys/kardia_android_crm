@@ -19,6 +19,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -74,6 +75,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
     private List<EngagementStep> steps;
     private MaterialDialog partnerResultsDialog;
     private MaterialDialog partnerDetailDialog;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +109,28 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if (query.equals(""))
+                    return true;
+
+                searchView.clearFocus();
+                search(query);
+                return true;
+            }
+
+            private void search(String query) {
+                new PartnerSearchTask().execute(query);
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
         return true;
     }
 
@@ -262,7 +286,6 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
             }
 
             ((TextView) mLinearLayout.findViewById(R.id.profile_name)).setText(partner.PartnerName);
-            mLinearLayout.findViewById(R.id.add_button).setOnClickListener(this);
         }
 
         /**
@@ -312,7 +335,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
                 }
             });
 
-            partnerResultsDialog = new MaterialDialog.Builder(EngagementActivity.this)
+            partnerDetailDialog = new MaterialDialog.Builder(EngagementActivity.this)
                     .title("Start Partner on new Engagement")
                     .customView(customView, false)
                     .show();
