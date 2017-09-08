@@ -89,21 +89,18 @@ public class KardiaFetcher {
 
             Log.e(TAG, "responseCode : " + responseCode);
             boolean success;
-            
+
             //if the things were sent properly, get the result code
-            if (responseCode == HttpsURLConnection.HTTP_OK && response.isSuccessful())
-            {
+            if (responseCode == HttpsURLConnection.HTTP_OK && response.isSuccessful()) {
                 Log.e(TAG, "HTTP_OK");
                 result = response.body().string();
                 success = true;
-            } else
-            {
+            } else {
                 Log.e(TAG, "False - HTTP_OK");//send failed :(
                 result = "";
                 success = false;
             }
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -135,8 +132,7 @@ public class KardiaFetcher {
     }
 
     //Returns a list of collaboratees
-    public List<Partner> getCollaboratees(Account account) throws IOException
-    {
+    public List<Partner> getCollaboratees(Account account) throws IOException {
         List<Partner> collaboratees = new ArrayList<>();//empty list of collaboratees
 
         try {
@@ -152,8 +148,7 @@ public class KardiaFetcher {
 
             parseCollaborateesJson(collaboratees, crmJsonBody);//fill collaboratees list with collaboratees
 
-            for (Partner collaboratee : collaboratees)
-            {
+            for (Partner collaboratee : collaboratees) {
                 String profilePictureApi = Uri.parse("/apps/kardia/api/crm/Partners/" + collaboratee.PartnerId + "/ProfilePicture")
                         .buildUpon()
                         .appendQueryParameter("cx__mode", "rest")
@@ -163,8 +158,7 @@ public class KardiaFetcher {
                         .build().toString();
 
                 String pictureJsonString = Request(account, profilePictureApi);
-                if (!pictureJsonString.startsWith("HTTP/1.0 404 Not Found") && !pictureJsonString.equals(""))
-                {
+                if (!pictureJsonString.startsWith("HTTP/1.0 404 Not Found") && !pictureJsonString.equals("")) {
                     JSONObject pictureJsonBody = new JSONObject(pictureJsonString);//build json object
                     collaboratee.ProfilePictureFilename = pictureJsonBody.getString("photo_folder") + "/" + pictureJsonBody.getString("photo_filename");
                 }
@@ -272,8 +266,7 @@ public class KardiaFetcher {
             String partnerKeyJsonString = Request(account, partnerKeyApi);//get partnerKey Json string from network
             JSONObject partnerKeyJsonBody = new JSONObject(partnerKeyJsonString);//build json object
             partnerKey = partnerKeyJsonBody.getString("partner_id");
-        } catch (JSONException je)
-        {
+        } catch (JSONException je) {
             je.printStackTrace();
         }
 
@@ -284,8 +277,7 @@ public class KardiaFetcher {
     public List<Engagement> getEngagements(Account account, List<Partner> collaboratees) {
         try {
             ArrayList<Engagement> engagements = new ArrayList<>();
-            for (Partner partner : collaboratees)
-            {
+            for (Partner partner : collaboratees) {
                 String engagementApi = Uri.parse("/apps/kardia/api/crm/Partners/" + partner.PartnerId + "/Tracks")
                         .buildUpon()
                         .appendQueryParameter("cx__mode", "rest")
@@ -302,8 +294,7 @@ public class KardiaFetcher {
                 }
             }
             return engagements;
-        } catch (JSONException e)
-        {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
         return null;
@@ -344,6 +335,7 @@ public class KardiaFetcher {
             engagements.add(engagement);
         }
     }
+
     public String getProfilePictureUrl(Account account, String partnerId) throws JSONException {
         String profilePictureApi = Uri.parse("/apps/kardia/api/crm/Partners/" + partnerId + "/ProfilePicture")
                 .buildUpon()
@@ -380,8 +372,7 @@ public class KardiaFetcher {
 
                 parsePartnerSearch(partners, partnerSearchJsonBody);
             }
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
@@ -391,7 +382,7 @@ public class KardiaFetcher {
     private void parsePartnerSearch(List<Partner> partners, JSONObject partnerSearchJsonBody) throws JSONException {
         Iterator<String> partnerSearchKeys = partnerSearchJsonBody.keys();
 
-        while(partnerSearchKeys.hasNext()) {
+        while (partnerSearchKeys.hasNext()) {
             String key = partnerSearchKeys.next();
             if (!key.equals("@id")) {
                 JSONObject jsonPartner = partnerSearchJsonBody.getJSONObject(key);
@@ -410,9 +401,9 @@ public class KardiaFetcher {
     private void parseCollaborateesJson(List<Partner> collaboratees, JSONObject crmJsonBody) throws IOException, JSONException {
         Iterator<String> crmKeys = crmJsonBody.keys();
 
-        while(crmKeys.hasNext()) {
+        while (crmKeys.hasNext()) {
             String key = crmKeys.next();
-            if(!key.equals("@id")) {
+            if (!key.equals("@id")) {
                 JSONObject jsonPartner = crmJsonBody.getJSONObject(key);
 
                 Partner collaboratee = new Partner();
@@ -442,9 +433,9 @@ public class KardiaFetcher {
     private void parseAddressJson(Partner collaboratee, JSONObject addressJsonBody) throws JSONException {
         Iterator<String> addressKeys = addressJsonBody.keys();
 
-        while(addressKeys.hasNext()) {
+        while (addressKeys.hasNext()) {
             String key = addressKeys.next();
-            if(!key.equals("@id")) {
+            if (!key.equals("@id")) {
                 JSONObject jsonAddress = addressJsonBody.getJSONObject(key);
 
                 collaboratee.Address1 = jsonAddress.getString("address_1");
@@ -459,26 +450,26 @@ public class KardiaFetcher {
     private void parseContactInfoJson(Partner collaboratee, JSONObject contactJsonBody) throws JSONException {
         Iterator<String> contactKeys = contactJsonBody.keys();
 
-        while(contactKeys.hasNext()) {
+        while (contactKeys.hasNext()) {
             String key = contactKeys.next();
-            if(!key.equals("@id")) {
+            if (!key.equals("@id")) {
                 JSONObject jsonContact = contactJsonBody.getJSONObject(key);
 
-                if(jsonContact.getString("contact_type").equals("Cell")) {
+                if (jsonContact.getString("contact_type").equals("Cell")) {
                     collaboratee.Cell = jsonContact.getString("contact");
                     collaboratee.CellId = jsonContact.getString("contact_id");
                     collaboratee.CellJsonId = jsonContact.getString("@id");
                     Log.e("kardfetchcell", collaboratee.CellJsonId);
                 }
 
-                if(jsonContact.getString("contact_type").equals("Email")) {
+                if (jsonContact.getString("contact_type").equals("Email")) {
                     collaboratee.Email = jsonContact.getString("contact");
                     collaboratee.EmailId = jsonContact.getString("contact_id");
                     collaboratee.EmailJsonId = jsonContact.getString("@id");
                     Log.e("kardfetchemail", collaboratee.EmailJsonId);
                 }
 
-                if(jsonContact.getString("contact_type").equals("Phone")) {
+                if (jsonContact.getString("contact_type").equals("Phone")) {
                     collaboratee.Phone = jsonContact.getString("contact");
                     collaboratee.PhoneId = jsonContact.getString("contact_id");
                     collaboratee.PhoneJsonId = jsonContact.getString("@id");
@@ -496,9 +487,9 @@ public class KardiaFetcher {
     private void parseStaffJson(List<Staff> staff, JSONObject jsonBody) throws IOException, JSONException {
         Iterator<String> keys = jsonBody.keys();
 
-        while(keys.hasNext()) {
+        while (keys.hasNext()) {
             String key = keys.next();
-            if(!key.equals("@id")) {
+            if (!key.equals("@id")) {
                 JSONObject jsonStaff = jsonBody.getJSONObject(key);
 
                 Staff staffMember = new Staff();
@@ -515,9 +506,9 @@ public class KardiaFetcher {
     private void parseTimelineItemsJson(List<TimelineItem> timelineItems, JSONObject timelineJsonBody) throws IOException, JSONException {
         Iterator<String> timelineKeys = timelineJsonBody.keys();
 
-        while(timelineKeys.hasNext()) {
+        while (timelineKeys.hasNext()) {
             String key = timelineKeys.next();
-            if(!key.equals("@id")) {
+            if (!key.equals("@id")) {
                 JSONObject jsonItem = timelineJsonBody.getJSONObject(key);
 
                 TimelineItem item = new TimelineItem();
@@ -551,8 +542,7 @@ public class KardiaFetcher {
         }
     }
 
-    public List<EngagementTrack> getEngagementTracks(final Account account) throws JSONException
-    {
+    public List<EngagementTrack> getEngagementTracks(final Account account) throws JSONException {
         String trackApi = Uri.parse("/apps/kardia/api/crm_config/Tracks")
                 .buildUpon()
                 .appendQueryParameter("cx__mode", "rest")
@@ -567,17 +557,14 @@ public class KardiaFetcher {
         return parseEngagementTracks(trackJsonBody);
     }
 
-    private ArrayList<EngagementTrack> parseEngagementTracks(JSONObject trackJsonBody) throws JSONException
-    {
+    private ArrayList<EngagementTrack> parseEngagementTracks(JSONObject trackJsonBody) throws JSONException {
         ArrayList<EngagementTrack> tracks = new ArrayList<>();
 
         Iterator<String> trackKeys = trackJsonBody.keys();
 
-        while(trackKeys.hasNext())
-        {
+        while (trackKeys.hasNext()) {
             String key = trackKeys.next();
-            if (!key.equals("@id"))
-            {
+            if (!key.equals("@id")) {
                 JSONObject jsonItem = trackJsonBody.getJSONObject(key);
                 EngagementTrack track = new EngagementTrack();
 
@@ -593,12 +580,10 @@ public class KardiaFetcher {
         return tracks;
     }
 
-    public List<EngagementStep> getEngagementSteps(Account account, List<EngagementTrack> tracks) throws JSONException
-    {
+    public List<EngagementStep> getEngagementSteps(Account account, List<EngagementTrack> tracks) throws JSONException {
         ArrayList<EngagementStep> steps = new ArrayList<>();
 
-        for (EngagementTrack track : tracks)
-        {
+        for (EngagementTrack track : tracks) {
             String stepApi = Uri.parse("/apps/kardia/api/crm_config/Tracks/" + track.TrackName + "/Steps")
                     .buildUpon()
                     .appendQueryParameter("cx__mode", "rest")
@@ -618,15 +603,12 @@ public class KardiaFetcher {
         return steps;
     }
 
-    private void parseEngagementSteps(ArrayList<EngagementStep> steps, JSONObject stepJsonBody) throws JSONException
-    {
+    private void parseEngagementSteps(ArrayList<EngagementStep> steps, JSONObject stepJsonBody) throws JSONException {
         Iterator<String> stepKeys = stepJsonBody.keys();
 
-        while(stepKeys.hasNext())
-        {
+        while (stepKeys.hasNext()) {
             String key = stepKeys.next();
-            if (!key.equals("@id"))
-            {
+            if (!key.equals("@id")) {
                 JSONObject jsonItem = stepJsonBody.getJSONObject(key);
 
                 EngagementStep step = new EngagementStep();

@@ -43,6 +43,8 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
     private AccountManager mAccountManager;
     public static String Credential;
+    private  static String protocal;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -171,6 +173,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
 
             new GetCollaborateesTask().execute(account);
+
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
             {
@@ -246,6 +249,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         @Override
         protected Void doInBackground(Account... accounts) {
             KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
+
 
             try
             {

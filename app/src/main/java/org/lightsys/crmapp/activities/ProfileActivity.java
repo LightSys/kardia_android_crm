@@ -19,6 +19,7 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,6 +31,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -148,6 +150,7 @@ public class ProfileActivity extends AppCompatActivity {
     public Button addInteraction;
 
     private String phones = "";
+    private String TAG = "ProfileActivity";
 
     private Account mAccount;
     private List<TimelineItem> mItems = new ArrayList<>();
@@ -848,16 +851,14 @@ public class ProfileActivity extends AppCompatActivity {
             if(width != 0 && height != 0) {
                 if (profilePictureFilename == null || profilePictureFilename.equals("")) {
                     Picasso.with(getApplication())
-                            .load(R.drawable.ic_person_black_24dp)
-                            .resize(width, height)
+                            .load(R.drawable.persona)
                             .into(((ImageView) findViewById(R.id.backdrop_profile)));
                 } else {
                     int indexoffileName = profilePictureFilename.lastIndexOf("/");
                     String finalPath = directory + "/" + profilePictureFilename.substring(indexoffileName + 1);
                     Picasso.with(getApplication())
                             .load(new File(finalPath))
-                            .placeholder(R.drawable.ic_person_black_24dp)
-                            .resize(64, 64)
+                            .placeholder(R.drawable.persona)
                             .into(((ImageView) findViewById(R.id.backdrop_profile)));
                 }
             }
@@ -867,9 +868,12 @@ public class ProfileActivity extends AppCompatActivity {
             emailTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent eIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", mEmail, null));
-                    //TODO: Set email for autofill
-                    startActivityForResult(Intent.createChooser(eIntent, "Send email..."), 0);
+                    Intent email_send = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", mEmail, null));
+                    try {
+                        startActivity(Intent.createChooser(email_send, "Send email..."));
+                    } catch (android.content.ActivityNotFoundException ex) {
+                        Toast.makeText(ProfileActivity.this,"No Email app Found", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
 
@@ -882,14 +886,32 @@ public class ProfileActivity extends AppCompatActivity {
                 phoneTextView.setText(mPhone);
                 phones = mPhone;
             }
+            //call/text donor
             phoneTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String tele = "+" + phones.replaceAll("[^0-9.]", "");
-                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", tele, null));
-                    //TODO: Set phone for autofill
-                    //use phones String
-                    startActivityForResult(intent, 1);
+                    new AlertDialog.Builder(ProfileActivity.this)
+                            .setCancelable(false)
+                            .setMessage("Go to phone?")
+                            //.setMessage("Server uses self-signed certificate. Allow connection?")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    String phoneCall = "+" + mPhone.replaceAll("[^0-9.]", "");
+                                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phoneCall, null));
+                                    try {
+                                        startActivity(intent);
+                                    } catch(android.content.ActivityNotFoundException ex) {
+                                        Toast.makeText(ProfileActivity.this,"no Phone app found", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
                 }
             });
 
