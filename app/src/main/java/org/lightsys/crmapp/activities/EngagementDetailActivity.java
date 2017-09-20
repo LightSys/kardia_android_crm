@@ -8,9 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,7 +18,7 @@ import com.kofigyan.stateprogressbar.StateProgressBar;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lightsys.crmapp.R;
-import org.lightsys.crmapp.data.CRMContract;
+import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.PatchJson;
 import org.lightsys.crmapp.data.PostJson;
 import org.lightsys.crmapp.models.Engagement;
@@ -37,7 +35,7 @@ import static org.lightsys.crmapp.activities.EngagementActivity.ENGAGEMENT_ID;
 import static org.lightsys.crmapp.activities.EngagementActivity.PARTNER_ID;
 import static org.lightsys.crmapp.activities.EngagementActivity.STEP_NAME;
 import static org.lightsys.crmapp.activities.EngagementActivity.TRACK_NAME;
-import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
+import static org.lightsys.crmapp.data.LocalDBTables.CollaborateeTable.PARTNER_NAME;
 
 public class EngagementDetailActivity extends AppCompatActivity {
     StateProgressBar progressBar;
@@ -261,11 +259,11 @@ public class EngagementDetailActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             Cursor cursor = getContentResolver().query(
-                    CRMContract.EngagementStepTable.CONTENT_URI,
-                    new String[]{CRMContract.EngagementStepTable.STEP_NAME,
-                            CRMContract.EngagementStepTable.STEP_DESCRIPTION,
-                            CRMContract.EngagementStepTable.STEP_SEQUENCE},
-                    CRMContract.EngagementStepTable.TRACK_NAME + " = ?",
+                    LocalDBTables.EngagementStepTable.CONTENT_URI,
+                    new String[]{LocalDBTables.EngagementStepTable.STEP_NAME,
+                            LocalDBTables.EngagementStepTable.STEP_DESCRIPTION,
+                            LocalDBTables.EngagementStepTable.STEP_SEQUENCE},
+                    LocalDBTables.EngagementStepTable.TRACK_NAME + " = ?",
                     new String[]{engagement.TrackName},
                     null
             );
@@ -311,12 +309,12 @@ public class EngagementDetailActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             Cursor cursor = getContentResolver().query(
-                    CRMContract.EngagementTrackTable.CONTENT_URI,
+                    LocalDBTables.EngagementTrackTable.CONTENT_URI,
                     new String[]{
-                            CRMContract.EngagementTrackTable.TRACK_ID,
-                            CRMContract.EngagementTrackTable.TRACK_NAME
+                            LocalDBTables.EngagementTrackTable.TRACK_ID,
+                            LocalDBTables.EngagementTrackTable.TRACK_NAME
                     },
-                    CRMContract.EngagementTrackTable.TRACK_NAME + " = ?",
+                    LocalDBTables.EngagementTrackTable.TRACK_NAME + " = ?",
                     new String[]{engagement.TrackName},
                     null);
 

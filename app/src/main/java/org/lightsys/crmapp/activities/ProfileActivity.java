@@ -19,7 +19,6 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,7 +36,7 @@ import com.squareup.picasso.Picasso;
 
 import org.lightsys.crmapp.Formatter;
 import org.lightsys.crmapp.R;
-import org.lightsys.crmapp.data.CRMContract;
+import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.TimelineItem;
@@ -62,8 +61,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
 
-import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
-import static org.lightsys.crmapp.data.CRMContract.NotificationsTable.NOTIFICATION_ID;
+import static org.lightsys.crmapp.data.LocalDBTables.CollaborateeTable.PARTNER_NAME;
+import static org.lightsys.crmapp.data.LocalDBTables.NotificationsTable.NOTIFICATION_ID;
 
 /**
  * Created by cubemaster on 3/10/16.
@@ -170,8 +169,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         //If activity was opened from a notification, delete notification from the database
         if(mNotificationId != null) {
-            ProfileActivity.this.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI,
-                    CRMContract.NotificationsTable.NOTIFICATION_ID + " = " + mNotificationId,
+            ProfileActivity.this.getContentResolver().delete(LocalDBTables.NotificationsTable.CONTENT_URI,
+                    LocalDBTables.NotificationsTable.NOTIFICATION_ID + " = " + mNotificationId,
                     null);
         }
 
@@ -231,7 +230,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         mAccountManager = AccountManager.get(getApplicationContext());
 
-        Account[] accounts = mAccountManager.getAccountsByType(CRMContract.accountType);
+        Account[] accounts = mAccountManager.getAccountsByType(LocalDBTables.accountType);
         if(accounts.length > 0) {
             mAccount = accounts[0];
             new getCollaborateeInfoTask().execute();
@@ -462,34 +461,34 @@ public class ProfileActivity extends AppCompatActivity {
             //(Primary key will prevent any duplicate from being added)
             for(TimelineItem item : items) {
                 ContentValues values = new ContentValues();
-                values.put(CRMContract.TimelineTable.CONTACT_ID, item.getContactId());
-                values.put(CRMContract.TimelineTable.PARTNER_ID, item.getPartnerId());
-                values.put(CRMContract.TimelineTable.COLLABORATEE_ID, item.getCollaborateeId());
-                values.put(CRMContract.TimelineTable.COLLABORATEE_NAME, item.getCollaborateeName());
-                values.put(CRMContract.TimelineTable.CONTACT_HISTORY_ID, item.getContactHistoryId());
-                values.put(CRMContract.TimelineTable.CONTACT_HISTORY_TYPE, item.getContactHistoryType());
-                values.put(CRMContract.TimelineTable.SUBJECT, item.getSubject());
-                values.put(CRMContract.TimelineTable.NOTES, item.getNotes());
-                values.put(CRMContract.TimelineTable.DATE, item.getDate());
-                values.put(CRMContract.TimelineTable.DATE_CREATED, item.getDateCreated());
-                getContentResolver().insert(CRMContract.TimelineTable.CONTENT_URI, values);
+                values.put(LocalDBTables.TimelineTable.CONTACT_ID, item.getContactId());
+                values.put(LocalDBTables.TimelineTable.PARTNER_ID, item.getPartnerId());
+                values.put(LocalDBTables.TimelineTable.COLLABORATEE_ID, item.getCollaborateeId());
+                values.put(LocalDBTables.TimelineTable.COLLABORATEE_NAME, item.getCollaborateeName());
+                values.put(LocalDBTables.TimelineTable.CONTACT_HISTORY_ID, item.getContactHistoryId());
+                values.put(LocalDBTables.TimelineTable.CONTACT_HISTORY_TYPE, item.getContactHistoryType());
+                values.put(LocalDBTables.TimelineTable.SUBJECT, item.getSubject());
+                values.put(LocalDBTables.TimelineTable.NOTES, item.getNotes());
+                values.put(LocalDBTables.TimelineTable.DATE, item.getDate());
+                values.put(LocalDBTables.TimelineTable.DATE_CREATED, item.getDateCreated());
+                getContentResolver().insert(LocalDBTables.TimelineTable.CONTENT_URI, values);
             }
 
             //Open the partner's database to get items stored in it
             //Since new items are added above, both old and new items will be returned
             Cursor cursor = getContentResolver().query(
-                    CRMContract.TimelineTable.CONTENT_URI,
-                    new String[] {CRMContract.TimelineTable.CONTACT_ID,
-                            CRMContract.TimelineTable.PARTNER_ID,
-                            CRMContract.TimelineTable.COLLABORATEE_ID,
-                            CRMContract.TimelineTable.COLLABORATEE_NAME,
-                            CRMContract.TimelineTable.CONTACT_HISTORY_ID,
-                            CRMContract.TimelineTable.CONTACT_HISTORY_TYPE,
-                            CRMContract.TimelineTable.SUBJECT,
-                            CRMContract.TimelineTable.NOTES,
-                            CRMContract.TimelineTable.DATE,
-                            CRMContract.TimelineTable.DATE_CREATED},
-                    CRMContract.TimelineTable.PARTNER_ID + " = ?",
+                    LocalDBTables.TimelineTable.CONTENT_URI,
+                    new String[] {LocalDBTables.TimelineTable.CONTACT_ID,
+                            LocalDBTables.TimelineTable.PARTNER_ID,
+                            LocalDBTables.TimelineTable.COLLABORATEE_ID,
+                            LocalDBTables.TimelineTable.COLLABORATEE_NAME,
+                            LocalDBTables.TimelineTable.CONTACT_HISTORY_ID,
+                            LocalDBTables.TimelineTable.CONTACT_HISTORY_TYPE,
+                            LocalDBTables.TimelineTable.SUBJECT,
+                            LocalDBTables.TimelineTable.NOTES,
+                            LocalDBTables.TimelineTable.DATE,
+                            LocalDBTables.TimelineTable.DATE_CREATED},
+                    LocalDBTables.TimelineTable.PARTNER_ID + " = ?",
                     new String[] {mPartnerId},
                     null
             );
@@ -646,15 +645,15 @@ public class ProfileActivity extends AppCompatActivity {
 
             //get collaboratee from the database
             Cursor cursor = getContentResolver().query(
-                    CRMContract.CollaborateeTable.CONTENT_URI,
-                    new String[] {CRMContract.CollaborateeTable.PARTNER_ID, PARTNER_NAME, CRMContract.CollaborateeTable.EMAIL,
-                            CRMContract.CollaborateeTable.PHONE, CRMContract.CollaborateeTable.ADDRESS_1, CRMContract.CollaborateeTable.CITY,
-                            CRMContract.CollaborateeTable.STATE_PROVINCE, CRMContract.CollaborateeTable.POSTAL_CODE, CRMContract.CollaborateeTable.CELL,
-                            CRMContract.CollaborateeTable.SURNAME, CRMContract.CollaborateeTable.GIVEN_NAMES, CRMContract.CollaborateeTable.PHONE_ID,
-                            CRMContract.CollaborateeTable.CELL_ID, CRMContract.CollaborateeTable.EMAIL_ID, CRMContract.CollaborateeTable.PHONE_JSON_ID,
-                            CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID, CRMContract.CollaborateeTable.ADDRESS_JSON_ID,
-                            CRMContract.CollaborateeTable.PARTNER_JSON_ID, CRMContract.CollaborateeTable.PROFILE_PICTURE},
-                    CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
+                    LocalDBTables.CollaborateeTable.CONTENT_URI,
+                    new String[] {LocalDBTables.CollaborateeTable.PARTNER_ID, PARTNER_NAME, LocalDBTables.CollaborateeTable.EMAIL,
+                            LocalDBTables.CollaborateeTable.PHONE, LocalDBTables.CollaborateeTable.ADDRESS_1, LocalDBTables.CollaborateeTable.CITY,
+                            LocalDBTables.CollaborateeTable.STATE_PROVINCE, LocalDBTables.CollaborateeTable.POSTAL_CODE, LocalDBTables.CollaborateeTable.CELL,
+                            LocalDBTables.CollaborateeTable.SURNAME, LocalDBTables.CollaborateeTable.GIVEN_NAMES, LocalDBTables.CollaborateeTable.PHONE_ID,
+                            LocalDBTables.CollaborateeTable.CELL_ID, LocalDBTables.CollaborateeTable.EMAIL_ID, LocalDBTables.CollaborateeTable.PHONE_JSON_ID,
+                            LocalDBTables.CollaborateeTable.CELL_JSON_ID, LocalDBTables.CollaborateeTable.EMAIL_JSON_ID, LocalDBTables.CollaborateeTable.ADDRESS_JSON_ID,
+                            LocalDBTables.CollaborateeTable.PARTNER_JSON_ID, LocalDBTables.CollaborateeTable.PROFILE_PICTURE},
+                    LocalDBTables.CollaborateeTable.PARTNER_ID + " = ?",
                     new String[] {mPartnerId},
                     null);
 
@@ -707,64 +706,64 @@ public class ProfileActivity extends AppCompatActivity {
                 //puts all non null collaboratee values into database
                 ContentValues values = new ContentValues();
                 if (collaboratee.PartnerId != null) {
-                    values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, collaboratee.PartnerId);
+                    values.put(LocalDBTables.CollaborateeTable.COLLABORATER_ID, collaboratee.PartnerId);
                 }if (collaboratee.PartnerName != null) {
                     values.put(PARTNER_NAME, collaboratee.PartnerName);
                 }if (collaboratee.Surname != null) {
-                    values.put(CRMContract.CollaborateeTable.SURNAME, collaboratee.Surname);
+                    values.put(LocalDBTables.CollaborateeTable.SURNAME, collaboratee.Surname);
                 }if (collaboratee.GivenNames != null) {
-                    values.put(CRMContract.CollaborateeTable.GIVEN_NAMES, collaboratee.GivenNames);
+                    values.put(LocalDBTables.CollaborateeTable.GIVEN_NAMES, collaboratee.GivenNames);
                 }if (collaboratee.Phone != null) {
-                    values.put(CRMContract.CollaborateeTable.PHONE, collaboratee.Phone);
+                    values.put(LocalDBTables.CollaborateeTable.PHONE, collaboratee.Phone);
                 }if (collaboratee.Cell != null) {
-                    values.put(CRMContract.CollaborateeTable.CELL, collaboratee.Cell);
+                    values.put(LocalDBTables.CollaborateeTable.CELL, collaboratee.Cell);
                 }if (collaboratee.Email != null) {
-                    values.put(CRMContract.CollaborateeTable.EMAIL, collaboratee.Email);
+                    values.put(LocalDBTables.CollaborateeTable.EMAIL, collaboratee.Email);
                 }if (collaboratee.Address1 != null) {
-                    values.put(CRMContract.CollaborateeTable.ADDRESS_1, collaboratee.Address1);
+                    values.put(LocalDBTables.CollaborateeTable.ADDRESS_1, collaboratee.Address1);
                 }if (collaboratee.City != null) {
-                    values.put(CRMContract.CollaborateeTable.CITY, collaboratee.City);
+                    values.put(LocalDBTables.CollaborateeTable.CITY, collaboratee.City);
                 }if (collaboratee.StateProvince != null) {
-                    values.put(CRMContract.CollaborateeTable.STATE_PROVINCE, collaboratee.StateProvince);
+                    values.put(LocalDBTables.CollaborateeTable.STATE_PROVINCE, collaboratee.StateProvince);
                 }if (collaboratee.PostalCode != null) {
-                    values.put(CRMContract.CollaborateeTable.POSTAL_CODE, collaboratee.PostalCode);
+                    values.put(LocalDBTables.CollaborateeTable.POSTAL_CODE, collaboratee.PostalCode);
                 }if (collaboratee.PhoneId != null) {
-                    values.put(CRMContract.CollaborateeTable.PHONE_ID, collaboratee.PhoneId);
+                    values.put(LocalDBTables.CollaborateeTable.PHONE_ID, collaboratee.PhoneId);
                 }if (collaboratee.EmailId != null) {
-                    values.put(CRMContract.CollaborateeTable.EMAIL_ID, collaboratee.EmailId);
+                    values.put(LocalDBTables.CollaborateeTable.EMAIL_ID, collaboratee.EmailId);
                 }if (collaboratee.CellId != null) {
-                    values.put(CRMContract.CollaborateeTable.CELL_ID, collaboratee.CellId);
+                    values.put(LocalDBTables.CollaborateeTable.CELL_ID, collaboratee.CellId);
                 }if (collaboratee.PhoneJsonId != null) {
-                    values.put(CRMContract.CollaborateeTable.PHONE_JSON_ID, collaboratee.PhoneJsonId);
+                    values.put(LocalDBTables.CollaborateeTable.PHONE_JSON_ID, collaboratee.PhoneJsonId);
                 }if (collaboratee.CellJsonId != null) {
-                    values.put(CRMContract.CollaborateeTable.CELL_JSON_ID, collaboratee.CellJsonId);
+                    values.put(LocalDBTables.CollaborateeTable.CELL_JSON_ID, collaboratee.CellJsonId);
                 }if (collaboratee.EmailJsonId != null) {
-                    values.put(CRMContract.CollaborateeTable.EMAIL_JSON_ID, collaboratee.EmailJsonId);
+                    values.put(LocalDBTables.CollaborateeTable.EMAIL_JSON_ID, collaboratee.EmailJsonId);
                 }if (collaboratee.AddressJsonId != null) {
-                    values.put(CRMContract.CollaborateeTable.ADDRESS_JSON_ID, collaboratee.AddressJsonId);
+                    values.put(LocalDBTables.CollaborateeTable.ADDRESS_JSON_ID, collaboratee.AddressJsonId);
                 }if (collaboratee.PartnerJsonId != null) {
-                    values.put(CRMContract.CollaborateeTable.PARTNER_JSON_ID, collaboratee.PartnerJsonId);
+                    values.put(LocalDBTables.CollaborateeTable.PARTNER_JSON_ID, collaboratee.PartnerJsonId);
                 }if (collaboratee.ProfilePictureFilename != null) {
                     saveImageFromUrl(mAccountManager.getUserData(mAccount, "server"), getApplicationContext(), collaboratee.ProfilePictureFilename);
-                    values.put(CRMContract.CollaborateeTable.PROFILE_PICTURE, collaboratee.ProfilePictureFilename);
+                    values.put(LocalDBTables.CollaborateeTable.PROFILE_PICTURE, collaboratee.ProfilePictureFilename);
                 }
 
                 //put new collaboratee info into database
-                getApplicationContext().getContentResolver().update(CRMContract.CollaborateeTable.CONTENT_URI, values,
-                        CRMContract.CollaborateeTable.PARTNER_ID + "= ?", new String[] {mPartnerId});
+                getApplicationContext().getContentResolver().update(LocalDBTables.CollaborateeTable.CONTENT_URI, values,
+                        LocalDBTables.CollaborateeTable.PARTNER_ID + "= ?", new String[] {mPartnerId});
 
                 //pull stuff back out of the database
                 //this gets the original data back in case kardia returned nothing
                 Cursor cursor2 = getContentResolver().query(
-                        CRMContract.CollaborateeTable.CONTENT_URI,
-                        new String[] {CRMContract.CollaborateeTable.PARTNER_ID, PARTNER_NAME, CRMContract.CollaborateeTable.EMAIL,
-                                CRMContract.CollaborateeTable.PHONE, CRMContract.CollaborateeTable.ADDRESS_1, CRMContract.CollaborateeTable.CITY,
-                                CRMContract.CollaborateeTable.STATE_PROVINCE, CRMContract.CollaborateeTable.POSTAL_CODE, CRMContract.CollaborateeTable.CELL,
-                                CRMContract.CollaborateeTable.SURNAME, CRMContract.CollaborateeTable.GIVEN_NAMES, CRMContract.CollaborateeTable.PHONE_ID,
-                                CRMContract.CollaborateeTable.CELL_ID, CRMContract.CollaborateeTable.EMAIL_ID, CRMContract.CollaborateeTable.PHONE_JSON_ID,
-                                CRMContract.CollaborateeTable.CELL_JSON_ID, CRMContract.CollaborateeTable.EMAIL_JSON_ID, CRMContract.CollaborateeTable.ADDRESS_JSON_ID,
-                                CRMContract.CollaborateeTable.PARTNER_JSON_ID, CRMContract.CollaborateeTable.PROFILE_PICTURE},
-                        CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
+                        LocalDBTables.CollaborateeTable.CONTENT_URI,
+                        new String[] {LocalDBTables.CollaborateeTable.PARTNER_ID, PARTNER_NAME, LocalDBTables.CollaborateeTable.EMAIL,
+                                LocalDBTables.CollaborateeTable.PHONE, LocalDBTables.CollaborateeTable.ADDRESS_1, LocalDBTables.CollaborateeTable.CITY,
+                                LocalDBTables.CollaborateeTable.STATE_PROVINCE, LocalDBTables.CollaborateeTable.POSTAL_CODE, LocalDBTables.CollaborateeTable.CELL,
+                                LocalDBTables.CollaborateeTable.SURNAME, LocalDBTables.CollaborateeTable.GIVEN_NAMES, LocalDBTables.CollaborateeTable.PHONE_ID,
+                                LocalDBTables.CollaborateeTable.CELL_ID, LocalDBTables.CollaborateeTable.EMAIL_ID, LocalDBTables.CollaborateeTable.PHONE_JSON_ID,
+                                LocalDBTables.CollaborateeTable.CELL_JSON_ID, LocalDBTables.CollaborateeTable.EMAIL_JSON_ID, LocalDBTables.CollaborateeTable.ADDRESS_JSON_ID,
+                                LocalDBTables.CollaborateeTable.PARTNER_JSON_ID, LocalDBTables.CollaborateeTable.PROFILE_PICTURE},
+                        LocalDBTables.CollaborateeTable.PARTNER_ID + " = ?",
                         new String[] {mPartnerId},
                         null);
 
@@ -1000,9 +999,9 @@ public class ProfileActivity extends AppCompatActivity {
 
             // Open notification database with a cursor
             Cursor cursor = ProfileActivity.this.getContentResolver().query(
-                    CRMContract.NotificationsTable.CONTENT_URI,
-                    new String[] {CRMContract.NotificationsTable.TIME,
-                            CRMContract.NotificationsTable.DATE_CREATED},
+                    LocalDBTables.NotificationsTable.CONTENT_URI,
+                    new String[] {LocalDBTables.NotificationsTable.TIME,
+                            LocalDBTables.NotificationsTable.DATE_CREATED},
                     null, null, null);
 
             while (cursor.moveToNext()){
@@ -1039,9 +1038,9 @@ public class ProfileActivity extends AppCompatActivity {
         //Open cursor to access collaboratee table adnd get
         //profile picture filename for the collaboratee
         Cursor cursor = getContentResolver().query(
-                CRMContract.CollaborateeTable.CONTENT_URI,
-                new String[] {CRMContract.CollaborateeTable.PROFILE_PICTURE},
-                CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
+                LocalDBTables.CollaborateeTable.CONTENT_URI,
+                new String[] {LocalDBTables.CollaborateeTable.PROFILE_PICTURE},
+                LocalDBTables.CollaborateeTable.PARTNER_ID + " = ?",
                 new String[] {collaborateeID},
                 null);
 

@@ -38,6 +38,12 @@
     <string name="hint_city">City</string>
     <string name="hint_state">State</string>
     <string name="hint_zip">ZIP</string>
+    <string name="hint_grad_year">Graduation Year</string>
+    <string name="hint_internship">Internship?</string>
+    <string name="hint_one_year">One Year?</string>
+    <string name="hint_long_term">Long Term?</string>
+    <string name="hint_spring_break">Spring Break?</string>
+
 
     <string name="back">Back</string>
     <string name="submit">Submit</string>
@@ -45,6 +51,7 @@
     <string name="profile_input_photo_button">Change</string>
     <string name="logout">Logout</string>
     <string name="engagement">Engagement</string>
+    <string name="sign_up">Sign-Up Sheet</string>
     <string name="collaborators">Collaborators</string>
 
     <string-array name="phone_spinner">

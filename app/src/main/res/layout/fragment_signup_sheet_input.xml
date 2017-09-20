@@ -16,37 +16,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-                 android:nextFocusDown="@+id/profile_input_photo"/>
-
-        <include layout="@layout/profile_input_photo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-                 android:nextFocusDown="@+id/profile_input_role"/>
-
-        <include layout="@layout/profile_input_role"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-                 android:nextFocusDown="@+id/profile_input_phone"/>
-
-        <include layout="@layout/profile_input_phone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-                 android:nextFocusDown="@+id/profile_input_email"/>
+            android:nextFocusDown="@+id/profile_input_email"/>
 
         <include layout="@layout/profile_input_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-                 android:nextFocusDown="@+id/profile_input_location"/>
+            android:nextFocusDown="@+id/input_grad_year"/>
 
-        <include layout="@layout/profile_input_location"
+        <include layout="@layout/input_grad_year"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-                 android:nextFocusDown="@+id/submit"/>
+            android:nextFocusDown="@+id/profile_input_check_boxes"/>
+
+        <include layout="@layout/profile_input_check_boxes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:nextFocusDown="@+id/submit"/>
 
         <Button
             android:layout_width="wrap_content"

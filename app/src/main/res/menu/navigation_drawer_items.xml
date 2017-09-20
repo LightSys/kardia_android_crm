@@ -12,6 +12,10 @@
           android:title="@string/engagement"
         android:icon="@drawable/ic_engagement"/>
 
+    <item android:id="@+id/action_sign_up"
+          android:title="@string/sign_up"
+          android:icon="@drawable/ic_sign_up_sheet"/>
+
     <item android:id="@+id/action_logout"
           android:title="@string/logout"
           app:showAsAction="ifRoom"

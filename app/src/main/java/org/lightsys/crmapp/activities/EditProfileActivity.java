@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.fragments.ProfileInputFragment;
@@ -115,6 +116,7 @@ public class EditProfileActivity extends AppCompatActivity {
             arguments.putString(TYPE_JSON_ID_KEY, mTypeJsonId);
 
             //start profile input frag and send it everything
+            Log.d("EditProfileActivity", "onCreate: " + mName);
             ProfileInputFragment fragment = new ProfileInputFragment();
             fragment.setArguments(arguments);
 

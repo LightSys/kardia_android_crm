@@ -27,7 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.lightsys.crmapp.R;
-import org.lightsys.crmapp.data.CRMContract;
+import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.Staff;
@@ -145,10 +145,10 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         String addFullServerAddress = addProtocol + "://" + addServerAddress + ":" + addPortNumber;
 
 
-        Account newAccount = new Account(addAccountName, CRMContract.accountType);
+        Account newAccount = new Account(addAccountName, LocalDBTables.accountType);
         Bundle bundle = new Bundle();
         bundle.putString(AccountManager.KEY_ACCOUNT_NAME, addAccountName);
-        bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, CRMContract.accountType);
+        bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, LocalDBTables.accountType);
         boolean success = mAccountManager.addAccountExplicitly(newAccount, addAccountPassword, bundle);
         if (success)
         {
@@ -163,11 +163,11 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
     private void checkAccount(Account account) {
         if (mAccountManager.getUserData(account, "partnerId") != null) {
-            ContentResolver.setSyncAutomatically(account, CRMContract.providerAuthority, true);
+            ContentResolver.setSyncAutomatically(account, LocalDBTables.providerAuthority, true);
 
             Bundle bundle = new Bundle();
             bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, CRMContract.accountType);
+            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, LocalDBTables.accountType);
             setAccountAuthenticatorResult(bundle);
 
             Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
@@ -218,15 +218,15 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
             for(Staff staffMember : staff) {
                 ContentValues values = new ContentValues();
-                values.put(CRMContract.StaffTable.PARTNER_ID, staffMember.PartnerId);
-                values.put(CRMContract.StaffTable.KARDIA_LOGIN, staffMember.getKardiaLogin());
-                getContentResolver().insert(CRMContract.StaffTable.CONTENT_URI, values);
+                values.put(LocalDBTables.StaffTable.PARTNER_ID, staffMember.PartnerId);
+                values.put(LocalDBTables.StaffTable.KARDIA_LOGIN, staffMember.getKardiaLogin());
+                getContentResolver().insert(LocalDBTables.StaffTable.CONTENT_URI, values);
             }
 
             Cursor cursor = getContentResolver().query(
-                    CRMContract.StaffTable.CONTENT_URI,
-                    new String[] { CRMContract.StaffTable.PARTNER_ID },
-                    CRMContract.StaffTable.KARDIA_LOGIN + " = ?",
+                    LocalDBTables.StaffTable.CONTENT_URI,
+                    new String[] { LocalDBTables.StaffTable.PARTNER_ID },
+                    LocalDBTables.StaffTable.KARDIA_LOGIN + " = ?",
                     new String[] { accounts[0].name },
                     null
             );
@@ -257,12 +257,12 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
                 for (Partner collaboratee : collaboratees) {
                     ContentValues values = new ContentValues();
-                    values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, mAccountManager.getUserData(accounts[0], "partnerId"));
-                    values.put(CRMContract.CollaborateeTable.PARTNER_ID, Integer.parseInt(collaboratee.PartnerId));
-                    values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.PartnerName);
-                    values.put(CRMContract.CollaborateeTable.PROFILE_PICTURE, collaboratee.ProfilePictureFilename);
+                    values.put(LocalDBTables.CollaborateeTable.COLLABORATER_ID, mAccountManager.getUserData(accounts[0], "partnerId"));
+                    values.put(LocalDBTables.CollaborateeTable.PARTNER_ID, Integer.parseInt(collaboratee.PartnerId));
+                    values.put(LocalDBTables.CollaborateeTable.PARTNER_NAME, collaboratee.PartnerName);
+                    values.put(LocalDBTables.CollaborateeTable.PROFILE_PICTURE, collaboratee.ProfilePictureFilename);
 
-                    getContentResolver().insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
+                    getContentResolver().insert(LocalDBTables.CollaborateeTable.CONTENT_URI, values);
 
                     saveImageFromUrl(
                             mAccountManager.getUserData(accounts[0], "server"),

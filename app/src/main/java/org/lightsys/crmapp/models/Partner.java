@@ -1,6 +1,8 @@
 package org.lightsys.crmapp.models;
 
 
+import android.icu.text.MessagePattern;
+
 /**
  * Created by nathan on 3/9/16.
  *
@@ -58,5 +60,9 @@ public class Partner {
         this.City = city;
         this.StateProvince = state;
         this.PostalCode = zipCode;
+    }
+
+    public String getPartnerName(){
+        return PartnerName;
     }
 }

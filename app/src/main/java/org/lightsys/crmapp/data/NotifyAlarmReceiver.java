@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
-import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
-import static org.lightsys.crmapp.data.CRMContract.NotificationsTable.NOTIFICATION_ID;
+import static org.lightsys.crmapp.data.LocalDBTables.CollaborateeTable.PARTNER_NAME;
+import static org.lightsys.crmapp.data.LocalDBTables.NotificationsTable.NOTIFICATION_ID;
 
 /**
  * Created by Daniel Garcia on 02/Aug/2017,
@@ -58,11 +58,11 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
             //Get notifications from database and place them into an ArrayList
             ArrayList<Notification> notifications = new ArrayList<>();
             Cursor cursor = context.getContentResolver().query(
-                    CRMContract.NotificationsTable.CONTENT_URI,
-                    new String[] {CRMContract.NotificationsTable.NOTIFICATION_ID,
-                            CRMContract.NotificationsTable.TIME,
-                            CRMContract.NotificationsTable.PARTNER_ID,
-                            CRMContract.NotificationsTable.NOTES},
+                    LocalDBTables.NotificationsTable.CONTENT_URI,
+                    new String[] {LocalDBTables.NotificationsTable.NOTIFICATION_ID,
+                            LocalDBTables.NotificationsTable.TIME,
+                            LocalDBTables.NotificationsTable.PARTNER_ID,
+                            LocalDBTables.NotificationsTable.NOTES},
                     null,
                     null,
                     null
@@ -95,9 +95,9 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
 
                     //Get partner name from Collaboratee Table using partner ID
                     Cursor c = context.getContentResolver().query(
-                            CRMContract.CollaborateeTable.CONTENT_URI,
-                            new String[] {CRMContract.CollaborateeTable.PARTNER_NAME},
-                            CRMContract.CollaborateeTable.PARTNER_ID + " = ?",
+                            LocalDBTables.CollaborateeTable.CONTENT_URI,
+                            new String[] {LocalDBTables.CollaborateeTable.PARTNER_NAME},
+                            LocalDBTables.CollaborateeTable.PARTNER_ID + " = ?",
                             new String[] {notification.getPartnerID()},
                             null);
 
@@ -114,8 +114,8 @@ public class NotifyAlarmReceiver extends BroadcastReceiver {
 
                     alarmManager.setExact(AlarmManager.RTC_WAKEUP, notification.getNotificationTime(), pendingIntent);
                 } else { // Time has passed and notification can be deleted from database
-                    context.getContentResolver().delete(CRMContract.NotificationsTable.CONTENT_URI,
-                            CRMContract.NotificationsTable.NOTIFICATION_ID + " = " + Integer.toString(notification.getId()),
+                    context.getContentResolver().delete(LocalDBTables.NotificationsTable.CONTENT_URI,
+                            LocalDBTables.NotificationsTable.NOTIFICATION_ID + " = " + Integer.toString(notification.getId()),
                             null);
                 }
             }

@@ -55,6 +55,22 @@
                 android:value=".activities.MainActivity"/>
         </activity>
         <activity
+            android:name=".activities.SignUpListActivity"
+            android:label="@string/title_activity_profile"
+            android:parentActivityName=".activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity"/>
+        </activity>
+        <activity
+            android:name=".activities.SignUpInputActivity"
+            android:label="@string/title_activity_profile"
+            android:parentActivityName=".activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity"/>
+        </activity>
+        <activity
             android:name=".activities.EditProfileActivity"
             android:label="@string/title_activity_profile"
             android:parentActivityName=".activities.MainActivity">
@@ -90,7 +106,7 @@
         </service>
 
         <provider
-            android:name=".data.KardiaProvider"
+            android:name=".data.LocalDBProvider"
             android:authorities="org.lightsys.crmapp.provider"
             android:exported="false"/>
 

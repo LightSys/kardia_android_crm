@@ -29,7 +29,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lightsys.crmapp.R;
-import org.lightsys.crmapp.data.CRMContract;
+import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.Notification;
 import org.lightsys.crmapp.data.NotifyAlarmReceiver;
 import org.lightsys.crmapp.data.PostJson;
@@ -461,8 +461,8 @@ public class NewInteractionActivity extends AppCompatActivity {
 
                     //Set notificationID by getting last ID and incrementing
                     Cursor cursor = NewInteractionActivity.this.getContentResolver().query(
-                            CRMContract.NotificationsTable.CONTENT_URI,
-                            new String[] {CRMContract.NotificationsTable.NOTIFICATION_ID},
+                            LocalDBTables.NotificationsTable.CONTENT_URI,
+                            new String[] {LocalDBTables.NotificationsTable.NOTIFICATION_ID},
                             null, null, null);
 
                     while (cursor.moveToNext()){
@@ -494,12 +494,12 @@ public class NewInteractionActivity extends AppCompatActivity {
 
                     //Store notifications in local database
                     ContentValues values = new ContentValues();
-                    values.put(CRMContract.NotificationsTable.NOTIFICATION_ID, notificationID);
-                    values.put(CRMContract.NotificationsTable.TIME, time);
-                    values.put(CRMContract.NotificationsTable.PARTNER_ID, name);
-                    values.put(CRMContract.NotificationsTable.NOTES, note);
-                    values.put(CRMContract.NotificationsTable.DATE_CREATED, todaysDate);
-                    getContentResolver().insert(CRMContract.NotificationsTable.CONTENT_URI, values);
+                    values.put(LocalDBTables.NotificationsTable.NOTIFICATION_ID, notificationID);
+                    values.put(LocalDBTables.NotificationsTable.TIME, time);
+                    values.put(LocalDBTables.NotificationsTable.PARTNER_ID, name);
+                    values.put(LocalDBTables.NotificationsTable.NOTES, note);
+                    values.put(LocalDBTables.NotificationsTable.DATE_CREATED, todaysDate);
+                    getContentResolver().insert(LocalDBTables.NotificationsTable.CONTENT_URI, values);
 
                     //Set alarm
                     alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent);

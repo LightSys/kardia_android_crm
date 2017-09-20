@@ -6,13 +6,10 @@ import android.net.Uri;
  * Created by nathan on 3/9/16.
  *
  * Edited by Ca2br and Judah on 7/26/16
- * this is a thing
- * this thing store table information for the local database
- * the local database that, at the moment, doesn't work :(
- * this class doesn't actually do anything with the actual database
- * it just holds all the constants used when talking to the broken local database
+ *
+ * Stores the table information for creating a LocalDatabase
  */
-public class CRMContract {
+public class LocalDBTables {
     public static final String providerAuthority = "org.lightsys.crmapp.provider";
     public static final String accountType = "org.lightsys.crmapp";
 
@@ -195,4 +192,51 @@ public class CRMContract {
                 TRACK_STATUS + ")";
 
     }
+
+    public static final class ConnectionTable {
+        public static final String TABLE_NAME = "connection";
+        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path(TABLE_NAME).build();
+
+        public static final String CONNECTION_ID = "connectionId";
+        public static final String FORM_ID = "formId";
+        public static final String CONNECTION_NAME = "connectionName";
+        public static final String CONNECTION_EMAIL = "connectionEmail";
+        public static final String CONNECTION_PHONE = "connectionPhone";
+        public static final String CONNECTION_GRAD_YEAR = "connectionGradYear";
+        public static final String CONNECTION_TAGS = "connectionTags";
+
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+                CONNECTION_ID + " INTEGER PRIMARY KEY," +
+                FORM_ID + "," +
+                CONNECTION_NAME + "," +
+                CONNECTION_EMAIL + "," +
+                CONNECTION_PHONE + "," +
+                CONNECTION_GRAD_YEAR + "," +
+                CONNECTION_TAGS + ")";
+
+
+
+
+    }
+
+    public static final class FormTable {
+        public static final String TABLE_NAME = "form";
+        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path(TABLE_NAME).build();
+
+        public static final String FORM_ID = "formId";
+        public static final String FORM_TYPE = "formType";
+        public static final String FORM_YEAR = "formYear";
+        public static final String FORM_DATE = "formDate";
+        public static final String FORM_TAGS = "formTags";
+
+
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+                FORM_ID + " INTEGER PRIMARY KEY," +
+                FORM_TYPE + "," +
+                FORM_YEAR + "," +
+                FORM_DATE + "," +
+                FORM_TAGS + ")";
+
+    }
+
 }

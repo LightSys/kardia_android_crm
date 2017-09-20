@@ -35,7 +35,7 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.lightsys.crmapp.R;
-import org.lightsys.crmapp.data.CRMContract;
+import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.models.Engagement;
 import org.lightsys.crmapp.models.EngagementStep;
@@ -46,7 +46,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
+import static org.lightsys.crmapp.data.LocalDBTables.CollaborateeTable.PARTNER_NAME;
 
 public class EngagementActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
@@ -74,9 +74,9 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         Log.d("Engagement Activity", "Created");
 
         mAccountManager = AccountManager.get(this);
-        Account[] accounts = mAccountManager.getAccountsByType(CRMContract.accountType);
+        Account[] accounts = mAccountManager.getAccountsByType(LocalDBTables.accountType);
         if(accounts.length == 0) {
-            mAccountManager.addAccount(CRMContract.accountType, null, null, null, this, null, null);
+            mAccountManager.addAccount(LocalDBTables.accountType, null, null, null, this, null, null);
             finish();
         } else if (accounts.length > 0){
             mAccount = accounts[0];
@@ -136,7 +136,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         switch (itemId)
         {
             case R.id.action_logout:
-                Account[] accounts = mAccountManager.getAccountsByType(CRMContract.accountType);
+                Account[] accounts = mAccountManager.getAccountsByType(LocalDBTables.accountType);
                 Log.d("Main Activity", "# of Accounts: " + accounts.length);
                 Account account = accounts[0];
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
@@ -147,7 +147,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
                 {
                     mAccountManager.removeAccount(account, null, null);
                 }
-                mAccountManager.addAccount(CRMContract.accountType, null, null, null, this, null, null);
+                mAccountManager.addAccount(LocalDBTables.accountType, null, null, null, this, null, null);
                 finish();
                 return true;
             case R.id.action_collaborators:
@@ -272,9 +272,9 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
             collaboratees = new ArrayList<>();
             //get collaborateeIds from the database
             Cursor cursor = getContentResolver().query(
-                    CRMContract.CollaborateeTable.CONTENT_URI,
-                    new String[] { CRMContract.CollaborateeTable.PARTNER_ID, PARTNER_NAME, CRMContract.CollaborateeTable.PROFILE_PICTURE },
-                    CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
+                    LocalDBTables.CollaborateeTable.CONTENT_URI,
+                    new String[] { LocalDBTables.CollaborateeTable.PARTNER_ID, PARTNER_NAME, LocalDBTables.CollaborateeTable.PROFILE_PICTURE },
+                    LocalDBTables.CollaborateeTable.COLLABORATER_ID + " = ?",
                     new String[] { mAccountManager.getUserData(mAccount, "partnerId") },
                     null
             );
@@ -319,16 +319,16 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
                         nonArchivedEngagements.add(engagement);
 
                         ContentValues values = new ContentValues();
-                        values.put(CRMContract.EngagementTable.PARTNER_ID, engagement.PartnerId);
-                        values.put(CRMContract.EngagementTable.ENGAGEMENT_ID, engagement.EngagementId);
-                        values.put(CRMContract.EngagementTable.DESCRIPTION, engagement.Description);
-                        values.put(CRMContract.EngagementTable.ENGAGEMENT_TRACK, engagement.TrackName);
-                        values.put(CRMContract.EngagementTable.ENGAGEMENT_STEP, engagement.StepName);
-                        values.put(CRMContract.EngagementTable.ENGAGEMENT_COMMENTS, engagement.Comments);
-                        values.put(CRMContract.EngagementTable.COMPLETION_STATUS, engagement.CompletionStatus);
-                        values.put(CRMContract.EngagementTable.IS_ARCHIVED, engagement.Archived);
+                        values.put(LocalDBTables.EngagementTable.PARTNER_ID, engagement.PartnerId);
+                        values.put(LocalDBTables.EngagementTable.ENGAGEMENT_ID, engagement.EngagementId);
+                        values.put(LocalDBTables.EngagementTable.DESCRIPTION, engagement.Description);
+                        values.put(LocalDBTables.EngagementTable.ENGAGEMENT_TRACK, engagement.TrackName);
+                        values.put(LocalDBTables.EngagementTable.ENGAGEMENT_STEP, engagement.StepName);
+                        values.put(LocalDBTables.EngagementTable.ENGAGEMENT_COMMENTS, engagement.Comments);
+                        values.put(LocalDBTables.EngagementTable.COMPLETION_STATUS, engagement.CompletionStatus);
+                        values.put(LocalDBTables.EngagementTable.IS_ARCHIVED, engagement.Archived);
 
-                        contentResolver.insert(CRMContract.EngagementTable.CONTENT_URI, values);
+                        contentResolver.insert(LocalDBTables.EngagementTable.CONTENT_URI, values);
                     }
                 }
             }
@@ -358,12 +358,12 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
                 {
                     ContentValues values = new ContentValues();
 
-                    values.put(CRMContract.EngagementTrackTable.TRACK_ID, track.TrackId);
-                    values.put(CRMContract.EngagementTrackTable.TRACK_NAME, track.TrackName);
-                    values.put(CRMContract.EngagementTrackTable.TRACK_DESCRIPTION, track.TrackDescription);
-                    values.put(CRMContract.EngagementTrackTable.TRACK_STATUS, track.TrackStatus);
+                    values.put(LocalDBTables.EngagementTrackTable.TRACK_ID, track.TrackId);
+                    values.put(LocalDBTables.EngagementTrackTable.TRACK_NAME, track.TrackName);
+                    values.put(LocalDBTables.EngagementTrackTable.TRACK_DESCRIPTION, track.TrackDescription);
+                    values.put(LocalDBTables.EngagementTrackTable.TRACK_STATUS, track.TrackStatus);
 
-                    getContentResolver().insert(CRMContract.EngagementTrackTable.CONTENT_URI, values);
+                    getContentResolver().insert(LocalDBTables.EngagementTrackTable.CONTENT_URI, values);
                 }
             } catch (JSONException e)
             {
@@ -394,14 +394,14 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
                 {
                     ContentValues values = new ContentValues();
 
-                    values.put(CRMContract.EngagementStepTable.TRACK_ID, step.TrackId);
-                    values.put(CRMContract.EngagementStepTable.TRACK_NAME, step.TrackName);
-                    values.put(CRMContract.EngagementStepTable.STEP_DESCRIPTION, step.StepDescription);
-                    values.put(CRMContract.EngagementStepTable.STEP_ID, step.StepId);
-                    values.put(CRMContract.EngagementStepTable.STEP_NAME, step.StepName);
-                    values.put(CRMContract.EngagementStepTable.STEP_SEQUENCE, step.StepSequence);
+                    values.put(LocalDBTables.EngagementStepTable.TRACK_ID, step.TrackId);
+                    values.put(LocalDBTables.EngagementStepTable.TRACK_NAME, step.TrackName);
+                    values.put(LocalDBTables.EngagementStepTable.STEP_DESCRIPTION, step.StepDescription);
+                    values.put(LocalDBTables.EngagementStepTable.STEP_ID, step.StepId);
+                    values.put(LocalDBTables.EngagementStepTable.STEP_NAME, step.StepName);
+                    values.put(LocalDBTables.EngagementStepTable.STEP_SEQUENCE, step.StepSequence);
 
-                    getContentResolver().insert(CRMContract.EngagementStepTable.CONTENT_URI, values);
+                    getContentResolver().insert(LocalDBTables.EngagementStepTable.CONTENT_URI, values);
                 }
             } catch (JSONException e)
             {

@@ -4,13 +4,13 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/profile_input_email_icon"
+        android:id="@+id/input_grad_year_icon"
         android:layout_width="@dimen/profile_input_icon_size"
         android:layout_height="@dimen/profile_input_icon_size"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:layout_marginRight="16dp"
-        android:src="@drawable/ic_email_black_24dp" />
+        android:src="@drawable/ic_grad" />
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="0dp"
@@ -19,11 +19,11 @@
         android:textColorHint="@color/divider">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/profile_input_email"
+            android:id="@+id/input_grad_year"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:inputType="textEmailAddress"
-            android:hint="@string/hint_email"/>
+            android:inputType="textShortMessage"
+            android:hint="@string/hint_grad_year"/>
 
     </android.support.design.widget.TextInputLayout>
 

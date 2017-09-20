@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/profile_input_check_box_icon"
+        android:layout_width="@dimen/profile_input_icon_size"
+        android:layout_height="@dimen/profile_input_icon_size"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
+        android:src="@drawable/ic_tags" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:textColorHint="@color/divider"
+        android:orientation="vertical">
+
+        <CheckBox
+            android:id="@+id/profile_input_internship"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/hint_internship"/>
+
+        <CheckBox
+            android:id="@+id/profile_input_one_year"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/hint_one_year"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:textColorHint="@color/divider"
+        android:orientation="vertical">
+        <CheckBox
+            android:id="@+id/profile_input_long_term"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/hint_long_term"/>
+
+        <CheckBox
+            android:id="@+id/profile_input_spring_break"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/hint_spring_break"/>
+
+    </LinearLayout>
+
+</LinearLayout>

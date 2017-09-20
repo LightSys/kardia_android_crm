@@ -39,7 +39,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lightsys.crmapp.R;
-import org.lightsys.crmapp.data.CRMContract;
+import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.PostJson;
 import org.lightsys.crmapp.models.Partner;
@@ -52,8 +52,8 @@ import java.util.List;
 
 import static org.lightsys.crmapp.activities.ProfileActivity.PARTNER_ID_KEY;
 import static org.lightsys.crmapp.activities.ProfileActivity.saveImageFromUrl;
-import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PARTNER_NAME;
-import static org.lightsys.crmapp.data.CRMContract.CollaborateeTable.PROFILE_PICTURE;
+import static org.lightsys.crmapp.data.LocalDBTables.CollaborateeTable.PARTNER_NAME;
+import static org.lightsys.crmapp.data.LocalDBTables.CollaborateeTable.PROFILE_PICTURE;
 
 /**
  * Edited by Daniel Garcia on 30/June/2017
@@ -86,9 +86,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d(TAG, "Created");
 
         mAccountManager = AccountManager.get(this);
-        Account[] accounts = mAccountManager.getAccountsByType(CRMContract.accountType);
+        Account[] accounts = mAccountManager.getAccountsByType(LocalDBTables.accountType);
         if(accounts.length == 0) {
-            mAccountManager.addAccount(CRMContract.accountType, null, null, null, this, null, null);
+            mAccountManager.addAccount(LocalDBTables.accountType, null, null, null, this, null, null);
             finish();
         } else if (accounts.length > 0){
             mAccount = accounts[0];
@@ -176,10 +176,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
+        Intent intent;
         switch (itemId)
         {
             case R.id.action_logout:
-                Account[] accounts = mAccountManager.getAccountsByType(CRMContract.accountType);
+                Account[] accounts = mAccountManager.getAccountsByType(LocalDBTables.accountType);
                 Log.d(TAG, "# of Accounts: " + accounts.length);
                 Account account = accounts[0];
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
@@ -190,11 +191,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     mAccountManager.removeAccount(account, null, null);
                 }
-                mAccountManager.addAccount(CRMContract.accountType, null, null, null, this, null, null);
+                mAccountManager.addAccount(LocalDBTables.accountType, null, null, null, this, null, null);
                 finish();
                 break;
             case R.id.action_engagement:
-                Intent intent = new Intent(this, EngagementActivity.class);
+                intent = new Intent(this, EngagementActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_sign_up:
+                intent = new Intent(this, SignUpListActivity.class);
                 startActivity(intent);
                 break;
         }
@@ -307,15 +312,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         protected List<Partner> doInBackground(String... params) {
             String partnerId = params[0];
+            Log.d(TAG, "doInBackground: " + partnerId);
 
             //get collaboratee stuff from the database
             Cursor cursor = getContentResolver().query(
-                    CRMContract.CollaborateeTable.CONTENT_URI,
+                    LocalDBTables.CollaborateeTable.CONTENT_URI,
                     new String[] {
-                            CRMContract.CollaborateeTable.PARTNER_ID,
-                            CRMContract.CollaborateeTable.PARTNER_NAME,
-                            CRMContract.CollaborateeTable.PROFILE_PICTURE },
-                    CRMContract.CollaborateeTable.COLLABORATER_ID + " = ?",
+                            LocalDBTables.CollaborateeTable.PARTNER_ID,
+                            LocalDBTables.CollaborateeTable.PARTNER_NAME,
+                            LocalDBTables.CollaborateeTable.PROFILE_PICTURE },
+                    LocalDBTables.CollaborateeTable.COLLABORATER_ID + " = ?",
                     new String[] { partnerId },
                     null
             );
@@ -324,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             List<Partner> collaboratees = new ArrayList<>();
             if (cursor != null)
             {
-                int partnerIdIndex = cursor.getColumnIndex(CRMContract.CollaborateeTable.PARTNER_ID);
+                int partnerIdIndex = cursor.getColumnIndex(LocalDBTables.CollaborateeTable.PARTNER_ID);
                 int partnerNameIndex = cursor.getColumnIndex(PARTNER_NAME);
                 int profilePictureIndex = cursor.getColumnIndex(PROFILE_PICTURE);
 
@@ -519,12 +525,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
 
             ContentValues values = new ContentValues();
-            values.put(CRMContract.CollaborateeTable.PARTNER_ID, collaboratorId);
-            values.put(CRMContract.CollaborateeTable.COLLABORATER_ID, mAccountManager.getUserData(mAccount, "partnerId"));
-            values.put(CRMContract.CollaborateeTable.PARTNER_NAME, collaboratee.PartnerName);
-            values.put(CRMContract.CollaborateeTable.PROFILE_PICTURE, collaboratee.ProfilePictureFilename);
+            values.put(LocalDBTables.CollaborateeTable.PARTNER_ID, collaboratorId);
+            values.put(LocalDBTables.CollaborateeTable.COLLABORATER_ID, mAccountManager.getUserData(mAccount, "partnerId"));
+            values.put(LocalDBTables.CollaborateeTable.PARTNER_NAME, collaboratee.PartnerName);
+            values.put(LocalDBTables.CollaborateeTable.PROFILE_PICTURE, collaboratee.ProfilePictureFilename);
 
-            getContentResolver().insert(CRMContract.CollaborateeTable.CONTENT_URI, values);
+            getContentResolver().insert(LocalDBTables.CollaborateeTable.CONTENT_URI, values);
 
             return collaboratee;
         }

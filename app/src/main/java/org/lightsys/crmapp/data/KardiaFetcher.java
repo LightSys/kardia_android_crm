@@ -64,6 +64,61 @@ public class KardiaFetcher {
                 .authenticator(authorization)
                 .retryOnConnectionFailure(true)
                 .build();
+        /*/allow self-signed certificates
+        KeyStore keyStore = readKeyStore();
+        try {
+            SSLContext sslContext = SSLContext.getInstance("SSL");
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(keyStore);
+            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            keyManagerFactory.init(keyStore, "keystore_pass".toCharArray());
+            sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom());
+
+            client = new OkHttpClient.Builder()
+                    .cookieJar(new MyCookieJar())
+                    .authenticator(authorization)
+                    .retryOnConnectionFailure(true)
+                    .sslSocketFactory(sslContext.getSocketFactory())
+                    .build();
+        }catch(Exception e){
+            e.printStackTrace();
+
+            client = new OkHttpClient.Builder()
+                    .cookieJar(new MyCookieJar())
+                    .authenticator(authorization)
+                    .retryOnConnectionFailure(true)
+                    .build();
+        }
+    }
+
+    // method to obtain KeyStore
+    KeyStore readKeyStore() {
+
+        try {
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(new FileInputStream("mytestkey.jks"), "password".toCharArray());
+
+            CertAndKeyGen gen = new CertAndKeyGen("RSA", "SHA1WithRSA");
+            gen.generate(1024);
+
+            X509Certificate cert = gen.getSelfCertificate(new X500Name("CN=SINGLE_CERTIFICATE"), (long) 365 * 24 * 3600);
+
+            keyStore.setCertificateEntry("single_cert", cert);
+
+            keyStore.store(new FileOutputStream("mytestkey.jks"), "password".toCharArray());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        try {
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(new FileInputStream("mytestkey.jks"), "password".toCharArray());
+
+            java.security.cert.Certificate cert = keyStore.getCertificate("single_cert");
+
+            System.out.println(cert.toString());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }*/
     }
 
     //Makes Requests to the Kardia Server and returns response
@@ -147,6 +202,10 @@ public class KardiaFetcher {
             JSONObject crmJsonBody = new JSONObject(crmJsonString);//build json object form string
 
             parseCollaborateesJson(collaboratees, crmJsonBody);//fill collaboratees list with collaboratees
+
+            for (Partner c: collaboratees) {
+                Log.d(TAG, "getCollaboratees: " + c.getPartnerName());
+            }
 
             for (Partner collaboratee : collaboratees) {
                 String profilePictureApi = Uri.parse("/apps/kardia/api/crm/Partners/" + collaboratee.PartnerId + "/ProfilePicture")

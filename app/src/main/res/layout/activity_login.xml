@@ -118,7 +118,7 @@
             android:imeOptions="actionGo"
             android:inputType="text"
             android:textColor="#000000"
-            android:text="192.168.200.205"/>
+            android:text="10.5.10.176"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -146,7 +146,7 @@
             android:ellipsize="start"
             android:layout_marginLeft="64dp"
             android:layout_marginRight="64dp"
-            android:text="1843"/>
+            android:text="800"/>
 
     </android.support.design.widget.TextInputLayout>
 
