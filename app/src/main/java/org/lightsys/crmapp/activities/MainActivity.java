@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -42,6 +43,8 @@ import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.PostJson;
+import org.lightsys.crmapp.fragments.FormFragment;
+import org.lightsys.crmapp.fragments.FormListFragment;
 import org.lightsys.crmapp.models.Partner;
 
 import java.io.File;
@@ -199,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(intent);
                 break;
             case R.id.action_sign_up:
-                intent = new Intent(this, SignUpListActivity.class);
+                intent = new Intent(this, FormActivity.class);
                 startActivity(intent);
                 break;
         }

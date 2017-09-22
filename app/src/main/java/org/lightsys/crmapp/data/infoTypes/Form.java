@@ -7,20 +7,12 @@ package org.lightsys.crmapp.data.infoTypes;
 public class Form {
     private int formId;     //id unique to each form
     private String formType;
-    private String year;
     private String date;
-    private String tags; //event/form information i.e. {formType:signUpSheet, event:Missions week, location:LeTourneau...}
-
+    private String university;
+    private String event;
+    private String description;
     /* ************************* Construct ************************* */
     public Form() {}
-
-    public Form(int formId, String formType, String year, String date, String tags) {
-        this.formId = formId;
-        this.formType = formType;
-        this.year = year;
-        this.date = date;
-        this.tags = tags;
-    }
 
     /* ************************* Set ************************* */
     public void setFormId(int formId) {
@@ -31,12 +23,16 @@ public class Form {
         this.formType = formType;
     }
 
-    public void setTags(String tags) {
-        this.tags = tags;
+    public void setUniversity(String university) {
+        this.university = university;
     }
 
-    public void setYear(String year) {
-        this.year = year;
+    public void setEvent(String event) {
+        this.event = event;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setDate(String date) {
@@ -52,20 +48,18 @@ public class Form {
         return formType;
     }
 
-    public String getTags() {
-        return tags;
+    public String getUniversity() {
+        return university;
     }
 
-    public String getYear() {
-        return year;
+    public String getEvent() {
+        return event;
     }
 
     public String getDate() {
         return date;
     }
 
-    public String[] getSplitTags(){
-        return tags.split(", ");
-    }
+    public String getDescription() { return description; }
 }
 

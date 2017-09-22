@@ -214,9 +214,6 @@ public class LocalDBTables {
                 CONNECTION_GRAD_YEAR + "," +
                 CONNECTION_TAGS + ")";
 
-
-
-
     }
 
     public static final class FormTable {
@@ -224,19 +221,22 @@ public class LocalDBTables {
         public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path(TABLE_NAME).build();
 
         public static final String FORM_ID = "formId";
-        public static final String FORM_TYPE = "formType";
-        public static final String FORM_YEAR = "formYear";
         public static final String FORM_DATE = "formDate";
-        public static final String FORM_TAGS = "formTags";
+        public static final String FORM_TYPE = "formType";
+        public static final String FORM_UNIVERSITY = "formUniversity";
+        public static final String FORM_EVENT = "formEvent";
+        public static final String FORM_DESC = "formDescription";
+
+
 
 
         public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 FORM_ID + " INTEGER PRIMARY KEY," +
-                FORM_TYPE + "," +
-                FORM_YEAR + "," +
                 FORM_DATE + "," +
-                FORM_TAGS + ")";
-
+                FORM_TYPE + "," +
+                FORM_UNIVERSITY + "," +
+                FORM_EVENT + "," +
+                FORM_DESC + ")";
     }
 
 }

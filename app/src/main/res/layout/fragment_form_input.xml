@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:padding="@dimen/new_profile_linear_layout_padding"
+        android:theme="@style/CustomThemeOverlayAppCompatLight">
+
+            <include layout="@layout/input_form_type"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:layout_marginBottom="8dp"/>
+
+            <include layout="@layout/input_form_university"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:layout_marginBottom="8dp"/>
+
+            <include layout="@layout/input_form_event"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:layout_marginBottom="8dp"/>
+
+        <include layout="@layout/input_form_description"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/submit"
+            android:id="@+id/submit"
+            android:layout_gravity="center_horizontal" />
+
+    </LinearLayout>
+
+</android.support.v4.widget.NestedScrollView>

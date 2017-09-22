@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+            android:weightSum="7"
+    android:id="@+id/add_sign_up">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:padding="10dp"
+            android:textSize="20sp"
+            android:lines="1"
+            android:layout_column="1"
+            android:layout_weight="3"
+            android:gravity="start"
+            android:background="@drawable/table_cell"/>
+
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:layout_column="2"
+            android:lines="1"
+            android:layout_weight="1"
+            android:padding="10dp"
+            android:gravity="center"
+            android:background="@drawable/table_cell"/>
+
+        <TextView
+            android:id="@+id/grad_year"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:layout_column="3"
+            android:lines="1"
+            android:layout_weight="1"
+            android:padding="10dp"
+            android:layout_gravity="center_vertical"
+            android:gravity="bottom|center_horizontal"
+            android:background="@drawable/table_cell"/>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".5"
+        android:background="@drawable/table_cell">
+
+        <CheckBox
+            android:id="@+id/internship"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:clickable="false"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".5"
+        android:background="@drawable/table_cell">
+
+        <CheckBox
+            android:id="@+id/one_year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:clickable="false"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".5"
+        android:background="@drawable/table_cell">
+
+        <CheckBox
+            android:id="@+id/long_term"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:clickable="false"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".5"
+        android:background="@drawable/table_cell">
+
+        <CheckBox
+            android:id="@+id/spring_break"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:clickable="false"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+
+
+
+    <!--android.support.design.widget.FloatingActionButton
+        android:id="@+id/add_person"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="20dp"
+        android:clickable="true"
+        android:src="@drawable/ic_add_white_24dp"
+        app:fabSize="normal"/-->
+
+</TableRow>
+

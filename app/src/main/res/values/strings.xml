@@ -17,6 +17,13 @@
     <string name="contact">Contact</string>
     <string name="timeline">Timeline</string>
     <string name="role">Role</string>
+    <string name="form_type">Form Type</string>
+    <string name="form_university">University</string>
+    <string name="form_event">Event</string>
+    <string name="form_id">Form #</string>
+    <string name="form_date">Date</string>
+    <string name="form_desc">Description</string>
+
 
     <string name="title_activity_interaction">Record an Interaction</string>
     <string name="type">Type</string>
@@ -43,6 +50,13 @@
     <string name="hint_one_year">One Year?</string>
     <string name="hint_long_term">Long Term?</string>
     <string name="hint_spring_break">Spring Break?</string>
+    <string name="hint_form_description">(i.e. classroom, dorm, prof, or fair)</string>
+
+    <string name="check_mark">\u2713</string>
+    <string name="unchecked_box">\u2610</string>
+    <string name="checked_box">\u2611</string>
+    <string name="sign_up_prompt">Sign up</string>
+    <string name="add_form_prompt">Add form</string>
 
 
     <string name="back">Back</string>
@@ -53,6 +67,25 @@
     <string name="engagement">Engagement</string>
     <string name="sign_up">Sign-Up Sheet</string>
     <string name="collaborators">Collaborators</string>
+
+
+    <string-array name="form_type_spinner">
+        <item>list</item>
+        <item>detail</item>
+    </string-array>
+
+    <string-array name="form_university_spinner">
+        <item>Abilene</item>
+        <item>LeTU</item>
+        <item>Baylor</item>
+        <item>Taylor</item>
+    </string-array>
+
+    <string-array name="form_event_spinner">
+        <item>Classroom</item>
+        <item>CareerFair</item>
+        <item>Booth</item>
+    </string-array>
 
     <string-array name="phone_spinner">
         <item>Mobile</item>
