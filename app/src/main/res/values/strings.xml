@@ -1,40 +1,66 @@
 <resources>
+    <!-- *** app strings *** -->
     <string name="app_name">Kardia CRM</string>
+    <string name="nav_header">Kardia CRM App</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="action_search_person">Search</string>
-    <string name="action_clear_search">Clear Search</string>
     <string name="action_edit_profile">Edit Profile</string>
+
+    <!-- *** login *** -->
     <string name="title_activity_login">Login</string>
     <string name="login_message">Login to use the Kardia CRM app.</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="serverName">Server Name or Address</string>
     <string name="portNumber">Port Number</string>
+    <string name="enter_name">Enter a username.</string>
+    <string name="enter_server">Enter a server address.</string>
+    <string name="enter_port">Enter a port number.</string>
+
+    <!-- *** general *** -->
+    <string name="date">Date</string>
+    <string name="description">Description</string>
+    <string name="comments">Comments</string>
+    <string name="save">Save</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="search_partners">Search Partners&#8230;</string>
+
+    <!-- *** Add Profile *** -->
     <string name="title_activity_profile">Profile Activity</string>
-    <string name="search_hint">Search</string>
+    <string name="profile_input_photo_button">Change</string>
     <string name="contact">Contact</string>
     <string name="timeline">Timeline</string>
     <string name="role">Role</string>
+    <string name="no_email">No Email Address</string>
+    <string name="no_phone">No Phone Number</string>
+    <string name="no_address">No Street Address</string>
+
+    <!-- *** Sign-Up *** -->
     <string name="form_type">Form Type</string>
     <string name="form_university">University</string>
     <string name="form_event">Event</string>
-    <string name="form_id">Form #</string>
-    <string name="form_date">Date</string>
-    <string name="form_desc">Description</string>
+    <string name="internship">Internship?</string>
+    <string name="one_year">One Year?</string>
+    <string name="long_term">Long Term?</string>
+    <string name="spring_break">Spring Break?</string>
+    <string name="grad_year">Grad\nYear</string>
+    <string name="complete_btn">Complete Form</string>
 
-
+    <!-- *** engagement *** -->
     <string name="title_activity_interaction">Record an Interaction</string>
     <string name="type">Type</string>
-    <string name="date">Date</string>
     <string name="choose_date">Choose Date</string>
     <string name="subject">Subject</string>
     <string name="notes">Notes</string>
     <string name="followup_checkbox">Schedule Followup</string>
     <string name="followup_date">Followup Date</string>
     <string name="followup_note">Followup Note</string>
+    <string name="track_step">Track: Step</string>
+    <string name="finish_step">Finish Step</string>
 
+
+    <!-- *** hints *** -->
+    <string name="search_hint">Search</string>
     <string name="hint_first_name">First Name</string>
     <string name="hint_last_name">Last Name</string>
     <string name="hint_phone">Phone</string>
@@ -52,23 +78,36 @@
     <string name="hint_spring_break">Spring Break?</string>
     <string name="hint_form_description">(i.e. classroom, dorm, prof, or fair)</string>
 
+    <!-- *** Image content descriptions *** -->
+    <string name="cd_profile_picture">profile picture</string>
+    <string name="cd_grad_year">graduation cap icon</string>
+    <string name="cd_add">add icon</string>
+    <string name="cd_tag">tag icon</string>
+    <string name="cd_email">letter icon</string>
+    <string name="cd_location">location marker icon</string>
+    <string name="cd_person">person icon</string>
+    <string name="cd_phone">phone icon</string>
+    <string name="cd_camera">camera icon</string>
+    <string name="cd_role">role/connection icon</string>
+    <string name="cd_profile">profile</string>
+
+    <!-- *** icons *** -->
     <string name="check_mark">\u2713</string>
-    <string name="unchecked_box">\u2610</string>
-    <string name="checked_box">\u2611</string>
     <string name="sign_up_prompt">Sign up</string>
     <string name="add_form_prompt">Add form</string>
 
-
+    <!-- *** buttons *** -->
     <string name="back">Back</string>
     <string name="submit">Submit</string>
 
-    <string name="profile_input_photo_button">Change</string>
+    <!-- *** Navigation Items *** -->
     <string name="logout">Logout</string>
     <string name="engagement">Engagement</string>
     <string name="sign_up">Sign-Up Sheet</string>
     <string name="collaborators">Collaborators</string>
 
 
+    <!-- *** spinners *** -->
     <string-array name="form_type_spinner">
         <item>list</item>
         <item>detail</item>

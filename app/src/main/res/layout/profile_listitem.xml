@@ -7,6 +7,7 @@
     android:minHeight="?android:listPreferredItemHeight">
 
     <ImageView
+        android:contentDescription="@string/cd_profile_picture"
         android:id="@+id/profile_photo"
         android:layout_width="64dp"
         android:layout_height="64dp"
@@ -14,7 +15,7 @@
 
     <TextView
         android:id="@+id/profile_name"
-        android:layout_marginLeft="@dimen/profile_listitem_name_marginleft"
+        android:layout_marginStart="@dimen/profile_listitem_name_marginleft"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center_vertical"

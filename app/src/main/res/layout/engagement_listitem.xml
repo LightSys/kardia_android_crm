@@ -8,6 +8,7 @@
 
     <ImageView
         android:id="@+id/profile_photo"
+        android:contentDescription="@string/cd_profile_picture"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_gravity="center"/>

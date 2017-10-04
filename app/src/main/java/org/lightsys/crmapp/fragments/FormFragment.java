@@ -1,25 +1,33 @@
 package org.lightsys.crmapp.fragments;
 
-import android.content.Intent;
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.lightsys.crmapp.R;
+import org.lightsys.crmapp.activities.FormActivity;
 import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.infoTypes.Connection;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -29,7 +37,7 @@ import java.util.List;
  * Displays sign up sheet, allows users to add themselves to the list
  *
  */
-public class FormFragment extends Fragment {
+public class FormFragment extends Fragment{
 
     private ArrayList<Connection> formConnections;
     private List<Integer> forms;
@@ -40,9 +48,8 @@ public class FormFragment extends Fragment {
     private String TAG = "SignUpListFrag";
     private LayoutInflater inflater;
     private TableLayout table;
-
-    //keeps a list of all comments on this post
-    private final ArrayList<HashMap<String, String>> commentList = new ArrayList<HashMap<String, String>>();
+    private String mText;
+    private boolean correctPassword = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -53,23 +60,23 @@ public class FormFragment extends Fragment {
 
         formId = getArguments().getInt(FORM_ID);
 
-
         return v;
     }
+
 
     public void onStart(){
         super.onStart();
 
         getFormData(formId);
 
-        Bundle args = getArguments();
-
         displayPeople();
 
         setUpAddButton();
+
+        setUpCompleteButton();
     }
 
-    private void setUpAddButton(){
+    private void setUpAddButton() {
         TableRow addPersonButton = (TableRow) inflater.inflate(R.layout.sign_up_element_table_row,
                 (ViewGroup) getView().findViewById(R.id.add_sign_up), false);
 
@@ -82,6 +89,7 @@ public class FormFragment extends Fragment {
         addPersonButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                correctPassword = true;
                 SignUpFragment newFrag = new SignUpFragment();
 
                 Bundle args = new Bundle();
@@ -95,6 +103,96 @@ public class FormFragment extends Fragment {
                 transaction.commit();
             }
         });
+    }
+
+    //Complete button for when sign up is over.
+
+    private void setUpCompleteButton(){
+
+        FrameLayout frame = new FrameLayout(this.getActivity());
+        TableLayout.LayoutParams FrameLP = new TableLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        FrameLayout.LayoutParams ButtonLP = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+
+        Button completeButton = new Button(this.getActivity());
+        ButtonLP.gravity = Gravity.BOTTOM;
+        completeButton.setPadding(15,15,15,15);
+        completeButton.setBackgroundColor(getResources().getColor(R.color.primary));
+        completeButton.setTextColor(getResources().getColor(R.color.white));
+        completeButton.setText(R.string.complete_btn);
+        completeButton.setTextSize(30);
+
+        frame.setLayoutParams(FrameLP);
+        completeButton.setLayoutParams(ButtonLP);
+
+        frame.addView(completeButton);
+        table.addView(frame);
+
+        completeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isPasswordCorrect();
+                uploadContacts();
+            }
+        });
+    }
+
+    //uploads contacts to server
+    private void uploadContacts(){
+
+    }
+
+    //gets password from user and checks with account password
+    private void isPasswordCorrect(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity(), R.style.MyThemeDialogCustom);
+        builder.setTitle("Enter Password");
+
+            // Set up the input
+        final EditText input = new EditText(this.getActivity());
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+            // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                mText = input.getText().toString();
+                FormListFragment newFrag = new FormListFragment();
+
+                if(mText.equals(getPassword())) {
+                    getActivity().stopLockTask();
+                    FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                    transaction.replace(R.id.fragment_profile_input_container, newFrag, "Forms");
+                    transaction.addToBackStack("Forms");
+                    transaction.commit();
+                    correctPassword = true;
+                } else{
+                    dialog.cancel();
+                    isPasswordCorrect();
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                correctPassword = false;
+            }
+        });
+
+        builder.show();
+    }
+
+    //gets password for account
+    private String getPassword(){
+        // Gets user account.
+        AccountManager mAccountManager = AccountManager.get(getContext());
+        final Account[] accounts = mAccountManager.getAccounts();
+        if(accounts.length > 0) {
+            return mAccountManager.getPassword(accounts[0]);
+        }
+        return null;
     }
 
     //loads a list of people on sign up list
@@ -137,6 +235,7 @@ public class FormFragment extends Fragment {
         }
     }
 
+    //gets all connections for this form
     private void getFormData(int formId){
         formConnections =  new ArrayList<>();
 

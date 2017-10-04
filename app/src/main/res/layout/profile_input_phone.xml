@@ -9,11 +9,11 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/profile_input_phone_icon"
+            android:contentDescription="@string/cd_phone"
             android:layout_width="@dimen/profile_input_icon_size"
             android:layout_height="@dimen/profile_input_icon_size"
             android:layout_marginTop="12dp"
-            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
             android:src="@drawable/ic_phone_black_24dp" />
 
         <EditText

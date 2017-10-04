@@ -4,12 +4,12 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/input_grad_year_icon"
         android:layout_width="@dimen/profile_input_icon_size"
         android:layout_height="@dimen/profile_input_icon_size"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        android:contentDescription="@string/cd_grad_year"
         android:src="@drawable/ic_grad" />
 
     <android.support.design.widget.TextInputLayout

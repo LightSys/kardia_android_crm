@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <android.support.v7.widget.CardView
-        android:id="@+id/cardview_contact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/cardview_profile_layout_margin"
@@ -24,7 +22,6 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textview_profile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/card_profile_padding"
@@ -38,10 +35,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="@dimen/card_profile_padding"
-                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
-                android:paddingRight="@dimen/card_profile_padding"
+                android:paddingStart="@dimen/card_profile_divider_small_padding_left"
+                android:paddingEnd="@dimen/card_profile_padding"
                 android:paddingTop="@dimen/card_profile_padding"
-                android:text="No Email Address"
+                android:text="@string/no_email"
                 android:textColor="@color/primary_text" />
 
             <include layout="@layout/divider_small" />
@@ -51,10 +48,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="@dimen/card_profile_padding"
-                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
-                android:paddingRight="@dimen/card_profile_padding"
+                android:paddingStart="@dimen/card_profile_divider_small_padding_left"
+                android:paddingEnd="@dimen/card_profile_padding"
                 android:paddingTop="@dimen/card_profile_padding"
-                android:text="No Phone Number"
+                android:text="@string/no_phone"
                 android:textColor="@color/primary_text" />
 
             <include layout="@layout/divider_small" />
@@ -64,10 +61,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="@dimen/card_profile_padding"
-                android:paddingLeft="@dimen/card_profile_divider_small_padding_left"
-                android:paddingRight="@dimen/card_profile_padding"
+                android:paddingStart="@dimen/card_profile_divider_small_padding_left"
+                android:paddingEnd="@dimen/card_profile_padding"
                 android:paddingTop="@dimen/card_profile_padding"
-                android:text="No Street Address"
+                android:text="@string/no_address"
                 android:textColor="@color/primary_text" />
 
             <include layout="@layout/divider" />
@@ -84,7 +81,6 @@
         android:layout_margin="@dimen/cardview_profile_layout_margin">
 
         <LinearLayout
-            android:id="@+id/linearlayout_timeline"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/linearlayout_contact"
@@ -98,7 +94,6 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/timelineText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

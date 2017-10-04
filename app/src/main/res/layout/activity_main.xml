@@ -7,17 +7,17 @@
     android:layout_width="match_parent">
 
     <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/coordinatorlayout_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <FrameLayout
+            android:id="@+id/content_main"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerview_profiles"
+                android:id="@+id/recycler_view_profiles"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:divider="@null" />
@@ -25,7 +25,6 @@
         </FrameLayout>
 
         <android.support.design.widget.AppBarLayout
-            android:id="@+id/appbar_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true">
@@ -45,9 +44,9 @@
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
+            android:layout_gravity="bottom|end"
             android:layout_marginBottom="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"
             android:clickable="true"
             android:src="@drawable/ic_add_white_24dp"
             app:fabSize="normal"/>

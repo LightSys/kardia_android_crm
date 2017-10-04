@@ -88,7 +88,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         setupToolbar();
         setupFAB();
 
-        mRecyclerView = (android.support.v7.widget.RecyclerView) findViewById(R.id.recyclerview_profiles);
+        mRecyclerView = (android.support.v7.widget.RecyclerView) findViewById(R.id.recycler_view_profiles);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplication()));
     }
 

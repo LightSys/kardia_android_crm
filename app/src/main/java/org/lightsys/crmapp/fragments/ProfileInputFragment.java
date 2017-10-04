@@ -182,7 +182,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
 
         System.out.println(mNewProfile ? "Creating a new profile!" : "Editing an existing profile!");
 
-        photo = (ImageView) rootView.findViewById(R.id.profile_input_photo);
+        photo = (ImageView) rootView.findViewById(R.id.profile_input_photo_img);
 
         //sets up profile picture
         Picasso.with(getActivity())
@@ -767,7 +767,9 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
         int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         cursor.moveToFirst();
-        return cursor.getString(column_index);
+        String result = cursor.getString(column_index);
+        cursor.close();
+        return result;
     }
 
     @Override

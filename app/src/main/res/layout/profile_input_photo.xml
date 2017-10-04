@@ -3,24 +3,25 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingRight="@dimen/profile_input_layout_margin_right">
+    android:layout_marginEnd="@dimen/profile_input_layout_margin_right">
 
     <ImageView
-        android:id="@+id/profile_input_name_icon"
+        android:contentDescription="@string/cd_camera"
         android:layout_width="@dimen/profile_input_icon_size"
         android:layout_height="@dimen/profile_input_icon_size"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
         android:src="@drawable/ic_photo_camera_black_24dp"/>
 
     <FrameLayout
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_marginRight="8dp">
+        android:layout_marginEnd="8dp">
 
         <ImageView
-            android:id="@+id/profile_input_photo"
+            android:contentDescription="@string/cd_profile_picture"
+            android:id="@+id/profile_input_photo_img"
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

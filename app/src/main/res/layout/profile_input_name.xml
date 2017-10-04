@@ -3,15 +3,15 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingRight="@dimen/profile_input_layout_margin_right">
+    android:paddingEnd="@dimen/profile_input_layout_margin_right">
 
     <ImageView
-        android:id="@+id/profile_input_name_icon"
+        android:contentDescription="@string/cd_person"
         android:layout_width="@dimen/profile_input_icon_size"
         android:layout_height="@dimen/profile_input_icon_size"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
         android:src="@drawable/ic_person_black_24dp" />
 
     <android.support.design.widget.TextInputLayout

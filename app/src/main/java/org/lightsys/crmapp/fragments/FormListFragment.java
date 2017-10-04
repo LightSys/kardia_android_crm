@@ -13,6 +13,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.lightsys.crmapp.R;
+import org.lightsys.crmapp.activities.FormActivity;
 import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.infoTypes.Form;
 
@@ -36,9 +37,6 @@ public class FormListFragment extends Fragment {
     private LayoutInflater inflater;
     private TableLayout table;
 
-    //keeps a list of all comments on this post
-    private final ArrayList<HashMap<String, String>> commentList = new ArrayList<HashMap<String, String>>();
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.form_list_table_layout, container, false);
@@ -46,15 +44,17 @@ public class FormListFragment extends Fragment {
         table = (TableLayout) v;
         getActivity().setTitle("Forms");
 
+
+
+        getAllForms();
+
+        displayForms();
+
         return v;
     }
 
     public void onStart(){
         super.onStart();
-
-        getAllForms();
-
-        displayForms();
 
         setUpAddButton();
     }
@@ -98,6 +98,7 @@ public class FormListFragment extends Fragment {
                 childLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        ((FormActivity) getActivity()).setLocked(true);
                         onFormClicked(Id);
                     }
                 });

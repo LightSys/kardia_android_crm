@@ -1,8 +1,6 @@
 package org.lightsys.crmapp.models;
 
 
-import android.icu.text.MessagePattern;
-
 /**
  * Created by nathan on 3/9/16.
  *

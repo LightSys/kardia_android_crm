@@ -2,7 +2,7 @@
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:id="@+id/form_table">
+    >
 
     <TableRow
         android:id="@+id/form_row"
@@ -37,7 +37,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/form_desc"
+            android:text="@string/description"
             android:textColor="@color/black"
             android:textSize="20sp"
             android:layout_column="3"
@@ -49,7 +49,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/form_date"
+            android:text="@string/date"
             android:textColor="@color/black"
             android:textSize="20sp"
             android:layout_column="4"

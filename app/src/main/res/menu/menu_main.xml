@@ -8,7 +8,7 @@
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_white_24dp"
         android:orderInCategory="100"
-        android:title="Search Partners..."
+        android:title="@string/search_partners"
         app:showAsAction="always"
         app:actionViewClass="android.support.v7.widget.SearchView"/>
 

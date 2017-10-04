@@ -12,7 +12,6 @@
         android:background="@android:color/background_light">
 
         <android.support.v7.widget.CardView
-            android:id="@+id/cardview_type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/primary"
@@ -24,7 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
-                android:layout_marginLeft="18dp"
+                android:layout_marginStart="18dp"
                 android:layout_marginTop="18dp"
                 android:text="Large Text"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -32,7 +31,6 @@
     </TableRow>
 
     <android.support.v7.widget.CardView
-        android:id="@+id/cardview_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/table"
@@ -53,6 +51,7 @@
                 android:orientation="horizontal">
 
                 <ImageView
+                    android:contentDescription="@string/cd_profile_picture"
                     android:id="@+id/profile_picture"
                     android:layout_gravity="center"
                     android:layout_width="64dp"
@@ -95,7 +94,6 @@
                 android:id="@+id/subject"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="10dp"
                 android:layout_marginLeft="18dp"
@@ -109,8 +107,6 @@
                 android:id="@+id/scrollView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_alignEnd="@+id/backButton"
-                android:layout_alignRight="@+id/backButton"
                 android:minHeight="200dp">
 
                 <TextView
@@ -126,11 +122,6 @@
                 </ScrollView>
 
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"></LinearLayout>
 
     </android.support.v7.widget.CardView>
 
@@ -168,9 +159,8 @@
         android:layout_height="wrap_content"
         android:text="@string/back"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="4dp"
-        android:layout_marginRight="4dp"/>
+        android:layout_marginEnd="4dp"/>
 
 </RelativeLayout>

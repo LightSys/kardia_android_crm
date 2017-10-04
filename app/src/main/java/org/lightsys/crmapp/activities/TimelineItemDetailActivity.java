@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import org.lightsys.crmapp.R;
-import org.lightsys.crmapp.models.Partner;
 
 import java.io.File;
 
@@ -92,7 +91,8 @@ public class TimelineItemDetailActivity extends AppCompatActivity {
         //If a followup has been set, make it visible
         if(!followup.equals("")){
             followupCardView.setVisibility(View.VISIBLE);
-            followupView.setText("Followup by: " + followup);
+            followup =  "Followup by: " + followup;
+            followupView.setText(followup);
         } else {
             followupCardView.setVisibility(View.GONE);
         }

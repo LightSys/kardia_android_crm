@@ -212,7 +212,7 @@ public class ProfileActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mCollapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingtoolbarlayout_profile);
+        mCollapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar_layout_profile);
         if(mName != null) {
             mCollapsingToolbarLayout.setTitle(mName);
         }
@@ -347,10 +347,10 @@ public class ProfileActivity extends AppCompatActivity {
                 break;
         }
 
-        /**
-         * Ask if user wants to record interaction,
-         * and if so start a new interaction activity
-         * with type and date automatically filled
+        /*
+          Ask if user wants to record interaction,
+          and if so start a new interaction activity
+          with type and date automatically filled
          */
         new AlertDialog.Builder(ProfileActivity.this)
                 .setCancelable(false)
@@ -380,7 +380,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         TimelineItem highestItem = null;//this will hold the newest item for each pass
 
-        ArrayList<TimelineItem> sortedItems = new ArrayList<TimelineItem>();
+        ArrayList<TimelineItem> sortedItems = new ArrayList<>();
         while (items.size() > 0){
             int[] highestDate = {0, 0, 0};//start low because we are looking for dates larger
             for (TimelineItem item : items) {
@@ -412,7 +412,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     //Sets up adapter for list of timeline items
     private void setupAdapter() {
-            ArrayList<HashMap<String,String>> items = new ArrayList<HashMap<String, String>>();
+            ArrayList<HashMap<String,String>> items = new ArrayList<>();
             for (TimelineItem item : mItems){
                 HashMap<String, String> newItem = new HashMap<>();
 
@@ -535,7 +535,7 @@ public class ProfileActivity extends AppCompatActivity {
     private class TimeLineAdapter extends SimpleAdapter {
 
         Context context;
-        ArrayList<HashMap<String, String>> data = new ArrayList<HashMap<String, String>>();
+        ArrayList<HashMap<String, String>> data = new ArrayList<>();
         ArrayList<View> views;
         String[] from;
         int[] to;
@@ -843,7 +843,7 @@ public class ProfileActivity extends AppCompatActivity {
             File directory = getDir("imageDir", Context.MODE_PRIVATE);
 
             String profilePictureFilename = mPartner2.ProfilePictureFilename;
-            View appBarView = findViewById(R.id.appbarlayout_profile);
+            View appBarView = findViewById(R.id.app_bar_layout_profile);
             int width = appBarView.getMeasuredWidth();
             int height = appBarView.getMeasuredHeight();
 

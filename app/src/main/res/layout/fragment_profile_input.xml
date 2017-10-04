@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-                 android:nextFocusDown="@+id/profile_input_photo"/>
+                 android:nextFocusDown="@+id/profile_input_photo_img"/>
 
         <include layout="@layout/profile_input_photo"
             android:layout_width="match_parent"

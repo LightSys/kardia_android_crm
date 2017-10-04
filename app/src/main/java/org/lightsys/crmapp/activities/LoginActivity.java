@@ -113,27 +113,27 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
         //If any field is left blank, display error message
         if (addAccountName.equals("")) {
-            ((TextView) findViewById(R.id.loginUsernameError)).setText("Enter a username.");
+            ((TextView) findViewById(R.id.loginUsernameError)).setText(R.string.enter_name);
             return;
         }
         else {
             ((TextView) findViewById(R.id.loginUsernameError)).setText("");
         }
         if (addAccountPassword.equals("")) {
-            ((TextView) findViewById(R.id.loginPasswordError)).setText("Enter a password.");
+            ((TextView) findViewById(R.id.loginPasswordError)).setText(R.string.password);
             return;
         } else {
             ((TextView) findViewById(R.id.loginPasswordError)).setText("");
         }
         if (addServerAddress.equals("")) {
-            ((TextView) findViewById(R.id.loginServerError)).setText("Enter a server address.");
+            ((TextView) findViewById(R.id.loginServerError)).setText(R.string.enter_server);
             return;
         }
         else {
             ((TextView) findViewById(R.id.loginServerError)).setText("");
         }
         if (addPortNumber.equals("")) {
-            ((TextView) findViewById(R.id.loginPortError)).setText("Enter a port number.");
+            ((TextView) findViewById(R.id.loginPortError)).setText(R.string.enter_port);
             return;
         }
         else {

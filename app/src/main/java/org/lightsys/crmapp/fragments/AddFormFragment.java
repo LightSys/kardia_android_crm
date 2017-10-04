@@ -1,11 +1,9 @@
 package org.lightsys.crmapp.fragments;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +13,6 @@ import android.widget.TextView;
 
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.LocalDBTables;
-
-import java.text.DateFormat;
-import java.util.Date;
 
 
 /**
@@ -77,7 +72,6 @@ public class AddFormFragment extends Fragment{
         String stringDate = (android.text.format.DateFormat.format("MM-dd\nyyyy", new java.util.Date())).toString();
 
         ContentValues values = new ContentValues();
-        //todo let id be assigned by server
         values.put(LocalDBTables.FormTable.FORM_ID, formId);
         values.put(LocalDBTables.FormTable.FORM_UNIVERSITY, mUniversity);
         values.put(LocalDBTables.FormTable.FORM_TYPE, mType);
