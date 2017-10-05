@@ -49,6 +49,9 @@ public class FormListFragment extends Fragment {
 
         displayForms();
 
+        getActivity().getSupportFragmentManager().popBackStack("AddForm",0);
+        getActivity().getSupportFragmentManager().popBackStack("FormList",0);
+
         return v;
     }
 
@@ -153,6 +156,7 @@ public class FormListFragment extends Fragment {
     }
 
     public void onFormClicked(int formId){
+
         FormFragment newFrag = new FormFragment();
 
         Bundle args = new Bundle();
@@ -172,8 +176,7 @@ public class FormListFragment extends Fragment {
 
         newFrag.setArguments(args);
 
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.content_main, newFrag, "AddForm");
-        transaction.commit();
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_main, newFrag, "AddForm")
+                .addToBackStack("AddForm").commit();
     }
 }

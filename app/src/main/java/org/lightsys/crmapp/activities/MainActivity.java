@@ -142,6 +142,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    public void showNavButton(boolean bool) {
+        final ActionBar ab = getSupportActionBar();
+        ab.setDisplayHomeAsUpEnabled(bool);
+
+    }
+
     /**
      * Provides option to select something within the Menu.
      */
@@ -219,8 +225,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.action_sign_up:
                 fragment = new FormListFragment();
 
-                fragmentManager.beginTransaction().replace(R.id.content_main, fragment, "Form List")
-                        .addToBackStack("Form List").commit();
+                fragmentManager.beginTransaction().replace(R.id.content_main, fragment, "FormList")
+                        .addToBackStack("FormList").commit();
                 break;
         }
 

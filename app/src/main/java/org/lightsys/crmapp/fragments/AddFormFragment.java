@@ -12,6 +12,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.lightsys.crmapp.R;
+import org.lightsys.crmapp.activities.MainActivity;
 import org.lightsys.crmapp.data.LocalDBTables;
 
 
@@ -21,7 +22,7 @@ import org.lightsys.crmapp.data.LocalDBTables;
  * Allows a user to create a form.
  *
  */
-public class AddFormFragment extends Fragment{
+public class AddFormFragment extends Fragment {
     private static final String LOG_TAG = AddFormFragment.class.getName();
 
     TextView descriptionTxt;
@@ -42,16 +43,15 @@ public class AddFormFragment extends Fragment{
 
         // Sets up views.
         //todo getOptions from Database?
-        typeSpinner = (Spinner)rootView.findViewById(R.id.typeSpinner);
-        universitySpinner = (Spinner)rootView.findViewById(R.id.universitySpinner);
-        eventSpinner = (Spinner)rootView.findViewById(R.id.eventSpinner);
-        descriptionTxt = (TextView)rootView.findViewById(R.id.descriptionET);
+        typeSpinner = (Spinner) rootView.findViewById(R.id.typeSpinner);
+        universitySpinner = (Spinner) rootView.findViewById(R.id.universitySpinner);
+        eventSpinner = (Spinner) rootView.findViewById(R.id.eventSpinner);
+        descriptionTxt = (TextView) rootView.findViewById(R.id.descriptionET);
 
         Button submit = (Button) rootView.findViewById(R.id.submit);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 mType = typeSpinner.getSelectedItem().toString();
                 mUniversity = universitySpinner.getSelectedItem().toString();
                 mEvent = eventSpinner.getSelectedItem().toString();
@@ -64,8 +64,19 @@ public class AddFormFragment extends Fragment{
             }
         });
 
+        ((MainActivity) getActivity()).showNavButton(false);
+
+
         return rootView;
     }
+
+    @Override
+    public void onDestroyView() {
+
+        ((MainActivity) getActivity()).showNavButton(true);
+        super.onDestroyView();
+    }
+
 
     private void addFormToDB(){
 

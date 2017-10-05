@@ -11,5 +11,8 @@
         <item name="android:windowBackground">@color/window_background</item>
         <item name="android:colorBackground">@color/white</item>
         <item name="android:colorButtonNormal">@color/divider</item>
+
+        <item name="android:windowDrawsSystemBarBackgrounds">false</item>
+
     </style>
 </resources>
