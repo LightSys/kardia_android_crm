@@ -1,4 +1,4 @@
-package org.lightsys.crmapp.activities;
+package org.lightsys.crmapp.fragments;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -35,6 +37,7 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.lightsys.crmapp.R;
+import org.lightsys.crmapp.activities.EngagementDetailActivity;
 import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.models.Engagement;
@@ -48,7 +51,7 @@ import java.util.List;
 
 import static org.lightsys.crmapp.data.LocalDBTables.CollaborateeTable.PARTNER_NAME;
 
-public class EngagementActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
+public class EngagementFragment extends Fragment
 {
     private AccountManager mAccountManager;
 
@@ -68,102 +71,37 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
     private List<EngagementStep> steps;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.collaborator_layout, container, false);
+        getActivity().setTitle("Engagements");
         Log.d("Engagement Activity", "Created");
 
-        mAccountManager = AccountManager.get(this);
+        mAccountManager = AccountManager.get(this.getActivity());
         Account[] accounts = mAccountManager.getAccountsByType(LocalDBTables.accountType);
         if(accounts.length == 0) {
-            mAccountManager.addAccount(LocalDBTables.accountType, null, null, null, this, null, null);
-            finish();
+            mAccountManager.addAccount(LocalDBTables.accountType, null, null, null, getActivity(), null, null);
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            fragmentManager.popBackStackImmediate();
         } else if (accounts.length > 0){
             mAccount = accounts[0];
             new GetCollaborateeIdsTask().execute();
             new GetEngagementTracksTask().execute();
         }
 
-        setupNavigationView();
-        setupToolbar();
-        setupFAB();
+        setupFAB(v);
 
-        mRecyclerView = (android.support.v7.widget.RecyclerView) findViewById(R.id.recycler_view_profiles);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplication()));
+        mRecyclerView = (android.support.v7.widget.RecyclerView) v.findViewById(R.id.recycler_view_profiles);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplication()));
+
+        return v;
     }
 
-    /**
-     * Builds options menu
-     * Sets up "search" function
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-        int id = item.getItemId();
-        switch (id) {
-            case android.R.id.home:
-                drawerLayout.openDrawer(GravityCompat.START);
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void setupToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
-        setSupportActionBar(toolbar);
-
-        final ActionBar ab = getSupportActionBar();
-        ab.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
-        ab.setDisplayHomeAsUpEnabled(true);
-    }
-
-    private void setupNavigationView(){
-        NavigationView navigationView = (NavigationView) findViewById(R.id.mainNavigation);
-        navigationView.setNavigationItemSelectedListener(this);
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int itemId = item.getItemId();
-        switch (itemId)
-        {
-            case R.id.action_logout:
-                Account[] accounts = mAccountManager.getAccountsByType(LocalDBTables.accountType);
-                Log.d("Main Activity", "# of Accounts: " + accounts.length);
-                Account account = accounts[0];
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-                {
-                    mAccountManager.removeAccountExplicitly(account);
-                }
-                else
-                {
-                    mAccountManager.removeAccount(account, null, null);
-                }
-                mAccountManager.addAccount(LocalDBTables.accountType, null, null, null, this, null, null);
-                finish();
-                return true;
-            case R.id.action_collaborators:
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-        }
-
-        return true;
-    }
-
-    private void setupFAB() {
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+    private void setupFAB(View v) {
+        FloatingActionButton fab = (FloatingActionButton) v.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "FAB Clicked", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity().getApplicationContext(), "FAB Clicked", Toast.LENGTH_SHORT).show();
 //                Intent i = new Intent(getApplicationContext(), NewProfileActivity.class);
 //                startActivity(i);
             }
@@ -198,18 +136,18 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
             
             if (engagement.ProfilePicture == null || engagement.ProfilePicture.equals(""))
             {
-                Picasso.with(getApplication())
+                Picasso.with(getActivity().getApplication())
                         .load(R.drawable.persona)
                         .resize(64,64)
                         .into(((ImageView) mLinearLayout.findViewById(R.id.profile_photo)));
             }
             else
             {
-                File directory = getDir("imageDir", Context.MODE_PRIVATE);
+                File directory = getActivity().getDir("imageDir", Context.MODE_PRIVATE);
                 int indexoffileName = engagement.ProfilePicture.lastIndexOf("/");
                 String finalPath = directory + "/" + engagement.ProfilePicture.substring(indexoffileName + 1);
 
-                Picasso.with(getApplication())
+                Picasso.with(getActivity().getApplication())
                         .load(new File(finalPath))
                         .resize(64,64)
                         .placeholder(R.drawable.ic_person_black_24dp)
@@ -222,7 +160,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
          */
         @Override
         public void onClick(View v) {
-            Intent i = new Intent(getApplication(), EngagementDetailActivity.class);
+            Intent i = new Intent(getActivity().getApplication(), EngagementDetailActivity.class);
             i.putExtra(PARTNER_ID, engagement.PartnerId);
             i.putExtra(ENGAGEMENT_ID, engagement.EngagementId);
             i.putExtra(DESCRIPTION, engagement.Description);
@@ -245,7 +183,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         @Override
         public EngagementHolder onCreateViewHolder(ViewGroup parent, int viewType)
         {
-            LayoutInflater inflater = LayoutInflater.from(getApplication());
+            LayoutInflater inflater = LayoutInflater.from(getActivity().getApplication());
             View rootView = inflater.inflate(R.layout.engagement_listitem, parent, false);
 
             return new EngagementHolder(rootView);
@@ -271,7 +209,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         {
             collaboratees = new ArrayList<>();
             //get collaborateeIds from the database
-            Cursor cursor = getContentResolver().query(
+            Cursor cursor = getActivity().getContentResolver().query(
                     LocalDBTables.CollaborateeTable.CONTENT_URI,
                     new String[] { LocalDBTables.CollaborateeTable.PARTNER_ID, PARTNER_NAME, LocalDBTables.CollaborateeTable.PROFILE_PICTURE },
                     LocalDBTables.CollaborateeTable.COLLABORATER_ID + " = ?",
@@ -307,12 +245,12 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         @Override
         protected Void doInBackground(Void... voids)
         {
-            KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
+            KardiaFetcher fetcher = new KardiaFetcher(getActivity().getApplicationContext());
             mEngagements = fetcher.getEngagements(mAccount, collaboratees);
 
             if (mEngagements != null) {
 
-                ContentResolver contentResolver = getContentResolver();
+                ContentResolver contentResolver = getActivity().getContentResolver();
                 for (Engagement engagement : mEngagements) {
                     if (!engagement.Archived) {
 
@@ -348,7 +286,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         @Override
         protected Void doInBackground(Void... params)
         {
-            KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
+            KardiaFetcher fetcher = new KardiaFetcher(getActivity().getApplicationContext());
             try
             {
                 tracks = fetcher.getEngagementTracks(mAccount);
@@ -363,7 +301,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
                     values.put(LocalDBTables.EngagementTrackTable.TRACK_DESCRIPTION, track.TrackDescription);
                     values.put(LocalDBTables.EngagementTrackTable.TRACK_STATUS, track.TrackStatus);
 
-                    getContentResolver().insert(LocalDBTables.EngagementTrackTable.CONTENT_URI, values);
+                    getActivity().getContentResolver().insert(LocalDBTables.EngagementTrackTable.CONTENT_URI, values);
                 }
             } catch (JSONException e)
             {
@@ -384,7 +322,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
         @Override
         protected Void doInBackground(Void... params)
         {
-            KardiaFetcher fetcher = new KardiaFetcher(getApplicationContext());
+            KardiaFetcher fetcher = new KardiaFetcher(getActivity().getApplicationContext());
             try
             {
                 steps = fetcher.getEngagementSteps(mAccount, tracks);
@@ -401,7 +339,7 @@ public class EngagementActivity extends AppCompatActivity implements NavigationV
                     values.put(LocalDBTables.EngagementStepTable.STEP_NAME, step.StepName);
                     values.put(LocalDBTables.EngagementStepTable.STEP_SEQUENCE, step.StepSequence);
 
-                    getContentResolver().insert(LocalDBTables.EngagementStepTable.CONTENT_URI, values);
+                    getActivity().getContentResolver().insert(LocalDBTables.EngagementStepTable.CONTENT_URI, values);
                 }
             } catch (JSONException e)
             {

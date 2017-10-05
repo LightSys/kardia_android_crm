@@ -25,6 +25,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,6 +47,7 @@ import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.PostJson;
 import org.lightsys.crmapp.fragments.CollaboratorFragment;
+import org.lightsys.crmapp.fragments.EngagementFragment;
 import org.lightsys.crmapp.fragments.FormListFragment;
 import org.lightsys.crmapp.models.Partner;
 
@@ -182,7 +184,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent intent;
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment;
-
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerLayout.closeDrawer(Gravity.START);
 
         switch (itemId)
         {
@@ -207,8 +210,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 finish();
                 break;
             case R.id.action_engagement:
-                intent = new Intent(this, EngagementActivity.class);
-                startActivity(intent);
+                fragment = new EngagementFragment();
+
+                fragmentManager.beginTransaction().replace(R.id.content_main, fragment, "Engagements")
+                        .commit();
                 break;
             case R.id.action_sign_up:
                 fragment = new FormListFragment();

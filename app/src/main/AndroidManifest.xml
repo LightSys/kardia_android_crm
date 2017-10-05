@@ -106,7 +106,7 @@
             android:authorities="org.lightsys.crmapp.provider"
             android:exported="false"/>
 
-        <activity android:name=".activities.EngagementActivity">
+        <activity android:name=".fragments.EngagementFragment">
         </activity>
         <activity android:name=".activities.EngagementDetailActivity">
         </activity>

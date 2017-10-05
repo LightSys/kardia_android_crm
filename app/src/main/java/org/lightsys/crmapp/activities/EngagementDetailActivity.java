@@ -28,13 +28,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
-import static org.lightsys.crmapp.activities.EngagementActivity.COMMENTS;
-import static org.lightsys.crmapp.activities.EngagementActivity.COMPLETON_STATUS;
-import static org.lightsys.crmapp.activities.EngagementActivity.DESCRIPTION;
-import static org.lightsys.crmapp.activities.EngagementActivity.ENGAGEMENT_ID;
-import static org.lightsys.crmapp.activities.EngagementActivity.PARTNER_ID;
-import static org.lightsys.crmapp.activities.EngagementActivity.STEP_NAME;
-import static org.lightsys.crmapp.activities.EngagementActivity.TRACK_NAME;
+import static org.lightsys.crmapp.fragments.EngagementFragment.COMMENTS;
+import static org.lightsys.crmapp.fragments.EngagementFragment.COMPLETON_STATUS;
+import static org.lightsys.crmapp.fragments.EngagementFragment.DESCRIPTION;
+import static org.lightsys.crmapp.fragments.EngagementFragment.ENGAGEMENT_ID;
+import static org.lightsys.crmapp.fragments.EngagementFragment.PARTNER_ID;
+import static org.lightsys.crmapp.fragments.EngagementFragment.STEP_NAME;
+import static org.lightsys.crmapp.fragments.EngagementFragment.TRACK_NAME;
 import static org.lightsys.crmapp.data.LocalDBTables.CollaborateeTable.PARTNER_NAME;
 
 public class EngagementDetailActivity extends AppCompatActivity {
