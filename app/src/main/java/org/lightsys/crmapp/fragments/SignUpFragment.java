@@ -190,7 +190,6 @@ public class SignUpFragment extends Fragment{
         return connId;
     }
 
-
     public void openForm(int formId){
         FormFragment newFrag = new FormFragment();
 
@@ -199,10 +198,8 @@ public class SignUpFragment extends Fragment{
 
         newFrag.setArguments(args);
 
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_profile_input_container, newFrag, "Form");
-        transaction.addToBackStack("Form");
-        transaction.commit();
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_main, newFrag, "Form").addToBackStack("Form")
+                .commit();
     }
 
     private void submitOnClick()

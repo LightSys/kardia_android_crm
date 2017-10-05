@@ -14,6 +14,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -58,7 +60,14 @@ public class FormFragment extends Fragment{
         this.inflater = inflater;
         table = (TableLayout) v;
 
+        getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
         formId = getArguments().getInt(FORM_ID);
+
+        getActivity().getSupportFragmentManager().popBackStack("SignUp",0);
+        getActivity().getSupportFragmentManager().popBackStack("Form",0);
+
 
         return v;
     }
@@ -97,10 +106,8 @@ public class FormFragment extends Fragment{
 
                 newFrag.setArguments(args);
 
-                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_profile_input_container, newFrag, "SignUp");
-                transaction.addToBackStack("SignUp");
-                transaction.commit();
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_main, newFrag, "SignUp")
+                        .addToBackStack("SignUp").commit();
             }
         });
     }

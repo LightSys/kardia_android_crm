@@ -67,6 +67,7 @@ import static org.lightsys.crmapp.data.LocalDBTables.CollaborateeTable.PROFILE_P
  * to merge unnecessary Fragment into MainActivity
  */
 
+//todo check that engagment activity functionality was not lost changing to fragment
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     private AccountManager mAccountManager;
@@ -102,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentManager fragmentManager = getSupportFragmentManager();
         CollaboratorFragment fragment = new CollaboratorFragment();
         fragmentManager.beginTransaction().replace(R.id.content_main, fragment, "Collaborator")
-                .commit();
+                .addToBackStack("Collaborator").commit();
 
     }
 
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 newFrag.setArguments(args);
 
                 getSupportFragmentManager().beginTransaction().replace(R.id.content_main, newFrag, "Collaborator")
-                        .commit();
+                        .addToBackStack("Collaborator").commit();
                 return true;
             }
 
@@ -192,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.action_collaborators:
                 fragment = new CollaboratorFragment();
                 fragmentManager.beginTransaction().replace(R.id.content_main, fragment, "Collaborator")
-                        .commit();
+                        .addToBackStack("Collaborator").commit();
                 break;
             case R.id.action_logout:
                 Account[] accounts = mAccountManager.getAccountsByType(LocalDBTables.accountType);
@@ -213,13 +214,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragment = new EngagementFragment();
 
                 fragmentManager.beginTransaction().replace(R.id.content_main, fragment, "Engagements")
-                        .commit();
+                        .addToBackStack("Engagements").commit();
                 break;
             case R.id.action_sign_up:
                 fragment = new FormListFragment();
 
                 fragmentManager.beginTransaction().replace(R.id.content_main, fragment, "Form List")
-                        .commit();
+                        .addToBackStack("Form List").commit();
                 break;
         }
 

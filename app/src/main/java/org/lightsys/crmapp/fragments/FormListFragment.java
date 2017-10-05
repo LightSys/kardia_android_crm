@@ -2,6 +2,7 @@ package org.lightsys.crmapp.fragments;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.transition.Visibility;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -43,8 +44,6 @@ public class FormListFragment extends Fragment {
         this.inflater = inflater;
         table = (TableLayout) v;
         getActivity().setTitle("Forms");
-
-
 
         getAllForms();
 
@@ -98,7 +97,7 @@ public class FormListFragment extends Fragment {
                 childLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        ((FormActivity) getActivity()).setLocked(true);
+                        //((FormActivity) getActivity()).setLocked(true);
                         onFormClicked(Id);
                     }
                 });
@@ -161,10 +160,8 @@ public class FormListFragment extends Fragment {
 
         newFrag.setArguments(args);
 
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_profile_input_container, newFrag, "Form");
-        transaction.addToBackStack("Form");
-        transaction.commit();
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_main, newFrag, "Form")
+                .addToBackStack("Form").commit();
     }
 
     public void addForm (){
@@ -176,9 +173,7 @@ public class FormListFragment extends Fragment {
         newFrag.setArguments(args);
 
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_profile_input_container, newFrag, "AddForm");
-        transaction.addToBackStack("AddForm");
+        transaction.replace(R.id.content_main, newFrag, "AddForm");
         transaction.commit();
     }
-
 }
