@@ -66,12 +66,12 @@ public class EditProfileActivity extends AppCompatActivity {
     private String mEmailJsonId;
     private String mAddressJsonId;
     private String mPartnerJsonId;
-    private String mTypeJsonId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        String mTypeJsonId;
         if(savedInstanceState == null) {
             //retrieve all the things from the extras
             Bundle extras = getIntent().getExtras();

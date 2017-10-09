@@ -56,7 +56,6 @@ public class EngagementFragment extends Fragment
     private AccountManager mAccountManager;
 
     private RecyclerView mRecyclerView;
-    private List<Engagement> mEngagements;
     private List<Engagement> nonArchivedEngagements = new ArrayList<>();
     private Account mAccount;
     private List<Partner> collaboratees;
@@ -68,7 +67,6 @@ public class EngagementFragment extends Fragment
     public static String COMMENTS = "comments";
     public static String COMPLETON_STATUS = "completionStatus";
     private List<EngagementTrack> tracks;
-    private List<EngagementStep> steps;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -246,7 +244,7 @@ public class EngagementFragment extends Fragment
         protected Void doInBackground(Void... voids)
         {
             KardiaFetcher fetcher = new KardiaFetcher(getActivity().getApplicationContext());
-            mEngagements = fetcher.getEngagements(mAccount, collaboratees);
+            List<Engagement> mEngagements = fetcher.getEngagements(mAccount, collaboratees);
 
             if (mEngagements != null) {
 
@@ -325,7 +323,7 @@ public class EngagementFragment extends Fragment
             KardiaFetcher fetcher = new KardiaFetcher(getActivity().getApplicationContext());
             try
             {
-                steps = fetcher.getEngagementSteps(mAccount, tracks);
+                List<EngagementStep> steps = fetcher.getEngagementSteps(mAccount, tracks);
                 Log.d("Engagement Activity", "Steps Count: " + steps.size());
 
                 for (EngagementStep step : steps)

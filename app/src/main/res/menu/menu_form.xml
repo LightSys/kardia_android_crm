@@ -5,17 +5,10 @@
     tools:context=".activities.MainActivity">
 
     <item
-        android:id="@+id/action_search"
-        android:icon="@drawable/ic_search_white_24dp"
-        android:orderInCategory="100"
-        android:title="@string/search_partners"
-        app:showAsAction="ifRoom"
-        app:actionViewClass="android.support.v7.widget.SearchView"/>
-    <item
         android:id="@+id/action_close"
         android:icon="@drawable/ic_close"
-        android:orderInCategory="101"
+        android:orderInCategory="100"
         android:title="@string/close"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"/>
 
 </menu>

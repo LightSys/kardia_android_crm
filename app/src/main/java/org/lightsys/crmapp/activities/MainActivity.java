@@ -3,19 +3,14 @@ package org.lightsys.crmapp.activities;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.support.v4.app.Fragment;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
+
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -26,41 +21,21 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.WindowManager;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.LocalDBTables;
-import org.lightsys.crmapp.data.KardiaFetcher;
-import org.lightsys.crmapp.data.PostJson;
 import org.lightsys.crmapp.fragments.CollaboratorFragment;
 import org.lightsys.crmapp.fragments.EngagementFragment;
 import org.lightsys.crmapp.fragments.FormListFragment;
 import org.lightsys.crmapp.models.Partner;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
-import static org.lightsys.crmapp.activities.ProfileActivity.PARTNER_ID_KEY;
-import static org.lightsys.crmapp.activities.ProfileActivity.saveImageFromUrl;
-import static org.lightsys.crmapp.data.LocalDBTables.CollaborateeTable.PARTNER_NAME;
-import static org.lightsys.crmapp.data.LocalDBTables.CollaborateeTable.PROFILE_PICTURE;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Edited by Daniel Garcia on 30/June/2017
@@ -81,8 +56,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Account mAccount;
 
     Partner mPartner2 = new Partner();
-    private NavigationView navigationView;
     private SearchView searchView;
+    private MenuItem closeButton, searchButton;
     private MaterialDialog materialDialog;
     private String partnerId;
     private static String TAG = "Main Activity";
@@ -96,15 +71,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "Created");
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         setContentView(R.layout.activity_main);
         setupNavigationView();
         setupToolbar();
 
+
+        //open Collaborator fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
         CollaboratorFragment fragment = new CollaboratorFragment();
         fragmentManager.beginTransaction().replace(R.id.content_main, fragment, "Collaborator")
                 .addToBackStack("Collaborator").commit();
-
     }
 
     /**
@@ -114,8 +91,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        Menu menu1 = menu;
 
-        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchButton = menu.findItem(R.id.action_search);
+        searchView = (SearchView) searchButton.getActionView();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -139,7 +118,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return false;
             }
         });
+        closeButton = menu.findItem(R.id.action_close);
+        closeButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                getSupportFragmentManager().popBackStackImmediate();
+                return false;
+            }
+        });
+
+        closeButton.setVisible(false);
+
         return true;
+    }
+
+    /*
+     * change options menu from search icon to close icon
+     */
+    public void changeOptionsMenu(boolean search, boolean close){
+        searchButton.setVisible(search);
+        closeButton.setVisible(close);
     }
 
     public void showNavButton(boolean bool) {
@@ -178,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setupNavigationView(){
-        navigationView = (NavigationView) findViewById(R.id.mainNavigation);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.mainNavigation);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.action_collaborators);
         navigationView.getMenu().findItem(R.id.action_collaborators).setCheckable(true);

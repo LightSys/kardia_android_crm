@@ -25,7 +25,7 @@
 
                 <TextView
                     android:id="@+id/title"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:layout_marginStart="18dp"
@@ -97,7 +97,7 @@
 
             <TextView
                 android:id="@+id/date"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
@@ -137,13 +137,14 @@
 
             <TextView
                 android:id="@+id/subject"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/subject" />
+                android:text="@string/subject"
+                android:labelFor="@+id/subjectText"/>
 
         </LinearLayout>
 
@@ -162,7 +163,8 @@
                 android:layout_marginStart="4dp"
                 android:inputType="text"
                 android:layout_gravity="center_vertical"
-                android:background="@android:color/transparent" />
+                android:background="@android:color/transparent"
+                android:nextFocusDown="@+id/notesText"/>
         </ScrollView>
 
     </TableRow>
@@ -179,13 +181,14 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/notes" />
+                android:text="@string/notes"
+                android:labelFor="@+id/notesText"/>
 
         </LinearLayout>
 
@@ -204,7 +207,8 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:background="@android:color/transparent"
-                android:inputType="textMultiLine" />
+                android:inputType="textMultiLine"
+                android:nextFocusDown="@+id/followupCheckBox"/>
         </ScrollView>
 
     </TableRow>
@@ -253,7 +257,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
@@ -283,13 +287,14 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:text="@string/followup_note"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:labelFor="@+id/followupNoteText"/>
 
         </LinearLayout>
 

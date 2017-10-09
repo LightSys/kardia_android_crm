@@ -2,6 +2,5 @@
 <View
     android:layout_width="match_parent"
     android:layout_height="1dp"
-    android:background="#EEEEEE"
     android:layout_marginStart="@dimen/card_profile_divider_small_padding_left"
     xmlns:android="http://schemas.android.com/apk/res/android" />

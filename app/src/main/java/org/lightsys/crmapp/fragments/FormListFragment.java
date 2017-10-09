@@ -1,11 +1,9 @@
 package org.lightsys.crmapp.fragments;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.transition.Visibility;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +13,11 @@ import android.widget.TextView;
 
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.activities.FormActivity;
+import org.lightsys.crmapp.activities.MainActivity;
 import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.infoTypes.Form;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * @author otter57
@@ -52,18 +50,23 @@ public class FormListFragment extends Fragment {
         getActivity().getSupportFragmentManager().popBackStack("AddForm",0);
         getActivity().getSupportFragmentManager().popBackStack("FormList",0);
 
+        ((MainActivity) getActivity()).changeOptionsMenu(false, false);
+
+        setUpAddButton(v);
+
         return v;
     }
 
-    public void onStart(){
-        super.onStart();
+    @Override
+    public void onDestroyView(){
+        ((MainActivity) getActivity()).changeOptionsMenu(true, false);
 
-        setUpAddButton();
+        super.onDestroyView();
     }
 
-    private void setUpAddButton(){
+    private void setUpAddButton(View v){
         TableRow addFormButton = (TableRow) inflater.inflate(R.layout.form_element_table_row,
-                (ViewGroup) getView().findViewById(R.id.form_row), false);
+                (ViewGroup) v.findViewById(R.id.form_row), false);
 
         TextView prompt = (TextView) addFormButton.findViewById(R.id.event);
         prompt.setText(R.string.add_form_prompt);
@@ -84,7 +87,8 @@ public class FormListFragment extends Fragment {
 
         if (forms != null) {
             for (Form f : forms) {
-                View childLayout = inflater.inflate(R.layout.form_element_table_row, null);
+                View childLayout = LayoutInflater.from(this.getContext()).inflate(R.layout.form_element_table_row, table, false);
+
 
                 TextView university = (TextView) childLayout.findViewById(R.id.university);
                 TextView desc = (TextView) childLayout.findViewById(R.id.description);
@@ -100,7 +104,6 @@ public class FormListFragment extends Fragment {
                 childLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        //((FormActivity) getActivity()).setLocked(true);
                         onFormClicked(Id);
                     }
                 });
@@ -156,16 +159,9 @@ public class FormListFragment extends Fragment {
     }
 
     public void onFormClicked(int formId){
-
-        FormFragment newFrag = new FormFragment();
-
-        Bundle args = new Bundle();
-        args.putInt(FORM_ID, formId);
-
-        newFrag.setArguments(args);
-
-        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_main, newFrag, "Form")
-                .addToBackStack("Form").commit();
+        Intent i = new Intent(getActivity(), FormActivity.class);
+        i.putExtra(FORM_ID, formId);
+        startActivity(i);
     }
 
     public void addForm (){

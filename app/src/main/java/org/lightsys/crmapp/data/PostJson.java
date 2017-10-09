@@ -38,7 +38,6 @@ public class PostJson extends AsyncTask<String, Void, String> {
     private Account account;
     private AccountManager mAccountManager;
     private String baseUrl = "";
-    private String backupUrl = "";
     private JSONObject jsonObject;
     private Context context;
     private boolean success = false;
@@ -47,7 +46,7 @@ public class PostJson extends AsyncTask<String, Void, String> {
 
     public PostJson(Context context, String Url, JSONObject jsonPost, Account userAccount, boolean finalAsyncTask){
         this.baseUrl = Url;
-        backupUrl = Url;
+        String backupUrl = Url;
         jsonObject = jsonPost;
         account = userAccount;
         this.context = context;

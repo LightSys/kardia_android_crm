@@ -12,15 +12,19 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/kardiabeat_v3"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
+        android:theme="@style/Base.Theme.CRMApp"
         android:supportsRtl="true"
         android:fullBackupContent="@xml/backup_descriptor">
+
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name">
@@ -37,10 +41,12 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable"/>
         </activity>
+
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/title_activity_login">
         </activity>
+
         <activity
             android:name=".activities.ProfileActivity"
             android:label="@string/title_activity_profile"
@@ -49,14 +55,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity"/>
         </activity>
+
         <activity
             android:name=".activities.FormActivity"
+            android:lockTaskMode="if_whitelisted"
             android:label="@string/title_activity_profile"
             android:parentActivityName=".activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity"/>
         </activity>
+
         <activity
             android:name=".activities.NewProfileActivity"
             android:label="@string/title_activity_profile"
@@ -71,11 +80,13 @@
             android:label="@string/title_activity_profile"
             android:parentActivityName=".activities.MainActivity">
         </activity>
+
         <activity
             android:name=".activities.TimelineItemDetailActivity"
             android:label="TimelineActivity"
             android:parentActivityName=".activities.MainActivity">
         </activity>
+
         <activity android:name=".activities.NewInteractionActivity"
             android:label="NewInteractionActivity"
             android:parentActivityName=".activities.MainActivity"
@@ -95,7 +106,6 @@
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
-
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator"/>
@@ -106,10 +116,7 @@
             android:authorities="org.lightsys.crmapp.provider"
             android:exported="false"/>
 
-        <activity android:name=".fragments.EngagementFragment">
-        </activity>
-        <activity android:name=".activities.EngagementDetailActivity">
-        </activity>
+        <activity android:name=".activities.EngagementDetailActivity"/>
     </application>
 
 </manifest>

@@ -36,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.activities.EditProfileActivity;
+import org.lightsys.crmapp.activities.MainActivity;
 import org.lightsys.crmapp.activities.ProfileActivity;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.PatchJson;
@@ -78,16 +79,11 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     private AccountManager mAccountManager;
     private Account mAccount;
 
-    // Values that store profile information.
-    private String mName;
     private String mSurname;
     private String mGivenName;
     private String mPartnerId;
     private String mPhone;
     private String mCell;
-    private String mCountryCode;
-    private String mAreaCode;
-    private String mPhoneNumber;
     private String mEmail;
     private String mAddress;
     private String mCity;
@@ -150,7 +146,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         // Gets profile information from previous activity.
         Bundle arguments = getArguments();
         if (arguments != null) {
-            mName = arguments.getString(ProfileActivity.NAME_KEY);
+            String mName = arguments.getString(ProfileActivity.NAME_KEY);
             mSurname = arguments.getString(EditProfileActivity.SURNAME_KEY);
             mGivenName = arguments.getString(EditProfileActivity.GIVEN_NAMES_KEY);
             mPartnerId = arguments.getString(ProfileActivity.PARTNER_ID_KEY);
@@ -696,9 +692,9 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         if (phoneBits == null || phoneBits.length != 3)
             return;
 
-        mCountryCode = phoneBits[0].replaceAll("[^0-9.]", "");//get country code and remove non numbers
-        mAreaCode = phoneBits[1].replaceAll("[^0-9.]", "");//get area code and remove non numbers
-        mPhoneNumber = phoneBits[2].replaceAll("[^0-9.]", "");//get phone number and remove non numbers
+        String mCountryCode = phoneBits[0].replaceAll("[^0-9.]", "");
+        String mAreaCode = phoneBits[1].replaceAll("[^0-9.]", "");
+        String mPhoneNumber = phoneBits[2].replaceAll("[^0-9.]", "");
 
         //set phone number values to views
         phone.setText(mPhoneNumber);

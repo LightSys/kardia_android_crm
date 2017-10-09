@@ -37,7 +37,8 @@
         android:layout_marginTop="6dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_weight="1"
-        android:gravity="center_vertical"/>
+        android:gravity="center_vertical"
+        android:labelFor="@+id/descriptionText"/>
     
     <EditText
         android:id="@+id/descriptionText"
@@ -55,7 +56,8 @@
         android:layout_marginEnd="8dp"
         android:inputType="textMultiLine"
         android:layout_gravity="center_vertical"
-        app:layout_constraintHorizontal_bias="0.0"/>
+        app:layout_constraintHorizontal_bias="0.0"
+        android:nextFocusDown="@+id/commentsText"/>
 
     <TextView
         android:id="@+id/commentsTitle"
@@ -68,7 +70,8 @@
         android:layout_marginTop="6dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_weight="1"
-        android:gravity="center_vertical"/>
+        android:gravity="center_vertical"
+        android:labelFor="@+id/commentsText"/>
 
     <EditText
         android:id="@+id/commentsText"

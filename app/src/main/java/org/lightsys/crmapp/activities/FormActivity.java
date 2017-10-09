@@ -1,26 +1,27 @@
 package org.lightsys.crmapp.activities;
 
-import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import org.lightsys.crmapp.R;
-import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.fragments.FormFragment;
-import org.lightsys.crmapp.fragments.FormListFragment;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.lightsys.crmapp.fragments.FormFragment.FORM_ID;
 
@@ -29,105 +30,102 @@ import static org.lightsys.crmapp.fragments.FormFragment.FORM_ID;
  * Created by otter57 on 9/20/17.
  */
 
-public class FormActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class FormActivity extends AppCompatActivity{
 
     int formId = -1;
     Fragment currentFrag;
-    private AccountManager mAccountManager;
     ActionBar ab;
-    private Boolean locked;
     public static final String LOG_TAG = FormActivity.class.getName();
-
-
+    private MenuItem closeButton;
+    private final List blockedKeys = new ArrayList(Arrays.asList(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        locked = false;
+        //lock task for kiosk mode
+        startLockTask();
 
-        mAccountManager = AccountManager.get(this);
+        Intent mIntent = getIntent();
 
+        formId = mIntent.getIntExtra(FORM_ID, 0);
 
         if (savedInstanceState == null) {
 
-            FormListFragment newFrag = new FormListFragment();
+            FormFragment newFrag = new FormFragment();
+
+            Bundle args = new Bundle();
+            args.putInt(FORM_ID, formId);
+            newFrag.setArguments(args);
 
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_profile_input_container, newFrag, "FormList");
-            transaction.addToBackStack("FormList");
+            transaction.replace(R.id.fragment_profile_input_container, newFrag, "Form");
+            transaction.addToBackStack("Form");
             transaction.commit();
         }
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-        setContentView(R.layout.activity_main);
 
-        setContentView(R.layout.activity_profile_input);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+
+        setContentView(R.layout.activity_form);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_profile_input);
         setSupportActionBar(toolbar);
-        setupNavigationView();
 
         currentFrag = getFragmentManager().findFragmentByTag("FORM");
 
         ab = getSupportActionBar();
     }
 
-    public void setLocked(boolean locked){
-        this.locked = locked;
-    }
-
-    private void setupNavigationView(){
-        NavigationView navigationView = (NavigationView) findViewById(R.id.mainNavigation);
-        navigationView.setNavigationItemSelectedListener(this);
-    }
-
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int itemId = item.getItemId();
-        switch (itemId)
-        {
-            case R.id.action_logout:
-                Account[] accounts = mAccountManager.getAccountsByType(LocalDBTables.accountType);
-                Log.d("Main Activity", "# of Accounts: " + accounts.length);
-                Account account = accounts[0];
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-                {
-                    mAccountManager.removeAccountExplicitly(account);
-                }
-                else
-                {
-                    mAccountManager.removeAccount(account, null, null);
-                }
-                mAccountManager.addAccount(LocalDBTables.accountType, null, null, null, this, null, null);
-                finish();
-                return true;
-            case R.id.action_collaborators:
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-        }
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_form, menu);
+
+        closeButton = menu.findItem(R.id.action_close);
+        closeButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                getSupportFragmentManager().popBackStackImmediate();
+                return false;
+            }
+        });
+
+        closeButton.setVisible(false);
 
         return true;
     }
-    /*@Override
-    public void onBackPressed(){
-        if(locked) {
 
-            this.setLocked(false);
+    public void setCloseButton(boolean onOff){
+        closeButton.setVisible(onOff);
+    }
 
-            FormFragment newFrag = new FormFragment();
+    @Override
+    public void onResume(){
+        startLockTask();
+        super.onResume();
+    }
 
-            Bundle args = new Bundle();
-            args.putInt(FORM_ID, formId);
+    @Override
+    public void onBackPressed() {
+        // nothing to do here
+        // … really
+    }
 
-            newFrag.setArguments(args);
-
-            FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_profile_input_container, newFrag, "Form");
-            transaction.addToBackStack("Form");
-            transaction.commit();
-            Toast.makeText(this, "\"Complete Form\" must be used to exit", Toast.LENGTH_SHORT).show();
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if(!hasFocus) {
+            // Close every kind of system dialog
+            Intent closeDialog = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+            sendBroadcast(closeDialog);
         }
+    }
 
-        super.onBackPressed();
-    }*/
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (blockedKeys.contains(event.getKeyCode())) {
+            return true;
+        } else {
+            return super.dispatchKeyEvent(event);
+        }
+    }
 }

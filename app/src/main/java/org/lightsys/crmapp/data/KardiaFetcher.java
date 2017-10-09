@@ -42,7 +42,6 @@ import static org.lightsys.crmapp.activities.LoginActivity.Credential;
  */
 
 public class KardiaFetcher {
-    private final Authenticator authorization;
     private Context mContext;
     private AccountManager mAccountManager;
     private OkHttpClient client;
@@ -51,7 +50,7 @@ public class KardiaFetcher {
     public KardiaFetcher(Context context) {
         mContext = context;
         mAccountManager = AccountManager.get(context);
-        authorization = new Authenticator() {
+        Authenticator authorization = new Authenticator() {
             @Override
             public Request authenticate(Route route, Response response) throws IOException {
                 return response.request().newBuilder()

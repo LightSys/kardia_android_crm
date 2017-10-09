@@ -23,8 +23,6 @@ import android.util.Log;
 public class LocalDBProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
-    private LocalDBCreator dbCreator;
-
     private SQLiteDatabase mDatabase;
 
     private Context mContext;
@@ -46,7 +44,7 @@ public class LocalDBProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        dbCreator = new LocalDBCreator(getContext());
+        LocalDBCreator dbCreator = new LocalDBCreator(getContext());
         mDatabase = dbCreator.getWritableDatabase();
 
         return true;

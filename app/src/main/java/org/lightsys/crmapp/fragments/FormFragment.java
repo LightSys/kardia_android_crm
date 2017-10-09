@@ -3,6 +3,7 @@ package org.lightsys.crmapp.fragments;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -77,8 +78,6 @@ public class FormFragment extends Fragment{
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
-        ((MainActivity) getActivity()).showNavButton(false);
-        
         return v;
     }
 
@@ -98,8 +97,6 @@ public class FormFragment extends Fragment{
     public void onDestroyView(){
         getActivity().getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_VISIBLE);
-
-        ((MainActivity) getActivity()).showNavButton(true);
 
         super.onDestroyView();
     }
@@ -125,7 +122,7 @@ public class FormFragment extends Fragment{
 
                 newFrag.setArguments(args);
 
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_main, newFrag, "SignUp")
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_profile_input_container, newFrag, "SignUp")
                         .addToBackStack("SignUp").commit();
             }
         });
@@ -157,8 +154,9 @@ public class FormFragment extends Fragment{
         completeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                isPasswordCorrect();
+                getActivity().stopLockTask();
                 uploadContacts();
+                getActivity().finish();
             }
         });
     }
@@ -168,66 +166,14 @@ public class FormFragment extends Fragment{
 
     }
 
-    //gets password from user and checks with account password
-    private void isPasswordCorrect(){
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity(), R.style.MyThemeDialogCustom);
-        builder.setTitle("Enter Password");
-
-            // Set up the input
-        final EditText input = new EditText(this.getActivity());
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        builder.setView(input);
-
-            // Set up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mText = input.getText().toString();
-                FormListFragment newFrag = new FormListFragment();
-
-                if(mText.equals(getPassword())) {
-                    getActivity().stopLockTask();
-                    FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                    transaction.replace(R.id.fragment_profile_input_container, newFrag, "Forms");
-                    transaction.addToBackStack("Forms");
-                    transaction.commit();
-                    correctPassword = true;
-                } else{
-                    dialog.cancel();
-                    isPasswordCorrect();
-                }
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                correctPassword = false;
-            }
-        });
-
-        builder.show();
-    }
-
-    //gets password for account
-    private String getPassword(){
-        // Gets user account.
-        AccountManager mAccountManager = AccountManager.get(getContext());
-        final Account[] accounts = mAccountManager.getAccounts();
-        if(accounts.length > 0) {
-            return mAccountManager.getPassword(accounts[0]);
-        }
-        return null;
-    }
-
     //loads a list of people on sign up list
     private void displayPeople() {
 
         if (formConnections != null) {
             Log.d(TAG, "displayPeople: " + formConnections.size());
             for (Connection person : formConnections) {
-                View childLayout = inflater.inflate(R.layout.sign_up_element_table_row,null);
+                View childLayout = LayoutInflater.from(this.getContext()).inflate(R.layout.sign_up_element_table_row, table, false);
+
 
                 TextView name = (TextView) childLayout.findViewById(R.id.name);
                 TextView email = (TextView) childLayout.findViewById(R.id.email);

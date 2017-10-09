@@ -21,6 +21,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lightsys.crmapp.R;
+import org.lightsys.crmapp.activities.FormActivity;
 import org.lightsys.crmapp.activities.MainActivity;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.LocalDBTables;
@@ -110,7 +111,8 @@ public class SignUpFragment extends Fragment{
             }
         });
 
-        ((MainActivity) getActivity()).showNavButton(false);
+        //((MainActivity) getActivity()).showNavButton(false);
+        //((MainActivity) getActivity()).changeOptionsMenu(false, true);
 
         if(savedInstanceState != null) {
             mEditTextData = savedInstanceState.getStringArray(DATA_ARRAY_KEY);
@@ -127,13 +129,14 @@ public class SignUpFragment extends Fragment{
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
+        ((FormActivity) getActivity()).setCloseButton(true);
+
         return rootView;
     }
 
     @Override
     public void onDestroyView(){
-
-        ((MainActivity) getActivity()).showNavButton(true);
+        ((FormActivity) getActivity()).setCloseButton(false);
         super.onDestroyView();
     }
 

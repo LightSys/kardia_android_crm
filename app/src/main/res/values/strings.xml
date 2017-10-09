@@ -24,6 +24,7 @@
     <string name="name">Name</string>
     <string name="email">Email</string>
     <string name="search_partners">Search Partners&#8230;</string>
+    <string name="close">close fragment</string>
 
     <!-- *** Add Profile *** -->
     <string name="title_activity_profile">Profile Activity</string>

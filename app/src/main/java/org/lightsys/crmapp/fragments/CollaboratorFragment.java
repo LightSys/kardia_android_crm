@@ -65,9 +65,7 @@ public class CollaboratorFragment extends Fragment {
 
     private AccountManager mAccountManager;
     private Account mAccount;
-    private String partnerId;
     private List<Partner> mProfiles = new ArrayList<>();
-    private ProfileAdapter profileAdapter;
     private RecyclerView mRecyclerView;
     private LinearLayoutManager linearLayoutManager;
     private MaterialDialog materialDialog;
@@ -96,7 +94,7 @@ public class CollaboratorFragment extends Fragment {
         linearLayoutManager = new LinearLayoutManager(getActivity().getApplication());
         mRecyclerView.setLayoutManager(linearLayoutManager);
 
-        partnerId = mAccountManager.getUserData(mAccount, "partnerId");
+        String partnerId = mAccountManager.getUserData(mAccount, "partnerId");
         setupFAB(v);
         setupAdapter(mProfiles);
 
@@ -174,7 +172,7 @@ public class CollaboratorFragment extends Fragment {
      * Sets up adapter after Async task is complete.
      */
     private void setupAdapter(List<Partner> profiles) {
-        profileAdapter = new ProfileAdapter(profiles);
+        ProfileAdapter profileAdapter = new ProfileAdapter(profiles);
         mRecyclerView.setAdapter(profileAdapter);
     }
 

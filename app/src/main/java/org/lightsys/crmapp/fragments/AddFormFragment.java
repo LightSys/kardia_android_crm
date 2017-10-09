@@ -1,6 +1,7 @@
 package org.lightsys.crmapp.fragments;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -12,8 +13,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.lightsys.crmapp.R;
+import org.lightsys.crmapp.activities.FormActivity;
 import org.lightsys.crmapp.activities.MainActivity;
 import org.lightsys.crmapp.data.LocalDBTables;
+
+import static org.lightsys.crmapp.fragments.FormFragment.FORM_ID;
 
 
 /**
@@ -37,7 +41,7 @@ public class AddFormFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        formId = getArguments().getInt(FormFragment.FORM_ID);
+        formId = getArguments().getInt(FORM_ID);
         View rootView = inflater.inflate(R.layout.fragment_form_input, container, false);
         getActivity().setTitle("Create form");
 
@@ -66,13 +70,13 @@ public class AddFormFragment extends Fragment {
 
         ((MainActivity) getActivity()).showNavButton(false);
 
+        ((MainActivity) getActivity()).changeOptionsMenu(false, true);
 
         return rootView;
     }
 
     @Override
     public void onDestroyView() {
-
         ((MainActivity) getActivity()).showNavButton(true);
         super.onDestroyView();
     }
@@ -94,17 +98,9 @@ public class AddFormFragment extends Fragment {
     }
 
     public void openForm(int formId){
-        FormFragment newFrag = new FormFragment();
-
-        Bundle args = new Bundle();
-        args.putInt(FormListFragment.FORM_ID, formId);
-
-        newFrag.setArguments(args);
-
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_profile_input_container, newFrag, "Form");
-        transaction.addToBackStack("Form");
-        transaction.commit();
+        Intent i = new Intent(getActivity(), FormActivity.class);
+        i.putExtra(FORM_ID, formId);
+        startActivity(i);
     }
 
 }

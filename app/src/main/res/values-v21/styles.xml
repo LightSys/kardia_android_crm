@@ -13,6 +13,5 @@
         <item name="android:colorButtonNormal">@color/divider</item>
 
         <item name="android:windowDrawsSystemBarBackgrounds">false</item>
-
     </style>
 </resources>

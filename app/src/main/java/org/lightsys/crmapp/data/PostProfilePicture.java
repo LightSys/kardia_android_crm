@@ -45,10 +45,8 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
     private OkHttpClient client;
     private boolean success;
     private String credential;
-    private JSONObject jsonDate;
     private String nextPartnerKey;
     private String tokenParam;
-    private Calendar cal;
 
     public PostProfilePicture(Context context, String Url, File image, Account userAccount, String nextpartnerkey){
         url = Url;
@@ -172,9 +170,9 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
     {
         //Get current date
         java.util.Date date = new Date();
-        cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        jsonDate = new JSONObject();
+        JSONObject jsonDate = new JSONObject();
 
         String metadataUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/data/Kardia_DB/e_document/rows?" + tokenParam + "&cx__mode=rest&cx__res_type=collection&cx__res_format=attrs&cx__res_attrs=basic";
 
