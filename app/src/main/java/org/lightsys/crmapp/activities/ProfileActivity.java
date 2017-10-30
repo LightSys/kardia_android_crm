@@ -78,75 +78,75 @@ public class ProfileActivity extends AppCompatActivity {
     public static final String LOG_TAG = ProfileActivity.class.getName();
     public static final String NAME_KEY = "EXTRA_NAME";
     public static final String PARTNER_ID_KEY = "EXTRA_PARTNER_ID";
-    public static final String EMAIL_KEY = "EXTRA_EMAIL";
-    public static final String PHONE_KEY = "EXTRA_PHONE";
-    public static final String ADDRESS_KEY = "EXTRA_ADDRESS";
-    public static final String CITY_KEY = "EXTRA_CITY";
-    public static final String STATE_KEY = "EXTRA_STATE";
-    public static final String POSTALCODE_KEY = "EXTRA_POSTALCODE";
-    public static final String FULLADDRESS_KEY = "EXTRA_FULLADDRESS";
-    public static final String CELL_KEY = "EXTRA_CELL";
-    public static final String SURNAME_KEY = "EXTRA_SURNAME";
-    public static final String GIVEN_NAMES_KEY = "EXTRA_GIVEN_NAMES";
+    private static final String EMAIL_KEY = "EXTRA_EMAIL";
+    private static final String PHONE_KEY = "EXTRA_PHONE";
+    private static final String ADDRESS_KEY = "EXTRA_ADDRESS";
+    private static final String CITY_KEY = "EXTRA_CITY";
+    private static final String STATE_KEY = "EXTRA_STATE";
+    private static final String POSTALCODE_KEY = "EXTRA_POSTALCODE";
+    private static final String FULLADDRESS_KEY = "EXTRA_FULLADDRESS";
+    private static final String CELL_KEY = "EXTRA_CELL";
+    private static final String SURNAME_KEY = "EXTRA_SURNAME";
+    private static final String GIVEN_NAMES_KEY = "EXTRA_GIVEN_NAMES";
 
     //These might not be necessary, but they are still here just in case
-    public static final String PHONE_ID_KEY = "EXTRA_PHONE_ID";
-    public static final String CELL_ID_KEY = "EXTRA_CELL_ID";
-    public static final String EMAIL_ID_KEY = "EXTRA_EMAIL_ID";
+    private static final String PHONE_ID_KEY = "EXTRA_PHONE_ID";
+    private static final String CELL_ID_KEY = "EXTRA_CELL_ID";
+    private static final String EMAIL_ID_KEY = "EXTRA_EMAIL_ID";
 
-    public static final String PHONE_JSON_ID_KEY = "EXTRA_PHONE_JSON_ID";
-    public static final String CELL_JSON_ID_KEY = "EXTRA_CELL_JSON_ID";
-    public static final String EMAIL_JSON_ID_KEY = "EXTRA_EMAIL_JSON_ID";
-    public static final String ADDRESS_JSON_ID_KEY = "EXTRA_ADDRESS_JSON_ID";
-    public static final String PARTNER_JSON_ID_KEY = "EXTRA_PARTNER_JSON_ID";
+    private static final String PHONE_JSON_ID_KEY = "EXTRA_PHONE_JSON_ID";
+    private static final String CELL_JSON_ID_KEY = "EXTRA_CELL_JSON_ID";
+    private static final String EMAIL_JSON_ID_KEY = "EXTRA_EMAIL_JSON_ID";
+    private static final String ADDRESS_JSON_ID_KEY = "EXTRA_ADDRESS_JSON_ID";
+    private static final String PARTNER_JSON_ID_KEY = "EXTRA_PARTNER_JSON_ID";
 
-    public static final String BLOG_KEY = "EXTRA_BLOG";
-    public static final String FAX_KEY = "EXTRA_FAX";
-    public static final String FACEBOOK_KEY = "EXTRA_FAX";
-    public static final String SKYPE_KEY = "EXTRA_SKYPE";
-    public static final String TWITTER_KEY = "EXTRA_TWITTER";
-    public static final String WEBSITE_KEY = "EXTRA_WEBSITE";
+    private static final String BLOG_KEY = "EXTRA_BLOG";
+    private static final String FAX_KEY = "EXTRA_FAX";
+    private static final String FACEBOOK_KEY = "EXTRA_FAX";
+    private static final String SKYPE_KEY = "EXTRA_SKYPE";
+    private static final String TWITTER_KEY = "EXTRA_TWITTER";
+    private static final String WEBSITE_KEY = "EXTRA_WEBSITE";
 
     //Constants specifically for NewInteractionActivity
-    public static final String TYPE_KEY = "EXTRA_TYPE";
-    public static final String SPECIFIC_CONTACT_KEY = "EXTRA_SPECIFIC_CONTACT";
+    private static final String TYPE_KEY = "EXTRA_TYPE";
+    private static final String SPECIFIC_CONTACT_KEY = "EXTRA_SPECIFIC_CONTACT";
 
     //Variables that hold the stuff retrieved from the intent
-    public String mPartnerId;
-    public String mName;
-    public String mNotificationId;
+    private String mPartnerId;
+    private String mName;
+    private String mNotificationId;
 
-    public String mEmail;
-    public String mPhone;
-    public String mAddress;
-    public String mCity;
-    public String mState;
-    public String mPostalCode;
-    public String mFullAddress;
-    public String mCell;
-    public String mSurname;
-    public String mGivenName;
+    private String mEmail;
+    private String mPhone;
+    private String mAddress;
+    private String mCity;
+    private String mState;
+    private String mPostalCode;
+    private String mFullAddress;
+    private String mCell;
+    private String mSurname;
+    private String mGivenName;
 
-    public String mPhoneId;
-    public String mCellId;
-    public String mEmailId;
+    private String mPhoneId;
+    private String mCellId;
+    private String mEmailId;
 
-    public String mPhoneJsonId;
-    public String mCellJsonID;
-    public String mEmailJsonId;
-    public String mAddressJsonId;
-    public String mPartnerJsonId;
+    private String mPhoneJsonId;
+    private String mCellJsonID;
+    private String mEmailJsonId;
+    private String mAddressJsonId;
+    private String mPartnerJsonId;
 
-    public String mBlog;
-    public String mFax;
-    public String mFacebook;
-    public String mSkype;
-    public String mTwitter;
-    public String mWebsite;
+    private String mBlog;
+    private String mFax;
+    private String mFacebook;
+    private String mSkype;
+    private String mTwitter;
+    private String mWebsite;
 
-    public Toolbar mToolbar;
-    public CollapsingToolbarLayout mCollapsingToolbarLayout;
-    public Button addInteraction;
+    private Toolbar mToolbar;
+    private CollapsingToolbarLayout mCollapsingToolbarLayout;
+    private Button addInteraction;
 
     private String phones = "";
     private String TAG = "ProfileActivity";
@@ -154,9 +154,9 @@ public class ProfileActivity extends AppCompatActivity {
     private Account mAccount;
     private List<TimelineItem> mItems = new ArrayList<>();
 
-    Partner mPartner2 = new Partner();
+    private Partner mPartner2 = new Partner();
 
-    AccountManager mAccountManager;
+    private AccountManager mAccountManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -440,7 +440,7 @@ public class ProfileActivity extends AppCompatActivity {
     //Fetches timeline info from Kardia
     private class getTimelineTask extends AsyncTask<Void, Void, List<TimelineItem>> {
 
-        View timelineCardView;
+        final View timelineCardView;
 
         public getTimelineTask(View timelinecardview)
         {
@@ -534,11 +534,11 @@ public class ProfileActivity extends AppCompatActivity {
     //Adapter for the timeline items
     private class TimeLineAdapter extends SimpleAdapter {
 
-        Context context;
+        final Context context;
         ArrayList<HashMap<String, String>> data = new ArrayList<>();
-        ArrayList<View> views;
-        String[] from;
-        int[] to;
+        final ArrayList<View> views;
+        final String[] from;
+        final int[] to;
 
         public TimeLineAdapter(Context context, ArrayList<HashMap<String, String>> data,
                                int resource, String[] from, int[] to) {
@@ -583,7 +583,7 @@ public class ProfileActivity extends AppCompatActivity {
     private class TimelineLayout extends RelativeLayout {
 
         TextView itemView = new TextView(getContext());
-        CardView button;
+        final CardView button;
 
         public String type = "";
         public String name = "";

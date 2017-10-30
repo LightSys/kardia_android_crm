@@ -29,14 +29,6 @@ import java.io.File;
 public class TimelineItemDetailActivity extends AppCompatActivity {
 
 
-    private String type;
-    private String name;
-    private String subject;
-    private String date;
-    private String text;
-    private String followup;
-    private String profilePictureFilename;
-
     public TimelineItemDetailActivity () {
 
     }
@@ -45,13 +37,13 @@ public class TimelineItemDetailActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        type = getIntent().getStringExtra("type");
-        name = getIntent().getStringExtra("name");
-        date = getIntent().getStringExtra("date");
-        subject = getIntent().getStringExtra("subject");
-        text = getIntent().getStringExtra("text");
-        followup = getIntent().getStringExtra("followup");
-        profilePictureFilename = getIntent().getStringExtra("profilePictureFilename");
+        String type = getIntent().getStringExtra("type");
+        String name = getIntent().getStringExtra("name");
+        String date = getIntent().getStringExtra("date");
+        String subject = getIntent().getStringExtra("subject");
+        String text = getIntent().getStringExtra("text");
+        String followup = getIntent().getStringExtra("followup");
+        String profilePictureFilename = getIntent().getStringExtra("profilePictureFilename");
 
         setContentView(R.layout.timeline_item_detail);
 

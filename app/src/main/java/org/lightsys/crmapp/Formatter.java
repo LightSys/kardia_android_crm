@@ -39,18 +39,4 @@ public class Formatter {
             default: return "";
         }
     }
-
-    /**
-     * Converts a monetary amount from an array of integers to a readable money form
-     * @param gift_total, the amount as an array of integers
-     *                    gift_total[0] = dollars, gift_total[1] = cents
-     * @return the amount as a standard monetary string as $Dollars.Cents (e.g. "$24.05")
-     */
-    public static String amountToString(int[] gift_total){
-        if(gift_total[1] <= 9){
-            return "$" + gift_total[0] + ".0" + gift_total[1];
-        }else{
-            return "$" + gift_total[0] + "." + gift_total[1];
-        }
-    }
 }

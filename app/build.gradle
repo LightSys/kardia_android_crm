@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "org.lightsys.crmapp"
-        minSdkVersion 23 //todo was 15 - changed for lock task (FormFragment)
+        minSdkVersion 23 //was 15 - lock task (FormFragment) requires sdk 23
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+              android:id="@+id/form_tag"
+    android:weightSum="9">
+
+    <Spinner
+        android:id="@+id/tagSpinnerForm"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_weight="4.5"
+        android:layout_marginBottom="8dp"
+        android:nextFocusDown="@+id/profile_input_email"/>
+
+    <EditText
+        android:id="@+id/descriptionET"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="4"
+        android:layout_marginBottom="8dp"
+        android:hint="@string/hint_form_description"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight=".5"
+        android:id="@+id/add_button_form"
+        android:text="+"
+        android:layout_gravity="center_horizontal" />
+</LinearLayout>

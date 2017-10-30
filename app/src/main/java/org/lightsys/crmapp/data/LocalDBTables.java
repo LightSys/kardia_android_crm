@@ -204,6 +204,7 @@ public class LocalDBTables {
         public static final String CONNECTION_PHONE = "connectionPhone";
         public static final String CONNECTION_GRAD_YEAR = "connectionGradYear";
         public static final String CONNECTION_TAGS = "connectionTags";
+        public static final String CONNECTION_UPLOADED = "connectionUploaded";
 
         public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 CONNECTION_ID + " INTEGER PRIMARY KEY," +
@@ -212,7 +213,8 @@ public class LocalDBTables {
                 CONNECTION_EMAIL + "," +
                 CONNECTION_PHONE + "," +
                 CONNECTION_GRAD_YEAR + "," +
-                CONNECTION_TAGS + ")";
+                CONNECTION_TAGS + "," +
+                CONNECTION_UPLOADED + ")";
 
     }
 
@@ -222,10 +224,9 @@ public class LocalDBTables {
 
         public static final String FORM_ID = "formId";
         public static final String FORM_DATE = "formDate";
-        public static final String FORM_TYPE = "formType";
-        public static final String FORM_UNIVERSITY = "formUniversity";
-        public static final String FORM_EVENT = "formEvent";
-        public static final String FORM_DESC = "formDescription";
+        public static final String FORM_DESCRIPTION = "formDescription";
+        public static final String FORM_TAGS = "formTags";
+        public static final String FORM_SIGN_UP_TAGS = "formSignUpTags";
 
 
 
@@ -233,10 +234,25 @@ public class LocalDBTables {
         public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 FORM_ID + " INTEGER PRIMARY KEY," +
                 FORM_DATE + "," +
-                FORM_TYPE + "," +
-                FORM_UNIVERSITY + "," +
-                FORM_EVENT + "," +
-                FORM_DESC + ")";
+                FORM_DESCRIPTION + "," +
+                FORM_TAGS + "," +
+                FORM_SIGN_UP_TAGS + ")";
+    }
+
+    public static final class TagTable {
+        public static final String TABLE_NAME = "tag";
+        public static final Uri CONTENT_URI = new Uri.Builder().scheme("content").authority("org.lightsys.crmapp.provider").path(TABLE_NAME).build();
+
+        public static final String TAG_ID = "tag_id";
+        public static final String TAG_LABEL = "tagLabel";
+        public static final String TAG_DESC = "tagDescription";
+        public static final String TAG_ACTIVE = "active";
+
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+                TAG_ID + " INTEGER PRIMARY KEY," +
+                TAG_LABEL + "," +
+                TAG_DESC + "," +
+                TAG_ACTIVE + ")";
     }
 
 }

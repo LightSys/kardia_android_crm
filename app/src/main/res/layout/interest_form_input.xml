@@ -24,27 +24,23 @@
             android:layout_marginBottom="8dp"
             android:nextFocusDown="@+id/profile_input_phone"/>
 
-        <include layout="@layout/form_input_phone"
+        <include layout="@layout/profile_input_phone"
                  android:layout_width="match_parent"
                  android:layout_height="wrap_content"
                  android:layout_marginBottom="8dp"
-                 android:id="@+id/phoneLayout"
                  android:nextFocusDown="@+id/input_grad_year"/>
 
         <include layout="@layout/sign_up_grad_year"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:nextFocusDown="@+id/check_boxes"/>
+            android:nextFocusDown="@+id/profile_input_check_boxes"/>
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:id="@+id/check_boxes"
+        <include layout="@layout/sign_up_interest_check_boxes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:nextFocusDown="@+id/submit">
-        </LinearLayout>
+            android:nextFocusDown="@+id/submit"/>
 
         <Button
             android:layout_width="wrap_content"

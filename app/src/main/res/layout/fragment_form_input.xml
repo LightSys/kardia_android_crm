@@ -9,28 +9,116 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
+        android:id="@+id/formTagParent"
         android:padding="@dimen/new_profile_linear_layout_padding"
         android:theme="@style/CustomThemeOverlayAppCompatLight">
-
-            <include layout="@layout/input_form_type"
-                     android:layout_width="match_parent"
-                     android:layout_height="wrap_content"
-                     android:layout_marginBottom="8dp"/>
-
-            <include layout="@layout/input_form_university"
-                     android:layout_width="match_parent"
-                     android:layout_height="wrap_content"
-                     android:layout_marginBottom="8dp"/>
-
-            <include layout="@layout/input_form_event"
-                     android:layout_width="match_parent"
-                     android:layout_height="wrap_content"
-                     android:layout_marginBottom="8dp"/>
 
         <include layout="@layout/input_form_description"
                  android:layout_width="match_parent"
                  android:layout_height="wrap_content"
+                 android:id="@+id/formSpinner"
                  android:layout_marginBottom="8dp"/>
+
+        <include layout="@layout/add_form_type"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:id="@+id/formType"
+                 android:layout_marginBottom="8dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="@color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="4dp"
+            android:textSize="18sp"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:text="@string/form_tag"/>
+
+        <include layout="@layout/input_form_tag"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:id="@+id/formSpinner"
+                 android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/formItems">
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="@color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="4dp"
+            android:textSize="18sp"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:text="@string/sign_up_interest_tag"/>
+
+        <include layout="@layout/input_sign_up_tag"
+                 android:id="@+id/signUpInterestedSpinner"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/signUpInterestedItems">
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:id="@+id/advancedSettingsLayout">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@color/black"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="4dp"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:text="@string/sign_up_skills_tag"/>
+
+            <include layout="@layout/input_sign_up_skills_tag"
+                     android:id="@+id/signUpSkillsSpinner"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/signUpSkillsItems">
+            </LinearLayout>
+        </LinearLayout>
+
 
         <Button
             android:layout_width="wrap_content"
@@ -40,5 +128,4 @@
             android:layout_gravity="center_horizontal" />
 
     </LinearLayout>
-
 </android.support.v4.widget.NestedScrollView>

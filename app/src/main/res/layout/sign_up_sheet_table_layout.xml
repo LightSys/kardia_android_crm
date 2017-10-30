@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
-    >
+              android:layout_height="match_parent">
+    <TableRow
+        android:id="@+id/title_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/form_description"
+            android:textColor="@color/black"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:padding="10dp"
+            android:textSize="22sp"
+            android:gravity="bottom|center_horizontal"
+            android:background="@drawable/light_gray_color"/>
+    </TableRow>
 
     <TableRow
         android:id="@+id/form_row"
@@ -51,12 +67,14 @@
             android:layout_width="0dp"
             android:layout_height="150dp"
             android:layout_weight=".5"
-            android:background="@drawable/table_cell_left_right">
+            android:background="@drawable/table_cell_left_right"
+            android:id="@+id/tag1Layout"
+            android:visibility="gone">
 
             <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:id="@+id/tag1"
                       android:layout_width="150dp"
                       android:layout_height="wrap_content"
-                      android:text="@string/internship"
                       android:textSize="20sp"
                       android:lines="1"
                       android:textColor="@color/black"
@@ -72,12 +90,14 @@
             android:layout_width="0dp"
             android:layout_height="150dp"
             android:layout_weight=".5"
-            android:background="@drawable/table_cell_left_right">
+            android:background="@drawable/table_cell_left_right"
+            android:id="@+id/tag2Layout"
+            android:visibility="gone">
 
-            <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:id="@+id/tag2"
                       android:layout_width="150dp"
                       android:layout_height="wrap_content"
-                      android:text="@string/one_year"
                       android:textSize="20sp"
                       android:lines="1"
                       android:textColor="@color/black"
@@ -93,12 +113,14 @@
             android:layout_width="0dp"
             android:layout_height="150dp"
             android:layout_weight=".5"
-            android:background="@drawable/table_cell_left_right">
+            android:id="@+id/tag3Layout"
+        android:background="@drawable/table_cell_left_right"
+            android:visibility="gone">
 
             <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:id="@+id/tag3"
                       android:layout_width="150dp"
                       android:layout_height="wrap_content"
-                      android:text="@string/long_term"
                       android:textSize="20sp"
                       android:lines="1"
                       android:textColor="@color/black"
@@ -114,12 +136,14 @@
             android:layout_width="0dp"
             android:layout_height="150dp"
             android:layout_weight=".5"
-            android:background="@drawable/table_cell_left_right">
+            android:visibility="gone"
+            android:id="@+id/tag4Layout"
+        android:background="@drawable/table_cell_left_right">
 
             <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:id="@+id/tag4"
                       android:layout_width="150dp"
                       android:layout_height="wrap_content"
-                      android:text="@string/spring_break"
                       android:textSize="20sp"
                       android:lines="1"
                       android:textColor="@color/black"

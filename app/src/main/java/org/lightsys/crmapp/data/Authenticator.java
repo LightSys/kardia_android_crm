@@ -15,9 +15,9 @@ import org.lightsys.crmapp.activities.LoginActivity;
  * Created by nathan on 3/10/16.
  */
 
-public class Authenticator extends AbstractAccountAuthenticator {
+class Authenticator extends AbstractAccountAuthenticator {
 
-    private Context mContext;
+    private final Context mContext;
 
     public Authenticator(Context context) {
         super(context);

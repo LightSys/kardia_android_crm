@@ -11,7 +11,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 /**
  * Created by nathan on 3/10/16.
@@ -25,9 +24,6 @@ public class LocalDBProvider extends ContentProvider {
 
     private SQLiteDatabase mDatabase;
 
-    private Context mContext;
-    private AccountManager mAccountManager;
-
     static {
         //things used to identify what tables we are dealing with
         sUriMatcher.addURI(LocalDBTables.providerAuthority, LocalDBTables.StaffTable.TABLE_NAME, 1);
@@ -39,6 +35,7 @@ public class LocalDBProvider extends ContentProvider {
         sUriMatcher.addURI(LocalDBTables.providerAuthority, LocalDBTables.NotificationsTable.TABLE_NAME, 7);
         sUriMatcher.addURI(LocalDBTables.providerAuthority, LocalDBTables.ConnectionTable.TABLE_NAME, 8);
         sUriMatcher.addURI(LocalDBTables.providerAuthority, LocalDBTables.FormTable.TABLE_NAME, 9);
+        sUriMatcher.addURI(LocalDBTables.providerAuthority, LocalDBTables.TagTable.TABLE_NAME, 10);
     }
 
 
@@ -84,6 +81,9 @@ public class LocalDBProvider extends ContentProvider {
                 break;
             case 9:
                 builder.setTables(LocalDBTables.FormTable.TABLE_NAME);
+                break;
+            case 10:
+                builder.setTables(LocalDBTables.TagTable.TABLE_NAME);
                 break;
             default:
                 break;
@@ -143,6 +143,10 @@ public class LocalDBProvider extends ContentProvider {
                 table = LocalDBTables.FormTable.TABLE_NAME;
                 id = values.getAsInteger(LocalDBTables.FormTable.FORM_ID);
                 break;
+            case 10:
+                table = LocalDBTables.TagTable.TABLE_NAME;
+                id = values.getAsInteger(LocalDBTables.TagTable.TAG_ID);
+                break;
             default:
                 table = "";
                 id = 0;
@@ -188,6 +192,9 @@ public class LocalDBProvider extends ContentProvider {
             case 9:
                 table = LocalDBTables.FormTable.TABLE_NAME;
                 break;
+            case 10:
+                table = LocalDBTables.TagTable.TABLE_NAME;
+                break;
             default:
                 table = "";
                 break;
@@ -229,6 +236,9 @@ public class LocalDBProvider extends ContentProvider {
                 break;
             case 9:
                 table = LocalDBTables.FormTable.TABLE_NAME;
+                break;
+            case 10:
+                table = LocalDBTables.TagTable.TABLE_NAME;
                 break;
             default:
                 table = "";

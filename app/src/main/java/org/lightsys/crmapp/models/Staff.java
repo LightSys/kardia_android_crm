@@ -2,6 +2,7 @@ package org.lightsys.crmapp.models;
 
 /**
  * Created by nathan on 3/9/16.
+ * Stores staff id and Login information
  */
 public class Staff extends Partner {
     private String kardiaLogin;

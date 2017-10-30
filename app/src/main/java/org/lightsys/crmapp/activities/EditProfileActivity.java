@@ -19,8 +19,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
     //lots of constants used for retrieving stuff from bundles
     public static final String LOG_TAG = EditProfileActivity.class.getName();
-    public static final String NAME_KEY = "EXTRA_NAME";
-    public static final String PARTNER_ID_KEY = "EXTRA_PARTNER_ID";
+    private static final String NAME_KEY = "EXTRA_NAME";
+    private static final String PARTNER_ID_KEY = "EXTRA_PARTNER_ID";
     public static final String SURNAME_KEY = "EXTRA_SURNAME";
     public static final String GIVEN_NAMES_KEY = "EXTRA_GIVEN_NAMES";
     public static final String PHONE_KEY = "EXTRA_PHONE";
@@ -149,8 +149,8 @@ public class EditProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile_input);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_profile_input);
+        toolbar.setTitle("Edit profile");
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Edit profile");
 
         final ActionBar ab = getSupportActionBar();
         ab.setDisplayHomeAsUpEnabled(true);

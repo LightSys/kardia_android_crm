@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:weightSum="5">
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:weightSum="5">
 
     <TextView
         android:layout_width="0dp"
@@ -13,14 +13,16 @@
         android:layout_marginStart="4dp"
         android:textSize="18sp"
         android:layout_weight=".5"
-        android:text="@string/form_description"/>
+        android:text="@string/type"/>
 
-    <EditText
-        android:id="@+id/descriptionFormET"
+    <Spinner
+        android:id="@+id/formTypeSpinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:layout_weight="4.5"
         android:layout_marginBottom="8dp"
-        android:hint="@string/hint_form_description"/>
+        android:entries="@array/form_type_spinner"
+        android:nextFocusDown="@+id/profile_input_email"/>
 
 </LinearLayout>

@@ -49,10 +49,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight=".5"
-        android:background="@drawable/table_cell">
+        android:background="@drawable/table_cell"
+        android:visibility="gone"
+        android:id="@+id/tag1Layout">
 
         <CheckBox
-            android:id="@+id/internship"
+            android:id="@+id/tag1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
@@ -66,10 +68,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight=".5"
-        android:background="@drawable/table_cell">
+        android:background="@drawable/table_cell"
+        android:visibility="gone"
+        android:id="@+id/tag2Layout">
 
         <CheckBox
-            android:id="@+id/one_year"
+            android:id="@+id/tag2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
@@ -83,10 +87,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight=".5"
-        android:background="@drawable/table_cell">
+        android:background="@drawable/table_cell"
+        android:visibility="gone"
+        android:id="@+id/tag3Layout">
 
         <CheckBox
-            android:id="@+id/long_term"
+            android:id="@+id/tag3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
@@ -100,10 +106,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight=".5"
+        android:visibility="gone"
+        android:id="@+id/tag4Layout"
         android:background="@drawable/table_cell">
 
         <CheckBox
-            android:id="@+id/spring_break"
+            android:id="@+id/tag4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
@@ -112,18 +120,5 @@
             android:clickable="false"
             android:layout_gravity="center"/>
     </FrameLayout>
-
-
-
-    <!--android.support.design.widget.FloatingActionButton
-        android:id="@+id/add_person"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_margin="20dp"
-        android:clickable="true"
-        android:src="@drawable/ic_add_white_24dp"
-        app:fabSize="normal"/-->
-
 </TableRow>
 

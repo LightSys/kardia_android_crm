@@ -36,7 +36,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.activities.EditProfileActivity;
-import org.lightsys.crmapp.activities.MainActivity;
 import org.lightsys.crmapp.activities.ProfileActivity;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.PatchJson;
@@ -90,17 +89,17 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     private String mState;
     private String mPostalCode;
 
-    TextView firstName;
-    TextView lastName;
-    TextView phone; //displays the main part of the phone number
-    TextView countryCode; //displays country code
-    TextView areaCode; //displays area code. phone is split like this to match kardia tables.
-    TextView email;
-    TextView address;
-    TextView city;
-    TextView state;
-    TextView postalCode;
-    ImageView photo;
+    private TextView firstName;
+    private TextView lastName;
+    private TextView phone; //displays the main part of the phone number
+    private TextView countryCode; //displays country code
+    private TextView areaCode; //displays area code. phone is split like this to match kardia tables.
+    private TextView email;
+    private TextView address;
+    private TextView city;
+    private TextView state;
+    private TextView postalCode;
+    private ImageView photo;
 
     private String selectedPhone = "mobile";
 
@@ -113,24 +112,19 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     private String mPartnerJsonId;
     private String mTypeJsonId;
 
-    Spinner phoneType; // Switches between home and cell.
-    Spinner collabType; //Chooses user role.
+    private Spinner phoneType; // Switches between home and cell.
+    private Spinner collabType; //Chooses user role.
     private int collabTypeNumber; //Used to turn role into a number.
-    boolean initializedView = false;
+    private boolean initializedView = false;
 
     private String[] mEditTextData;
 
     private String nextPartnerKey;
-    boolean mNewProfile = true;
-    JSONObject jsonDate;
+    private boolean mNewProfile = true;
+    private JSONObject jsonDate;
 
-    Uri outputFileUri;
-    Uri selectedImageUri;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    private Uri outputFileUri;
+    private Uri selectedImageUri;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -757,7 +751,7 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
         }
     }
 
-    public String getRealPathFromURI(Uri contentUri, Context context)
+    private String getRealPathFromURI(Uri contentUri, Context context)
     {
         String[] proj = { MediaStore.Images.Media.DATA };
         Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
@@ -777,7 +771,6 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getImage();
                 }
-                return;
             }
         }
     }
@@ -820,10 +813,8 @@ public class ProfileInputFragment extends Fragment implements AdapterView.OnItem
     }
 
     private String createPostUrl(String url){
-        String postUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/"
-                + url
+        return mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/" + url
                 + "?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
-        return postUrl;
     }
 
     private String createPatchUrl(String JsonId){

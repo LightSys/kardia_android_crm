@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  *
  * creates the localDatabase
  */
-public class LocalDBCreator extends SQLiteOpenHelper {
+class LocalDBCreator extends SQLiteOpenHelper {
     private static final int VERSION = 1;
     private static final String DATABASE_NAME = "crmBase.db";
 
@@ -28,6 +28,7 @@ public class LocalDBCreator extends SQLiteOpenHelper {
         db.execSQL(LocalDBTables.NotificationsTable.CREATE_TABLE);
         db.execSQL(LocalDBTables.ConnectionTable.CREATE_TABLE);
         db.execSQL(LocalDBTables.FormTable.CREATE_TABLE);
+        db.execSQL(LocalDBTables.TagTable.CREATE_TABLE);
     }
 
     @Override

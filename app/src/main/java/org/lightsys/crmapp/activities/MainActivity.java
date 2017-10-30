@@ -15,8 +15,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,43 +23,27 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.fragments.CollaboratorFragment;
 import org.lightsys.crmapp.fragments.EngagementFragment;
 import org.lightsys.crmapp.fragments.FormListFragment;
-import org.lightsys.crmapp.models.Partner;
-
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Edited by Daniel Garcia on 30/June/2017
  * to merge unnecessary Fragment into MainActivity
  */
 
-//todo check that engagment activity functionality was not lost changing to fragment
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     private AccountManager mAccountManager;
-    final static public String ACCOUNT_ID = "account_id";
+    private final static String ACCOUNT_ID = "account_id";
     final static public String SEARCH_QUERY = "search_query";
 
-
-
-    private RecyclerView mRecyclerView;
-    private List<Partner> mProfiles = new ArrayList<>();
-    private Account mAccount;
-
-    Partner mPartner2 = new Partner();
     private SearchView searchView;
     private MenuItem closeButton, searchButton;
-    private MaterialDialog materialDialog;
     private String partnerId;
-    private static String TAG = "Main Activity";
-    private LinearLayoutManager linearLayoutManager;
+    private static final String TAG = "Main Activity";
 
     /**
      * Retrieves account information.
@@ -77,11 +59,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setupToolbar();
 
 
-        //open Collaborator fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        CollaboratorFragment fragment = new CollaboratorFragment();
-        fragmentManager.beginTransaction().replace(R.id.content_main, fragment, "Collaborator")
-                .addToBackStack("Collaborator").commit();
+        mAccountManager = AccountManager.get(this);
+        Account[] accounts = mAccountManager.getAccountsByType(LocalDBTables.accountType);
+        if(accounts.length == 0) {
+            mAccountManager.addAccount(LocalDBTables.accountType, null, null, null, this, null, null);
+            finish();
+        }else {
+            //open Collaborator fragment
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            CollaboratorFragment fragment = new CollaboratorFragment();
+            fragmentManager.beginTransaction().replace(R.id.content_main, fragment, "Collaborator")
+                    .addToBackStack("Collaborator").commit();
+        }
+
+
+        //todo remove follow 2 lines
+        getContentResolver().delete(LocalDBTables.FormTable.CONTENT_URI,null,null);
+        getContentResolver().delete(LocalDBTables.ConnectionTable.CONTENT_URI,null,null);
+
     }
 
     /**
@@ -91,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        Menu menu1 = menu;
 
         searchButton = menu.findItem(R.id.action_search);
         searchView = (SearchView) searchButton.getActionView();
@@ -142,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void showNavButton(boolean bool) {
         final ActionBar ab = getSupportActionBar();
+        assert ab != null;
         ab.setDisplayHomeAsUpEnabled(bool);
 
     }
@@ -171,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
 
         final ActionBar ab = getSupportActionBar();
+        assert ab != null;
         ab.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
         ab.setDisplayHomeAsUpEnabled(true);
     }
@@ -223,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.action_sign_up:
                 fragment = new FormListFragment();
 
-                fragmentManager.beginTransaction().replace(R.id.content_main, fragment, "FormList")
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_main, fragment, "FormList")
                         .addToBackStack("FormList").commit();
                 break;
         }

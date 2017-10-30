@@ -26,10 +26,11 @@ public class NewProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile_input);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_profile_input);
+        toolbar.setTitle("Add new profile");
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Add new profile");
 
         final ActionBar ab = getSupportActionBar();
+
         ab.setDisplayHomeAsUpEnabled(true);
     }
 }

@@ -1,0 +1,13 @@
+CRM App
+
+Finished Feature:
+- Collaborators (I think)
+- engagements (I think)
+
+
+Incomplete Features:
+- sign up form/interest form - still needs to upload data to server
+
+
+Oct 26, 2017
+

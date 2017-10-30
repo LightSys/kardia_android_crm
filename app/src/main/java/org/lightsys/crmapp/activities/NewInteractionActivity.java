@@ -50,42 +50,59 @@ import java.util.Locale;
 
 public class NewInteractionActivity extends AppCompatActivity {
 
-    public static final String TYPE_KEY = "EXTRA_TYPE";
-    public static final String SPECIFIC_CONTACT_KEY = "EXTRA_SPECIFIC_CONTACT";
-    public static final String PARTNER_ID_KEY = "EXTRA_PARTNER_ID";
-    public static final String NAME_KEY = "EXTRA_NAME";
+    private static final String TYPE_KEY = "EXTRA_TYPE";
+    private static final String SPECIFIC_CONTACT_KEY = "EXTRA_SPECIFIC_CONTACT";
+    private static final String PARTNER_ID_KEY = "EXTRA_PARTNER_ID";
+    private static final String NAME_KEY = "EXTRA_NAME";
 
-    public int mTypeId;
-    public String mType;
-    public String mSpecificContact;
-    public String mPartnerId;
-    public String mName;
-    public String subject;
-    public String notes;
+    private int mTypeId;
+    private String mType;
+    private String mSpecificContact;
+    private String mPartnerId;
+    private String mName;
+    private String subject;
+    private String notes;
 
     //Values from the Interaction Detailed view
-    public int mYear, mMonth, mDay, mHour, mMinute, mSecond;
-    public int fYear, fMonth, fDay, fHour, fMinute, fSecond;
-    public TableRow followupDateTable, followupNoteTable;
-    public Spinner typeSpinner, specificContactSpinner;
-    public Button dateButton, followupDateButton, backButton, submitButton;
-    public CheckBox followupCheckBox;
-    public EditText subjectText, notesText, followupNoteText;
-    public String fNotes;
+    private int mYear;
+    private int mMonth;
+    private int mDay;
+    private int mHour;
+    private int mMinute;
+    private int mSecond;
+    private int fYear;
+    private int fMonth;
+    private int fDay;
+    private int fHour;
+    private int fMinute;
+    private int fSecond;
+    private TableRow followupDateTable;
+    private TableRow followupNoteTable;
+    private Spinner typeSpinner;
+    private Spinner specificContactSpinner;
+    private Button dateButton;
+    private Button followupDateButton;
+    private Button backButton;
+    private Button submitButton;
+    private CheckBox followupCheckBox;
+    private EditText subjectText;
+    private EditText notesText;
+    private EditText followupNoteText;
+    private String fNotes;
 
     // Values for getting user account info
     private AccountManager mAccountManager;
     private Account mAccount;
 
     //Miscellaneous values for date info
-    Calendar c = Calendar.getInstance();
-    JSONObject jsonToday;
-    JSONObject jsonDate;
-    public String mDate;
-    public String fDate;
+    private final Calendar c = Calendar.getInstance();
+    private JSONObject jsonToday;
+    private JSONObject jsonDate;
+    private String mDate;
+    private String fDate;
     public int date;
-    public long todayInMillis;
-    public boolean today = false;
+    private long todayInMillis;
+    private boolean today = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState)

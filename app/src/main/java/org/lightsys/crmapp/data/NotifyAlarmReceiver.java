@@ -32,7 +32,7 @@ import static org.lightsys.crmapp.data.LocalDBTables.NotificationsTable.NOTIFICA
  */
 public class NotifyAlarmReceiver extends BroadcastReceiver {
 
-    public static final String PARTNER_ID_KEY = "EXTRA_PARTNER_ID";
+    private static final String PARTNER_ID_KEY = "EXTRA_PARTNER_ID";
 
     @Override
     public void onReceive(Context context, Intent intent) {

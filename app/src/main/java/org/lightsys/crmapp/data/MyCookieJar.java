@@ -7,7 +7,7 @@ import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
 
-public class MyCookieJar implements CookieJar {
+class MyCookieJar implements CookieJar {
 
     private List<Cookie> cookies;
 

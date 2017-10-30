@@ -8,24 +8,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -56,16 +46,16 @@ public class EngagementFragment extends Fragment
     private AccountManager mAccountManager;
 
     private RecyclerView mRecyclerView;
-    private List<Engagement> nonArchivedEngagements = new ArrayList<>();
+    private final List<Engagement> nonArchivedEngagements = new ArrayList<>();
     private Account mAccount;
     private List<Partner> collaboratees;
-    public static String PARTNER_ID = "partnerId";
-    public static String ENGAGEMENT_ID = "engagementId";
-    public static String DESCRIPTION = "description";
-    public static String TRACK_NAME = "trackName";
-    public static String STEP_NAME = "stepName";
-    public static String COMMENTS = "comments";
-    public static String COMPLETON_STATUS = "completionStatus";
+    public static final String PARTNER_ID = "partnerId";
+    public static final String ENGAGEMENT_ID = "engagementId";
+    public static final String DESCRIPTION = "description";
+    public static final String TRACK_NAME = "trackName";
+    public static final String STEP_NAME = "stepName";
+    public static final String COMMENTS = "comments";
+    public static final String COMPLETON_STATUS = "completionStatus";
     private List<EngagementTrack> tracks;
 
     @Override
@@ -111,7 +101,7 @@ public class EngagementFragment extends Fragment
     }
 
     private class EngagementHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private LinearLayout mLinearLayout;
+        private final LinearLayout mLinearLayout;
         private Engagement engagement;
 
         public EngagementHolder(View view) {
@@ -172,7 +162,7 @@ public class EngagementFragment extends Fragment
     }
 
     private class EngagementAdapter extends RecyclerView.Adapter<EngagementHolder> {
-        List<Engagement> engagements;
+        final List<Engagement> engagements;
         public EngagementAdapter(List<Engagement> engagements)
         {
             this.engagements = engagements;

@@ -6,14 +6,17 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,11 +25,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.activities.FormActivity;
-import org.lightsys.crmapp.activities.MainActivity;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.PostJson;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -44,30 +47,33 @@ public class SignUpFragment extends Fragment{
             R.id.profile_input_name_first,
             R.id.profile_input_name_last,
             R.id.profile_input_email,
-            R.id.input_grad_year,
-            R.id.profile_input_internship,
-            R.id.profile_input_one_year,
-            R.id.profile_input_long_term,
-            R.id.profile_input_spring_break};
+            R.id.input_grad_year};
+
+    private String mPartnerId;
+
+    private TextView firstName;
+    private TextView lastName;
+    private TextView email;
+    private TextView gradYear;
+    private TextView phone, countryCode, areaCode;
+    private Spinner phoneType;
+    private LinearLayout phoneLayout;
+    private LinearLayout checkBoxes;
+    private String mFirstName;
+    private String mLastName;
+    private String mEmail;
+    private String mPhone;
+    private String mGradYear;
+    private int formId;
+    private String[] tagOptionsInterests, tagOptionsSkills;
+    private String tags="";
+    private ArrayList<CheckBox> tagChks;
+    private boolean interestForm;
 
 
-    TextView firstName, lastName, email, gradYear;
-    CheckBox longTerm, internship, oneYear, springBreak;
-    String mFirstName, mLastName, mEmail, mGradYear;
-    int formId;
+    View rootView;
+    LayoutInflater inflater;
 
-    //For adding person to server
-    private String nextPartnerKey;
-    private JSONObject jsonDate;
-    private AccountManager mAccountManager;
-    private Account mAccount;
-    private String mEmailJsonId;
-    private String mAddressJsonId;
-    private String mPartnerJsonId;
-    private String mTypeJsonId;
-    private boolean mNewProfile;
-    Spinner collabType; //Chooses user role.
-    private int collabTypeNumber; //Used to turn role into a number.
     private String[] mEditTextData;
 
 
@@ -79,18 +85,50 @@ public class SignUpFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         formId = getArguments().getInt(FormFragment.FORM_ID);
-        View rootView = inflater.inflate(R.layout.fragment_signup_sheet_input, container, false);
+        tagOptionsInterests = getArguments().getStringArray(FormFragment.SIGNUP_TAGS_INTERESTS);
+        tagOptionsSkills = getArguments().getStringArray(FormFragment.SIGNUP_TAGS_SKILLS);
+        interestForm = getArguments().getBoolean(FormFragment.INTEREST_FORM);
+
+        this.inflater = inflater;
+        rootView = inflater.inflate(R.layout.fragment_signup_sheet_input, container, false);
         getActivity().setTitle("Sign up");
+
+        tagChks = new ArrayList<>();
 
         // Sets up views.
         firstName = (TextView)rootView.findViewById(R.id.profile_input_name_first);
         lastName = (TextView)rootView.findViewById(R.id.profile_input_name_last);
         email = (TextView)rootView.findViewById(R.id.profile_input_email);
         gradYear = (TextView)rootView.findViewById(R.id.input_grad_year);
-        internship = (CheckBox)rootView.findViewById(R.id.profile_input_internship);
-        oneYear = (CheckBox)rootView.findViewById(R.id.profile_input_one_year);
-        longTerm = (CheckBox)rootView.findViewById(R.id.profile_input_long_term);
-        springBreak = (CheckBox)rootView.findViewById(R.id.profile_input_spring_break);
+        checkBoxes = (LinearLayout)rootView.findViewById(R.id.check_boxes);
+
+        phoneLayout = (LinearLayout) rootView.findViewById(R.id.phoneLayout);
+        phone = (TextView)rootView.findViewById(R.id.form_input_phone_text);
+        countryCode = (TextView) rootView.findViewById(R.id.form_input_country_code_text);
+        areaCode = (TextView)rootView.findViewById(R.id.form_input_area_code_text);
+        phoneType = (Spinner)rootView.findViewById(R.id.form_input_phone_spinner);
+
+        //add interest check boxes
+        if (tagOptionsInterests != null && tagOptionsInterests.length !=0) {
+            addCheckbox((LinearLayout) inflater.inflate(R.layout.sign_up_interest_check_boxes,
+                    (ViewGroup) rootView.findViewById(R.id.parentCheckBoxes), false), tagOptionsInterests);
+        }
+        if (tagOptionsSkills != null && tagOptionsSkills.length !=0){
+            //add skill check boxes
+            addCheckbox((LinearLayout) inflater.inflate(R.layout.sign_up_skill_check_boxes,
+                    (ViewGroup) rootView.findViewById(R.id.parentCheckBoxes), false), tagOptionsSkills);
+        }
+        if (!interestForm){
+            phoneLayout.setVisibility(View.GONE);
+        }
+
+        //todo remove
+        email.setText("test@test.com");
+        firstName.setText("Elle");
+        lastName.setText("Rogers");
+        gradYear.setText("2020");
+        //remove to here
+
 
         Button submit = (Button) rootView.findViewById(R.id.submit);
         submit.setOnClickListener(new View.OnClickListener() {
@@ -101,9 +139,10 @@ public class SignUpFragment extends Fragment{
                 mFirstName = firstName.getText().toString();
                 mLastName = lastName.getText().toString();
                 mGradYear = gradYear.getText().toString();
+                mPhone = gatherPhoneData();
+
 
                 if (checkValidInput()) {
-                    //todo submitOnClick();
                     addUserToDB();
                     openForm(formId);
 
@@ -140,6 +179,32 @@ public class SignUpFragment extends Fragment{
         super.onDestroyView();
     }
 
+    private String gatherPhoneData(){
+        String phoneNumber=(phoneType.getSelectedItem().toString().equals("Mobile")?"C":"P") + ","+countryCode.getText().toString()
+                + ","+ areaCode.getText().toString() + ","+phone.getText().toString();
+
+        return phoneNumber;
+    }
+
+    private void addCheckbox(LinearLayout childLayout, String[] tags){
+        LinearLayout tagsLeft = (LinearLayout) childLayout.findViewById(R.id.leftColumn);
+        LinearLayout tagsRight = (LinearLayout) childLayout.findViewById(R.id.rightColumn);
+
+        for (int t = 0; t< tags.length; t++){
+            CheckBox cb = (CheckBox) inflater.inflate(R.layout.checkbox,
+                    (ViewGroup) rootView.findViewById(R.id.parentCheckBoxes), false);
+            cb.setText(tags[t]);
+
+            if (t%2==0) {
+                tagsLeft.addView(cb);
+            }else{
+                tagsRight.addView(cb);
+            }
+            tagChks.add(cb);
+        }
+        checkBoxes.addView(childLayout);
+    }
+
     private boolean checkValidInput(){
         String output = "";
         boolean valid = true;
@@ -169,12 +234,9 @@ public class SignUpFragment extends Fragment{
     private void addUserToDB(){
 
         //create Tags string
-        //todo get category names to database
-        String tags = "";
-        tags += internship.isChecked()? "internship,":null;
-        tags += oneYear.isChecked()? "oneYear,":null;
-        tags += longTerm.isChecked()? "longTerm,":null;
-        tags += springBreak.isChecked()? "springBreak,":null;
+        for (CheckBox cb:tagChks) {
+            tags += cb.isChecked()?cb.getText():null;
+        }
 
         ContentValues values = new ContentValues();
         //todo let id be assigned by server
@@ -184,6 +246,8 @@ public class SignUpFragment extends Fragment{
         values.put(LocalDBTables.ConnectionTable.CONNECTION_EMAIL, email.getText().toString());
         values.put(LocalDBTables.ConnectionTable.CONNECTION_GRAD_YEAR, gradYear.getText().toString());
         values.put(LocalDBTables.ConnectionTable.CONNECTION_TAGS, tags);
+        values.put(LocalDBTables.ConnectionTable.CONNECTION_PHONE, mPhone);
+        values.put(LocalDBTables.ConnectionTable.CONNECTION_UPLOADED, 0);
         getActivity().getContentResolver().insert(LocalDBTables.ConnectionTable.CONTENT_URI, values);
 
     }
@@ -197,21 +261,18 @@ public class SignUpFragment extends Fragment{
                 new String[] {LocalDBTables.ConnectionTable.CONNECTION_ID,},
                 null, null, LocalDBTables.ConnectionTable.CONNECTION_ID
         );
-        try {
+        if (cursor != null){
             while (cursor.moveToNext()) {
                 connId = cursor.getInt(0);
             }
-        }catch(NullPointerException ne) {
-            ne.printStackTrace();
+            cursor.close();
         }
-        cursor.close();
         connId+=1;
 
-        Log.d("SignUpSheetInputFrag", "getConnectionId: " + connId);
         return connId;
     }
 
-    public void openForm(int formId){
+    private void openForm(int formId){
         FormFragment newFrag = new FormFragment();
 
         Bundle args = new Bundle();
@@ -219,264 +280,8 @@ public class SignUpFragment extends Fragment{
 
         newFrag.setArguments(args);
 
-        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_main, newFrag, "Form").addToBackStack("Form")
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_profile_input_container, newFrag, "Form").addToBackStack("Form")
                 .commit();
-    }
-
-    private void submitOnClick()
-    {
-        try {
-            setCurrentDate();
-
-            AsyncTask<String, Void, String> uploadJson1;
-            AsyncTask<String, Void, String> uploadJson2;
-            AsyncTask<String, Void, String> uploadJson3;
-            AsyncTask<String, Void, String> uploadJson4;
-            AsyncTask<String, Void, String> uploadJson5;
-            AsyncTask<String, Void, String> uploadJson6;
-
-            //Urls for Posting/Patching
-            String partnerUrl;
-            String emailUrl;
-            String typeUrl;
-            String photoUrl;
-
-            mAccountManager = AccountManager.get(getContext());
-            final Account[] accounts = mAccountManager.getAccounts();
-            if (accounts.length > 0) {
-                mAccount = accounts[0];
-            }
-
-            //todo check for duplicate signups
-            mNewProfile = true;
-            if (mNewProfile) {
-                nextPartnerKey = new GetPartnerKey().execute().get();
-                System.out.println("Retrieved New Partner Key: " + nextPartnerKey);
-
-                //Set urls for Posting to kardia
-                partnerUrl = createPostUrl("partner/Partners");
-                emailUrl = createPostUrl("partner/Partners/" + nextPartnerKey + "/ContactInfo");
-                typeUrl = createPostUrl("crm/Partners/" + mAccountManager.getUserData(mAccount, "partnerId") + "/Collaboratees");
-
-                //set up POST json objects for patching
-                uploadJson1 = new PostJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
-                uploadJson5 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, false);
-                uploadJson6 = new PostJson(getContext(), typeUrl, createTypeJson(), mAccount, true);
-            /*} else {
-                //Set urls and json objects for Patching to kardia
-                //If no existing url, use a Post call instead
-                if (mPartnerJsonId != null)
-                {
-                    partnerUrl = createPatchUrl(mPartnerJsonId);
-                    uploadJson1 = new PatchJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
-                } else
-                {
-                    partnerUrl = createPostUrl("partner/Partners");
-                    uploadJson1 = new PostJson(getContext(), partnerUrl, createPartnerJson(), mAccount, false);
-                }
-
-                if (mAddressJsonId != null)
-                {
-                    addressUrl = createPatchUrl(mAddressJsonId);
-                    uploadJson2 = new PatchJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
-                } else
-                {
-                    addressUrl = createPostUrl("partner/Partners/" + mPartnerId + "/Addresses");
-                    uploadJson2 = new PostJson(getContext(), addressUrl, createAddressJson(), mAccount, false);
-                }
-
-                if (mPhoneJsonId != null)
-                {
-                    phoneUrl = createPatchUrl(mPhoneJsonId);
-                    uploadJson3 = new PatchJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
-                } else
-                {
-                    phoneUrl = selectedPhone.equals("home")
-                            ? createPostUrl("partner/Partners/" + mPartnerId + "/ContactInfo")
-                            : null;
-                    uploadJson3 = new PostJson(getContext(), phoneUrl, createPhoneJson(), mAccount, false);
-                }
-
-                if (mCellJsonId != null)
-                {
-                    cellUrl = createPatchUrl(mCellJsonId);
-                    uploadJson4 = new PatchJson(getContext(), cellUrl, createCellJson(), mAccount, false);
-                } else
-                {
-                    cellUrl = selectedPhone.equals("mobile")
-                            ? createPostUrl("partner/Partners/" + mPartnerId + "/ContactInfo")
-                            : null;
-                    uploadJson4 = new PostJson(getContext(), cellUrl, createCellJson(), mAccount, false);
-                }
-
-                if (mEmailJsonId != null)
-                {
-                    emailUrl = createPatchUrl(mEmailJsonId);
-                    uploadJson5 = new PatchJson(getContext(), emailUrl, createEmailJson(), mAccount, false);
-                } else
-                {
-                    emailUrl = createPostUrl("partner/Partners/" + mPartnerId + "/ContactInfo");
-                    uploadJson5 = new PostJson(getContext(), emailUrl, createEmailJson(), mAccount, false);
-                }
-
-                if (mTypeJsonId != null)
-                {
-                    typeUrl = createPatchUrl(mTypeJsonId);
-                    uploadJson6 = new PatchJson(getContext(), typeUrl, createTypeJson(), mAccount, true);
-                } else
-                {
-                    typeUrl = createPostUrl("crm/Partners/" + mAccountManager.getUserData(mAccount, "partnerId") + "/Collaboratees");
-                    uploadJson6 = new PostJson(getContext(), typeUrl, createTypeJson(), mAccount, true);
-                }
-
-                postProfilePicture = null;
-            }*/
-
-            uploadJson1.execute();
-
-            System.out.println("POST Email info");
-            uploadJson5.execute();
-            uploadJson6.execute();
-        }
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    private void setCurrentDate()
-    {
-        //Get current date
-        java.util.Date date = new Date();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-
-        try
-        {
-            //Create Date Json object of current datetime
-            jsonDate = new JSONObject();
-            jsonDate.put("month", cal.get(Calendar.MONTH));
-            jsonDate.put("year", cal.get(Calendar.YEAR));
-            jsonDate.put("day", cal.get(Calendar.DAY_OF_MONTH));
-            jsonDate.put("hour", cal.get(Calendar.HOUR));
-            jsonDate.put("minute", cal.get(Calendar.MINUTE));
-            jsonDate.put("second", cal.get(Calendar.SECOND));
-        }
-        catch (JSONException ex)
-        {
-            ex.printStackTrace();
-        }
-    }
-
-    private JSONObject createPartnerJson()
-    {
-        JSONObject partnerJson = new JSONObject();
-        //todo if add edit option: " " should change to mPartnerId;
-        String partner = mNewProfile ? nextPartnerKey : " ";
-
-        try
-        {
-            if (mNewProfile || mPartnerJsonId == null)
-            {
-                partnerJson.put("p_partner_key", partner);
-                partnerJson.put("s_created_by", mAccount.name);
-                partnerJson.put("s_modified_by", mAccount.name);
-                partnerJson.put("p_creating_office", mAccountManager.getUserData(mAccount, "partnerId"));
-                partnerJson.put("p_status_code", "A");
-                partnerJson.put("p_partner_class", "123");
-                partnerJson.put("p_record_status_code", "A");
-                partnerJson.put("p_surname", lastName.getText().toString());
-                partnerJson.put("p_given_name", firstName.getText().toString());
-                partnerJson.put("s_date_created", jsonDate);
-                partnerJson.put("s_date_modified", jsonDate);
-
-            } else
-            {
-                partnerJson.put("surname", lastName.getText().toString());
-                partnerJson.put("given_names", firstName.getText().toString());
-            }
-        }
-        catch (JSONException ex)
-        {
-            ex.printStackTrace();
-        }
-
-        return partnerJson;
-    }
-
-    private JSONObject createEmailJson()
-    {
-        JSONObject emailJson = new JSONObject();
-        //todo if add edit option: " " should change to mPartnerId;
-        String partner = mNewProfile ? nextPartnerKey : " ";
-
-        try {
-            if (mNewProfile || mEmailJsonId == null)
-            {
-                emailJson.put("p_partner_key", partner);
-                emailJson.put("s_created_by", mAccount.name);
-                emailJson.put("s_modified_by", mAccount.name);
-                emailJson.put("s_date_created", jsonDate);
-                emailJson.put("s_date_modified", jsonDate);
-                emailJson.put("p_contact_data", email.getText().toString());
-                emailJson.put("p_contact_type", "E");
-                emailJson.put("p_record_status_code", "A");
-            }
-            else
-            {
-                emailJson.put("contact_data", email.getText().toString());
-            }
-        }
-        catch (JSONException ex) {
-            ex.printStackTrace();
-        }
-
-        return emailJson;
-    }
-
-    private JSONObject createTypeJson()
-    {
-
-        //Convert collaborator type to a number
-        collabTypeNumber = 1; //code for mobilizer
-
-        JSONObject typeJson = new JSONObject();
-        //todo if add edit option: " " should change to mPartnerId;
-        String partner = mNewProfile ? nextPartnerKey : " ";
-
-        try
-        {
-            if (mNewProfile || mTypeJsonId == null)
-            {
-                typeJson.put("e_collaborator", mAccountManager.getUserData(mAccount, "partnerId"));
-                typeJson.put("p_partner_key", partner);
-                typeJson.put("e_collab_type_id", collabTypeNumber);
-                typeJson.put("e_is_automatic", 0);
-                typeJson.put("e_collaborator_status", "A");
-                //todo set as account username
-                typeJson.put("s_created_by", mAccountManager.getUserData(mAccount, "partnerId"));
-                typeJson.put("s_modified_by", "dgarcia");
-                typeJson.put("s_date_created", jsonDate);
-                typeJson.put("s_date_modified", jsonDate);
-                typeJson.put( "collaborator_id", mAccountManager.getUserData(mAccount, "partnerId"));
-                typeJson.put( "collaborator_type_id", collabTypeNumber);
-                typeJson.put( "collaborator_status", "A");
-                typeJson.put( "partner_id", partner);
-                typeJson.put( "role_id", collabTypeNumber);
-                typeJson.put( "role_name", "Mobilizer");
-
-
-
-            } else
-            {
-                typeJson.put("collab_type_id", collabTypeNumber);
-            }
-        }
-        catch (JSONException ex)
-        {
-            ex.printStackTrace();
-        }
-        return typeJson;
     }
 
     /**
@@ -486,34 +291,5 @@ public class SignUpFragment extends Fragment{
     public void onSaveInstanceState(Bundle savedInstanceState)
     {
         savedInstanceState.putStringArray(DATA_ARRAY_KEY, mEditTextData);
-    }
-
-    private class GetPartnerKey extends AsyncTask<Void, Void, String>
-    {
-        @Override
-        protected String doInBackground(Void... voids)
-        {
-            KardiaFetcher fetcher = new KardiaFetcher(getContext());
-
-            return fetcher.getNextPartnerKey(mAccount);
-        }
-
-        @Override
-        protected void onPostExecute(String s)
-        {
-            super.onPostExecute(s);
-            nextPartnerKey = s;
-        }
-    }
-
-    private String createPostUrl(String url){
-        String postUrl = mAccountManager.getUserData(mAccount, "server") + "/apps/kardia/api/"
-                + url
-                + "?cx__mode=rest&cx__res_format=attrs&cx__res_attrs=basic&cx__res_type=collection";
-        return postUrl;
-    }
-
-    private String createPatchUrl(String JsonId){
-        return mAccountManager.getUserData(mAccount, "server") + JsonId + "&cx__res_type=element";
     }
 }

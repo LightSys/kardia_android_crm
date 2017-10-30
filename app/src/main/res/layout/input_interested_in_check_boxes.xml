@@ -20,16 +20,22 @@
         android:orientation="vertical">
 
         <CheckBox
-            android:id="@+id/profile_input_internship"
+            android:id="@+id/internship_chk"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/hint_internship"/>
+            android:text="@string/interest_form_summer"/>
 
         <CheckBox
-            android:id="@+id/profile_input_one_year"
+            android:id="@+id/one_year_chk"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/hint_one_year"/>
+            android:text="@string/interest_form_one_year"/>
+
+        <CheckBox
+            android:id="@+id/career_chk"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/interest_form_career"/>
     </LinearLayout>
 
     <LinearLayout
@@ -39,16 +45,22 @@
         android:textColorHint="@color/divider"
         android:orientation="vertical">
         <CheckBox
-            android:id="@+id/profile_input_long_term"
+            android:id="@+id/volunteer_chk"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/hint_long_term"/>
+            android:text="@string/interest_form_volunteer"/>
 
         <CheckBox
-            android:id="@+id/profile_input_spring_break"
+            android:id="@+id/spring_break_chk"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/hint_spring_break"/>
+            android:text="@string/interest_form_spring_break"/>
+
+        <CheckBox
+            android:id="@+id/pray_chk"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/interest_form_pray"/>
 
     </LinearLayout>
 

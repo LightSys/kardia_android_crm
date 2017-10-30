@@ -38,14 +38,14 @@ public class PostProfilePicture extends AsyncTask<String, Void, String>
 {
     private static final String TAG = "Post Profile Picture";
     private String url;
-    private File image;
-    private Account mAccount;
-    private Context context;
-    private AccountManager mAccountManager;
+    private final File image;
+    private final Account mAccount;
+    private final Context context;
+    private final AccountManager mAccountManager;
     private OkHttpClient client;
     private boolean success;
-    private String credential;
-    private String nextPartnerKey;
+    private final String credential;
+    private final String nextPartnerKey;
     private String tokenParam;
 
     public PostProfilePicture(Context context, String Url, File image, Account userAccount, String nextpartnerkey){

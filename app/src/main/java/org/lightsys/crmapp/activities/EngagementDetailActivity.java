@@ -38,14 +38,14 @@ import static org.lightsys.crmapp.fragments.EngagementFragment.TRACK_NAME;
 import static org.lightsys.crmapp.data.LocalDBTables.CollaborateeTable.PARTNER_NAME;
 
 public class EngagementDetailActivity extends AppCompatActivity {
-    StateProgressBar progressBar;
-    int currentProgress;
-    int maxProgress;
-    Engagement engagement = new Engagement();
-    TextView trackStepTextView;
-    TextView descriptionTextView;
-    TextView commentsTextView;
-    EngagementStep[] steps;
+    private StateProgressBar progressBar;
+    private int currentProgress;
+    private int maxProgress;
+    private final Engagement engagement = new Engagement();
+    private TextView trackStepTextView;
+    private TextView descriptionTextView;
+    private TextView commentsTextView;
+    private EngagementStep[] steps;
     private AccountManager accountManager;
     private Account mAccount;
     private int trackId;

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/parentCheckBoxes"
+              android:orientation="horizontal" android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <ImageView
+        android:contentDescription="@string/cd_star"
+        android:layout_width="@dimen/profile_input_icon_size"
+        android:layout_height="@dimen/profile_input_icon_size"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/ic_star" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:id="@+id/leftColumn"
+        android:layout_height="wrap_content"
+        android:textColorHint="@color/divider"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical">
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:id="@+id/rightColumn"
+        android:layout_height="wrap_content"
+        android:textColorHint="@color/divider"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical">
+
+    </LinearLayout>
+
+</LinearLayout>

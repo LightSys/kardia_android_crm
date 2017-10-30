@@ -14,6 +14,7 @@ import org.lightsys.crmapp.models.EngagementStep;
 import org.lightsys.crmapp.models.EngagementTrack;
 import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.Staff;
+import org.lightsys.crmapp.models.Tag;
 import org.lightsys.crmapp.models.TimelineItem;
 
 import java.io.IOException;
@@ -42,10 +43,10 @@ import static org.lightsys.crmapp.activities.LoginActivity.Credential;
  */
 
 public class KardiaFetcher {
-    private Context mContext;
-    private AccountManager mAccountManager;
-    private OkHttpClient client;
-    private String TAG = "CRM Fetcher";
+    private final Context mContext;
+    private final AccountManager mAccountManager;
+    private final OkHttpClient client;
+    private final String TAG = "CRM Fetcher";
 
     public KardiaFetcher(Context context) {
         mContext = context;
@@ -63,61 +64,6 @@ public class KardiaFetcher {
                 .authenticator(authorization)
                 .retryOnConnectionFailure(true)
                 .build();
-        /*/allow self-signed certificates
-        KeyStore keyStore = readKeyStore();
-        try {
-            SSLContext sslContext = SSLContext.getInstance("SSL");
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(keyStore);
-            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            keyManagerFactory.init(keyStore, "keystore_pass".toCharArray());
-            sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom());
-
-            client = new OkHttpClient.Builder()
-                    .cookieJar(new MyCookieJar())
-                    .authenticator(authorization)
-                    .retryOnConnectionFailure(true)
-                    .sslSocketFactory(sslContext.getSocketFactory())
-                    .build();
-        }catch(Exception e){
-            e.printStackTrace();
-
-            client = new OkHttpClient.Builder()
-                    .cookieJar(new MyCookieJar())
-                    .authenticator(authorization)
-                    .retryOnConnectionFailure(true)
-                    .build();
-        }
-    }
-
-    // method to obtain KeyStore
-    KeyStore readKeyStore() {
-
-        try {
-            KeyStore keyStore = KeyStore.getInstance("JKS");
-            keyStore.load(new FileInputStream("mytestkey.jks"), "password".toCharArray());
-
-            CertAndKeyGen gen = new CertAndKeyGen("RSA", "SHA1WithRSA");
-            gen.generate(1024);
-
-            X509Certificate cert = gen.getSelfCertificate(new X500Name("CN=SINGLE_CERTIFICATE"), (long) 365 * 24 * 3600);
-
-            keyStore.setCertificateEntry("single_cert", cert);
-
-            keyStore.store(new FileOutputStream("mytestkey.jks"), "password".toCharArray());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        try {
-            KeyStore keyStore = KeyStore.getInstance("JKS");
-            keyStore.load(new FileInputStream("mytestkey.jks"), "password".toCharArray());
-
-            java.security.cert.Certificate cert = keyStore.getCertificate("single_cert");
-
-            System.out.println(cert.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }*/
     }
 
     //Makes Requests to the Kardia Server and returns response
@@ -159,6 +105,30 @@ public class KardiaFetcher {
         }
 
         return result;
+    }
+
+    //Returns a list of tags for sign-up forms
+    public List<Tag> getTags(Account account) {
+        ArrayList<Tag> tags = new ArrayList<>();
+
+        try {
+            //build url
+            String api = Uri.parse("/apps/kardia/api/crm_config/TagTypes")
+                    .buildUpon()
+                    .appendQueryParameter("cx__mode", "rest")
+                    .appendQueryParameter("cx__res_type", "collection")
+                    .appendQueryParameter("cx__res_attrs", "basic")
+                    .build().toString();
+            String jsonString = Request(account, api);//get json string from network
+            if (!jsonString.equals("")) {
+                JSONObject jsonBody = new JSONObject(jsonString);//build json object from json string
+                parseTags(tags, jsonBody);//fills staff list with members
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return tags;
     }
 
     //Returns a list of staff members
@@ -636,6 +606,28 @@ public class KardiaFetcher {
         }
 
         return tracks;
+    }
+
+    private ArrayList<Tag> parseTags(ArrayList<Tag> tags, JSONObject trackJsonBody) throws JSONException {
+
+        Iterator<String> trackKeys = trackJsonBody.keys();
+
+        while (trackKeys.hasNext()) {
+            String key = trackKeys.next();
+            if (!key.equals("@id")) {
+                JSONObject jsonItem = trackJsonBody.getJSONObject(key);
+                Tag tag = new Tag();
+
+                tag.setTagId(jsonItem.getInt("tag_id"));
+                tag.setTagLabel(jsonItem.getString("tag_label"));
+                tag.setTagDesc(jsonItem.getString("tag_desc"));
+                tag.setTagActive(jsonItem.getInt("is_active")==1);
+
+                tags.add(tag);
+            }
+        }
+
+        return tags;
     }
 
     public List<EngagementStep> getEngagementSteps(Account account, List<EngagementTrack> tracks) throws JSONException {

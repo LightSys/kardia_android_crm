@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,7 @@ import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.activities.FormActivity;
 import org.lightsys.crmapp.activities.MainActivity;
 import org.lightsys.crmapp.data.LocalDBTables;
-import org.lightsys.crmapp.data.infoTypes.Form;
+import org.lightsys.crmapp.models.Form;
 
 import java.util.ArrayList;
 
@@ -30,9 +31,7 @@ public class FormListFragment extends Fragment {
 
     private ArrayList<Form> forms;
     final static public String FORM_ID = "form_id";
-    final static public String NEW_SIGN_UP = "sign_up_info";
     private int formId = -1;
-    private String TAG = "SignUpListFrag";
     private LayoutInflater inflater;
     private TableLayout table;
 
@@ -44,7 +43,6 @@ public class FormListFragment extends Fragment {
         getActivity().setTitle("Forms");
 
         getAllForms();
-
         displayForms();
 
         getActivity().getSupportFragmentManager().popBackStack("AddForm",0);
@@ -68,9 +66,9 @@ public class FormListFragment extends Fragment {
         TableRow addFormButton = (TableRow) inflater.inflate(R.layout.form_element_table_row,
                 (ViewGroup) v.findViewById(R.id.form_row), false);
 
-        TextView prompt = (TextView) addFormButton.findViewById(R.id.event);
+        TextView prompt = (TextView) addFormButton.findViewById(R.id.description);
         prompt.setText(R.string.add_form_prompt);
-        prompt.setTextColor(getResources().getColor(R.color.green));
+        prompt.setTextColor(ContextCompat.getColor(getContext(), R.color.green));
 
         table.addView(addFormButton);
 
@@ -82,23 +80,19 @@ public class FormListFragment extends Fragment {
         });
     }
 
-    //loads a list of people on sign up list
+    //loads a list of forms
     private void displayForms() {
 
         if (forms != null) {
             for (Form f : forms) {
                 View childLayout = LayoutInflater.from(this.getContext()).inflate(R.layout.form_element_table_row, table, false);
 
-
-                TextView university = (TextView) childLayout.findViewById(R.id.university);
-                TextView desc = (TextView) childLayout.findViewById(R.id.description);
-                TextView event = (TextView) childLayout.findViewById(R.id.event);
+                TextView description = (TextView) childLayout.findViewById(R.id.description);
                 TextView date = (TextView) childLayout.findViewById(R.id.date);
 
                 final int Id = f.getFormId();
-                university.setText(f.getUniversity());
-                desc.setText(f.getDescription());
-                event.setText(f.getEvent());
+
+                description.setText(f.getFormDescription());
                 date.setText(f.getDate());
 
                 childLayout.setOnClickListener(new View.OnClickListener() {
@@ -120,51 +114,38 @@ public class FormListFragment extends Fragment {
                 LocalDBTables.FormTable.CONTENT_URI,
                 new String[] {LocalDBTables.FormTable.FORM_ID,
                         LocalDBTables.FormTable.FORM_DATE,
-                        LocalDBTables.FormTable.FORM_TYPE,
-                        LocalDBTables.FormTable.FORM_UNIVERSITY,
-                        LocalDBTables.FormTable.FORM_DESC,
-                        LocalDBTables.FormTable.FORM_EVENT
+                        LocalDBTables.FormTable.FORM_DESCRIPTION,
+                        LocalDBTables.FormTable.FORM_TAGS,
+                        LocalDBTables.FormTable.FORM_SIGN_UP_TAGS
                         },
                 null,
                 null,
-                LocalDBTables.FormTable.FORM_ID + " DESC"
+                LocalDBTables.FormTable.FORM_ID + " ASC"
         );
 
-        try {
+        if (cursor != null){
             while (cursor.moveToNext()) {
                 Form temp = new Form();
                 formId = cursor.getInt(0);
                 temp.setFormId(formId);
                 temp.setDate(cursor.getString(1));
-                temp.setFormType(cursor.getString(2));
-                temp.setUniversity(cursor.getString(3));
-                temp.setDescription(cursor.getString(4));
-                temp.setEvent(cursor.getString(5));
+                temp.setFormDescription(cursor.getString(2));
+                temp.setFormTags(cursor.getString(3));
+                temp.setSignUpTags(cursor.getString(4));
 
                 forms.add(temp);
             }
-        }catch(NullPointerException ne) {
-            ne.printStackTrace();
+            cursor.close();
         }
-        cursor.close();
     }
 
-    /**
-     * Used to hold onto the id, in case the user comes back to this page
-     * (like if their phone goes into sleep mode or they temporarily leave the app)
-     */
-    @Override
-    public void onSaveInstanceState(Bundle outState){
-        super.onSaveInstanceState(outState);
-    }
-
-    public void onFormClicked(int formId){
+    private void onFormClicked(int formId){
         Intent i = new Intent(getActivity(), FormActivity.class);
         i.putExtra(FORM_ID, formId);
         startActivity(i);
     }
 
-    public void addForm (){
+    private void addForm(){
         AddFormFragment newFrag = new AddFormFragment();
 
         Bundle args = new Bundle();

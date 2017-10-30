@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+        <ImageView
+            android:contentDescription="@string/cd_phone"
+            android:layout_width="@dimen/profile_input_icon_size"
+            android:layout_height="@dimen/profile_input_icon_size"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/ic_phone_black_24dp" />
+
+        <EditText
+            android:id="@+id/form_input_country_code_text"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_country_code"
+            android:inputType="phone"
+            android:maxLength="2"
+            android:layout_weight="0.1"
+            android:nextFocusDown="@+id/profile_input_email"/>
+
+        <EditText
+            android:id="@+id/form_input_area_code_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:maxLength="3"
+            android:hint="@string/hint_area_code"
+            android:layout_weight="0.5"
+            android:nextFocusDown="@+id/profile_input_email"/>
+
+        <EditText
+            android:id="@+id/form_input_phone_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:maxLength="7"
+            android:hint="@string/hint_phone"
+            android:nextFocusDown="@+id/profile_input_email"
+            android:layout_weight="1"/>
+
+        <Spinner
+            android:id="@+id/form_input_phone_spinner"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:spinnerDropDownItemStyle="@style/CustomSpinnerDropDownItemStyle"
+            android:entries="@array/phone_spinner" />
+
+
+</LinearLayout>

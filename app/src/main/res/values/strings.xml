@@ -47,6 +47,32 @@
     <string name="grad_year">Grad\nYear</string>
     <string name="complete_btn">Complete Form</string>
 
+    <!-- *** Add Form *** -->
+    <string name="select_tag">Select Tag</string>
+    <string name="form_tag">Form Tags</string>
+    <string name="form_description">Title</string>
+    <string name="sign_up_interest_tag">Interests Tags</string>
+    <string name="sign_up_skills_tag">Skills Tags</string>
+
+
+    <!-- *** Interest form ** -->
+    <string name="interest_form_summer">Summer Internship</string>
+    <string name="interest_form_career">Career/Long-Term</string>
+    <string name="interest_form_volunteer">Volunteer/Associate</string>
+    <string name="interest_form_pray">Praying for Lightsys</string>
+    <string name="interest_form_one_year">One Year Internship</string>
+    <string name="interest_form_spring_break">Code-a-Thon</string>
+
+    <string name="interest_form_programming">Programming - Web/Mobile/Desktop</string>
+    <string name="interest_form_design">Web Design/Graphic Design</string>
+    <string name="interest_form_help_desk">Help Desk/PC Repair</string>
+    <string name="interest_form_Networking">Networking/Wifi/WAN</string>
+    <string name="interest_form_it_consult">IT Consultant</string>
+    <string name="interest_form_it_manage">IT Management</string>
+    <string name="interest_form_business">Business/Systems Analyst</string>
+    <string name="interest_form_server_admin">Server Admin - Linux/Windows</string>
+
+
     <!-- *** engagement *** -->
     <string name="title_activity_interaction">Record an Interaction</string>
     <string name="type">Type</string>
@@ -77,13 +103,14 @@
     <string name="hint_one_year">One Year?</string>
     <string name="hint_long_term">Long Term?</string>
     <string name="hint_spring_break">Spring Break?</string>
-    <string name="hint_form_description">(i.e. classroom, dorm, prof, or fair)</string>
+    <string name="hint_form_description">form description</string>
 
     <!-- *** Image content descriptions *** -->
     <string name="cd_profile_picture">profile picture</string>
     <string name="cd_grad_year">graduation cap icon</string>
     <string name="cd_add">add icon</string>
     <string name="cd_tag">tag icon</string>
+    <string name="cd_star">star icon</string>
     <string name="cd_email">letter icon</string>
     <string name="cd_location">location marker icon</string>
     <string name="cd_person">person icon</string>
@@ -100,19 +127,18 @@
     <!-- *** buttons *** -->
     <string name="back">Back</string>
     <string name="submit">Submit</string>
+    <string name="sign_up_button">Sign-Up Sheet</string>
+    <string name="interest_button">Interest Form</string>
+    <string name="cancel_button">Cancel</string>
 
     <!-- *** Navigation Items *** -->
     <string name="logout">Logout</string>
     <string name="engagement">Engagement</string>
-    <string name="sign_up">Sign-Up Sheet</string>
+    <string name="sign_up">Sign-Up Forms</string>
     <string name="collaborators">Collaborators</string>
 
 
     <!-- *** spinners *** -->
-    <string-array name="form_type_spinner">
-        <item>list</item>
-        <item>detail</item>
-    </string-array>
 
     <string-array name="form_university_spinner">
         <item>Abilene</item>
@@ -146,6 +172,10 @@
         <item>Phone Call</item>
         <item>Sign-Up List</item>
         <item>Update</item>
+    </string-array>
+    <string-array name="form_type_spinner">
+        <item>Sign-Up Sheet</item>
+        <item>Interest Form</item>
     </string-array>
 
 </resources>

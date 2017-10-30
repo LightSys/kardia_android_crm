@@ -31,6 +31,7 @@ import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.Staff;
+import org.lightsys.crmapp.models.Tag;
 
 import java.io.IOException;
 import java.util.List;
@@ -82,7 +83,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         });
     }
 
-    public void addAccount(View v) {
+    private void addAccount(View v) {
         EditText accountName = (EditText) findViewById(R.id.loginUsername);
         EditText accountPassword = (EditText) findViewById(R.id.loginPassword);
         EditText serverAddress = (EditText) findViewById(R.id.loginServer);
@@ -173,6 +174,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
 
             new GetCollaborateesTask().execute(account);
+            new GetTagsTask().execute(account);
 
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
@@ -244,16 +246,40 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         }
     }
 
-    private class GetCollaborateesTask extends AsyncTask<Account, Void, Void> {
-        Exception error;
+    private class GetTagsTask extends AsyncTask<Account, Void, Void> {
         @Override
         protected Void doInBackground(Account... accounts) {
             KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
+            List<Tag> tags = fetcher.getTags(accounts[0]);
 
+            for(Tag tag : tags) {
+                ContentValues values = new ContentValues();
+                values.put(LocalDBTables.TagTable.TAG_ID, tag.getTagId());
+                values.put(LocalDBTables.TagTable.TAG_LABEL, tag.getTagLabel());
+                values.put(LocalDBTables.TagTable.TAG_DESC, tag.getTagDesc());
+                values.put(LocalDBTables.TagTable.TAG_ACTIVE, tag.isTagActive());
 
+                getContentResolver().insert(LocalDBTables.TagTable.CONTENT_URI, values);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            mainActivity();
+        }
+    }
+
+    private class GetCollaborateesTask extends AsyncTask<Account, Void, Void> {
+        Exception error;
+        Account account;
+        @Override
+        protected Void doInBackground(Account... accounts) {
+            KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
+            account = accounts[0];
             try
             {
-                List<Partner> collaboratees = fetcher.getCollaboratees(accounts[0]);
+                List<Partner> collaboratees = fetcher.getCollaboratees(account);
 
                 for (Partner collaboratee : collaboratees) {
                     ContentValues values = new ContentValues();

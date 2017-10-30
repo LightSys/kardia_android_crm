@@ -11,7 +11,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,8 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,14 +29,12 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lightsys.crmapp.R;
-import org.lightsys.crmapp.activities.FormActivity;
 import org.lightsys.crmapp.activities.MainActivity;
 import org.lightsys.crmapp.activities.NewProfileActivity;
 import org.lightsys.crmapp.activities.ProfileActivity;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.LocalDBTables;
 import org.lightsys.crmapp.data.PostJson;
-import org.lightsys.crmapp.data.infoTypes.Form;
 import org.lightsys.crmapp.models.Partner;
 
 import java.io.File;
@@ -97,9 +92,6 @@ public class CollaboratorFragment extends Fragment {
         String partnerId = mAccountManager.getUserData(mAccount, "partnerId");
         setupFAB(v);
         setupAdapter(mProfiles);
-
-
-
 
         return v;
     }
@@ -180,7 +172,7 @@ public class CollaboratorFragment extends Fragment {
      * Lists profiles.
      */
     private class ProfileAdapter extends RecyclerView.Adapter<PersonHolder> {
-        private List<Partner> mCollaboratees;
+        private final List<Partner> mCollaboratees;
 
         public ProfileAdapter(List<Partner> collaboratees) {
             mCollaboratees = collaboratees;
@@ -209,7 +201,7 @@ public class CollaboratorFragment extends Fragment {
      * View that holds collaboratee information
      */
     private class PersonHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private LinearLayout mLinearLayout;
+        private final LinearLayout mLinearLayout;
         private Partner mPartner;
 
         public PersonHolder(View view) {
@@ -265,7 +257,7 @@ public class CollaboratorFragment extends Fragment {
      * View that holds collaboratee information
      */
     private class PartnerHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private LinearLayout mLinearLayout;
+        private final LinearLayout mLinearLayout;
         private Partner mPartner;
 
         public PartnerHolder(View view) {
@@ -330,7 +322,7 @@ public class CollaboratorFragment extends Fragment {
      * Lists profiles.
      */
     private class PartnerSearchAdapter extends RecyclerView.Adapter<PartnerHolder> {
-        private List<Partner> mCollaboratees;
+        private final List<Partner> mCollaboratees;
 
         PartnerSearchAdapter(List<Partner> collaboratees) {
             mCollaboratees = collaboratees;
@@ -471,10 +463,10 @@ public class CollaboratorFragment extends Fragment {
 
                     partners.add(temp);
                 }
+                cursor.close();
             }catch(NullPointerException ne) {
                 ne.printStackTrace();
             }
-        cursor.close();
 
         materialDialog = new MaterialDialog.Builder(getActivity())
                 .title("Partners to Collaborate with")
@@ -487,7 +479,7 @@ public class CollaboratorFragment extends Fragment {
     /**
      * Searches through a list of profile names for a particular substring.
      */
-    public void search(String searchText) {
+    private void search(String searchText) {
         //getCollaborators(searchText);
 
         new PartnerSearchTask().execute(searchText);

@@ -38,8 +38,7 @@
             android:ellipsize="start"
             android:layout_gravity="center_horizontal"
             android:layout_marginLeft="64dp"
-            android:layout_marginRight="64dp"
-            android:text="Laura">
+            android:layout_marginRight="64dp">
         </EditText>
 
     </android.support.design.widget.TextInputLayout>
@@ -66,8 +65,7 @@
             android:textColor="#000000"
             android:layout_marginLeft="64dp"
             android:layout_marginRight="64dp"
-            android:fontFamily="sans-serif"
-            android:text="E2Ra!car0line"/>
+            android:fontFamily="sans-serif"/>
 
     </android.support.design.widget.TextInputLayout>
 

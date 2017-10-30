@@ -34,15 +34,15 @@ import okhttp3.Route;
 public class PostJson extends AsyncTask<String, Void, String> {
 
     private static final String TAG = "Post Json";
-    private String credential;
-    private Account account;
-    private AccountManager mAccountManager;
+    private final String credential;
+    private final Account account;
+    private final AccountManager mAccountManager;
     private String baseUrl = "";
-    private JSONObject jsonObject;
-    private Context context;
+    private final JSONObject jsonObject;
+    private final Context context;
     private boolean success = false;
     private OkHttpClient client;
-    private boolean finalTask;
+    private final boolean finalTask;
 
     public PostJson(Context context, String Url, JSONObject jsonPost, Account userAccount, boolean finalAsyncTask){
         this.baseUrl = Url;

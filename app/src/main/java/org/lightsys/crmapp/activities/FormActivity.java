@@ -1,19 +1,13 @@
 package org.lightsys.crmapp.activities;
 
-import android.accounts.AccountManager;
-import android.app.Fragment;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import org.lightsys.crmapp.R;
@@ -28,13 +22,12 @@ import static org.lightsys.crmapp.fragments.FormFragment.FORM_ID;
 
 /**
  * Created by otter57 on 9/20/17.
+ * Activity to display FormFragment and FignUpFragment in kiosk mode
  */
 
 public class FormActivity extends AppCompatActivity{
 
-    int formId = -1;
-    Fragment currentFrag;
-    ActionBar ab;
+    private int formId = -1;
     public static final String LOG_TAG = FormActivity.class.getName();
     private MenuItem closeButton;
     private final List blockedKeys = new ArrayList(Arrays.asList(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP));
@@ -51,17 +44,16 @@ public class FormActivity extends AppCompatActivity{
         formId = mIntent.getIntExtra(FORM_ID, 0);
 
         if (savedInstanceState == null) {
+                FormFragment newFrag = new FormFragment();
 
-            FormFragment newFrag = new FormFragment();
+                Bundle args = new Bundle();
+                args.putInt(FORM_ID, formId);
+                newFrag.setArguments(args);
 
-            Bundle args = new Bundle();
-            args.putInt(FORM_ID, formId);
-            newFrag.setArguments(args);
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_profile_input_container, newFrag, "Form");
-            transaction.addToBackStack("Form");
-            transaction.commit();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment_profile_input_container, newFrag, "Form");
+                transaction.addToBackStack("Form");
+                transaction.commit();
         }
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
@@ -70,10 +62,6 @@ public class FormActivity extends AppCompatActivity{
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_profile_input);
         setSupportActionBar(toolbar);
-
-        currentFrag = getFragmentManager().findFragmentByTag("FORM");
-
-        ab = getSupportActionBar();
     }
 
     @Override
@@ -122,10 +110,6 @@ public class FormActivity extends AppCompatActivity{
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (blockedKeys.contains(event.getKeyCode())) {
-            return true;
-        } else {
-            return super.dispatchKeyEvent(event);
-        }
+        return blockedKeys.contains(event.getKeyCode()) || super.dispatchKeyEvent(event);
     }
 }

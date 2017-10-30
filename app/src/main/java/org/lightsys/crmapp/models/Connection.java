@@ -1,7 +1,10 @@
-package org.lightsys.crmapp.data.infoTypes;
+package org.lightsys.crmapp.models;
 
 /**
  * Created by otter57 on 9/12/17.
+ *
+ * Stores information for a new connection (from sign-up sheet or Interest form)
+ * Data sent to server along with form information as a new person
  */
 
 public class Connection {
