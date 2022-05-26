@@ -9,11 +9,11 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -78,7 +78,7 @@ public class EngagementFragment extends Fragment
 
         setupFAB(v);
 
-        mRecyclerView = (android.support.v7.widget.RecyclerView) v.findViewById(R.id.recycler_view_profiles);
+        mRecyclerView = (RecyclerView) v.findViewById(R.id.recycler_view_profiles);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplication()));
 
         return v;

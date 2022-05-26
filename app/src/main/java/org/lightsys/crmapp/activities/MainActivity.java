@@ -2,21 +2,21 @@ package org.lightsys.crmapp.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentManager;
+import com.google.android.material.navigation.NavigationView;
+import androidx.fragment.app.FragmentManager;
 
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment;
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerLayout.closeDrawer(Gravity.START);
+        drawerLayout.closeDrawer(GravityCompat.START);
 
         switch (itemId)
         {

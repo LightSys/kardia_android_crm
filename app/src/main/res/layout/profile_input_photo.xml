@@ -28,7 +28,7 @@
 
     </FrameLayout>
 
-    <android.support.v7.widget.AppCompatButton
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/profile_input_photo_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

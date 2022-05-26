@@ -6,7 +6,7 @@
     android:id="@+id/loginLayout"
     tools:context="org.lightsys.crmapp.activities.LoginActivity">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/loginToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -22,7 +22,7 @@
         android:gravity="center"
         android:padding="10dp"/>
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColorHint="@color/accent">
@@ -41,7 +41,7 @@
             android:layout_marginRight="64dp">
         </EditText>
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
         android:id="@+id/loginUsernameError"
@@ -50,7 +50,7 @@
         android:textColor="#FF0000"
         android:layout_marginStart="64dp" />
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColorHint="@color/accent">
@@ -67,7 +67,7 @@
             android:layout_marginRight="64dp"
             android:fontFamily="sans-serif"/>
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
 
     <TextView
@@ -99,7 +99,7 @@
         android:textColor="#FF0000"
         android:layout_marginStart="64dp" />
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColorHint="@color/accent">
@@ -117,7 +117,7 @@
             android:textColor="#000000"
             android:text="10.5.11.77"/>
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
 
     <TextView
@@ -127,7 +127,7 @@
         android:textColor="#FF0000"
         android:layout_marginStart="64dp" />
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColorHint="@color/accent">
@@ -145,7 +145,7 @@
             android:layout_marginRight="64dp"
             android:text="800"/>
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
 
     <TextView

@@ -11,7 +11,7 @@
         android:layout_gravity="center_horizontal"
         android:background="@android:color/background_light">
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/primary"
@@ -27,10 +27,10 @@
                 android:layout_marginTop="18dp"
                 android:text="Large Text"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
     </TableRow>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/table"
@@ -123,9 +123,9 @@
 
         </LinearLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/cardview_followup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -151,7 +151,7 @@
             android:layout_marginTop="10dp"
             android:text="Large Text"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
     <Button
         android:id="@+id/backButton"
