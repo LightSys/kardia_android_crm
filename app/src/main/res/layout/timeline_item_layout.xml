@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:minHeight="?android:listPreferredItemHeight">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/cardview_timeline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,6 +25,6 @@
             android:padding="@dimen/card_profile_padding"
             android:textColor="#000" />
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

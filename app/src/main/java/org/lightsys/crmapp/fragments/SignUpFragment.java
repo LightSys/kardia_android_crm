@@ -1,37 +1,26 @@
 package org.lightsys.crmapp.fragments;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.TextInputEditText;
-import android.support.v4.app.Fragment;
-import android.util.Log;
+
+import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.activities.FormActivity;
-import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.LocalDBTables;
-import org.lightsys.crmapp.data.PostJson;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 
 /**
