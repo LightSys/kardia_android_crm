@@ -29,17 +29,18 @@
 
         <EditText
             android:id="@+id/loginUsername"
-            android:hint="@string/username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:imeOptions="actionNext"
-            android:textColor="#000000"
-            android:inputType="text"
-            android:ellipsize="start"
             android:layout_gravity="center_horizontal"
             android:layout_marginLeft="64dp"
-            android:layout_marginRight="64dp">
-        </EditText>
+            android:layout_marginRight="64dp"
+            android:ellipsize="start"
+            android:hint="@string/username"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:text="a.fehr"
+            android:textColor="#000000"
+            tools:ignore="SpeakableTextPresentCheck"></EditText>
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -53,29 +54,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/accent">
-
-        <EditText
-            android:id="@+id/loginPassword"
-            android:hint="@string/password"
-            android:imeOptions="actionNext"
-            android:inputType="textPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#000000"
-            android:layout_marginLeft="64dp"
-            android:layout_marginRight="64dp"
-            android:fontFamily="sans-serif"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-
-    <TextView
-        android:id="@+id/loginPasswordError"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#FF0000"
-        android:layout_marginStart="64dp" />
+        android:textColorHint="@color/accent"/>
 
 
     <RelativeLayout
@@ -114,8 +93,8 @@
             android:hint="@string/serverName"
             android:imeOptions="actionGo"
             android:inputType="text"
-            android:textColor="#000000"
-            android:text="10.5.11.77"/>
+            android:text="10.5.128.92"
+            android:textColor="#000000" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -134,16 +113,16 @@
 
         <EditText
             android:id="@+id/loginPort"
-            android:hint="@string/portNumber"
-            android:imeOptions="actionGo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:textColor="#000000"
-            android:ellipsize="start"
             android:layout_marginLeft="64dp"
             android:layout_marginRight="64dp"
-            android:text="800"/>
+            android:ellipsize="start"
+            android:hint="@string/portNumber"
+            android:imeOptions="actionGo"
+            android:inputType="number"
+            android:text="9010"
+            android:textColor="#000000" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

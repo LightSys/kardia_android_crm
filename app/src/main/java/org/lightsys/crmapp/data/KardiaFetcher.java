@@ -72,6 +72,7 @@ public class KardiaFetcher {
         URL url;
         String result = "";
         final String credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
+
         try
         {
             url = new URL(mAccountManager.getUserData(account, "server") + Uri);
@@ -82,7 +83,6 @@ public class KardiaFetcher {
                     .get()
                     .build();
 
-            Log.d("Kardia Fetcher", "GET: " + url);
             Response response = client.newCall(request).execute();
 
             int responseCode = response.code();
@@ -144,6 +144,8 @@ public class KardiaFetcher {
                     .appendQueryParameter("cx__res_attrs", "basic")
                     .build().toString();
             String jsonString = Request(account, api);//get json string from network
+
+
             if (!jsonString.equals("")) {
                 JSONObject jsonBody = new JSONObject(jsonString);//build json object from json string
                 parseStaffJson(staff, jsonBody);//fills staff list with members

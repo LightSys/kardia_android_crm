@@ -198,17 +198,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.action_logout:
                 Account[] accounts = mAccountManager.getAccountsByType(LocalDBTables.accountType);
                 Log.d(TAG, "# of Accounts: " + accounts.length);
-                Account account = accounts[0];
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-                {
-                    mAccountManager.removeAccountExplicitly(account);
-                }
-                else
-                {
-                    mAccountManager.removeAccount(account, null, null);
-                }
-                mAccountManager.addAccount(LocalDBTables.accountType, null, null, null, this, null, null);
-                finish();
+                //Account account = accounts[0];
+                //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+                //{
+                //    mAccountManager.removeAccountExplicitly(account);
+                //}
+
+                //mAccountManager.addAccount(LocalDBTables.accountType, null, null, null, this, null, null);
+                loginActivity();
                 break;
             case R.id.action_engagement:
                 fragment = new EngagementFragment();
@@ -231,5 +228,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putString(ACCOUNT_ID, partnerId);
+    }
+
+    private void loginActivity() {
+        Intent login = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(login);
+        finish();
     }
 }
