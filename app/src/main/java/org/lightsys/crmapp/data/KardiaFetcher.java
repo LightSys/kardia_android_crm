@@ -1,5 +1,7 @@
 package org.lightsys.crmapp.data;
 
+import static org.lightsys.crmapp.activities.LoginActivity.Credential;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
@@ -23,16 +25,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.net.ssl.HttpsURLConnection;
 
+import okhttp3.Authenticator;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.Route;
-import okhttp3.Authenticator;
-
-import static org.lightsys.crmapp.activities.LoginActivity.Credential;
 
 /**
  * Created by nathan on 3/9/16.
@@ -40,6 +40,8 @@ import static org.lightsys.crmapp.activities.LoginActivity.Credential;
  * Edited by Ca2br and Judah on 7/19/16
  *
  * Edited by Tim on 6/21/2017
+ *
+ * Edited by Alex Fehr on 6/1/2022
  */
 
 public class KardiaFetcher {
@@ -51,19 +53,13 @@ public class KardiaFetcher {
     public KardiaFetcher(Context context) {
         mContext = context;
         mAccountManager = AccountManager.get(context);
-        Authenticator authorization = new Authenticator() {
-            @Override
-            public Request authenticate(Route route, Response response) throws IOException {
-                return response.request().newBuilder()
-                        .header("Authorization", Credential)
-                        .build();
-            }
-        };
+        Authenticator authorization = (route, response) -> response.request().newBuilder()
+                .header("Authorization", Credential).build();
+
         client = new OkHttpClient.Builder()
                 .cookieJar(new MyCookieJar())
                 .authenticator(authorization)
-                .retryOnConnectionFailure(true)
-                .build();
+                .retryOnConnectionFailure(true).build();
     }
 
     //Makes Requests to the Kardia Server and returns response
@@ -75,32 +71,35 @@ public class KardiaFetcher {
 
         try
         {
+            // Build URL for the request
             url = new URL(mAccountManager.getUserData(account, "server") + Uri);
 
+            // Build the HTTP request
             Request request = new Request.Builder()
                     .url(url)
                     .header("Authorization", credential)
                     .get()
                     .build();
 
+            // Send the HTTP request
             Response response = client.newCall(request).execute();
 
+            // Get the HTTP response code
             int responseCode = response.code();
 
             Log.e(TAG, "responseCode : " + responseCode);
-            boolean success;
 
             //if the things were sent properly, get the result code
             if (responseCode == HttpsURLConnection.HTTP_OK && response.isSuccessful()) {
                 Log.e(TAG, "HTTP_OK");
                 result = response.body().string();
-                success = true;
-            } else {
-                Log.e(TAG, "False - HTTP_OK");//send failed :(
-                result = "";
-                success = false;
             }
-        } catch (Exception e) {
+            else {
+                Log.e(TAG, "False - HTTP_OK"); //send failed :(
+                result = "";
+            }
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -158,7 +157,7 @@ public class KardiaFetcher {
     }
 
     //Returns a list of collaboratees
-    public List<Partner> getCollaboratees(Account account) throws IOException {
+    public List<Partner> getCollaboratees(Account account) {
         List<Partner> collaboratees = new ArrayList<>();//empty list of collaboratees
 
         try {
@@ -284,7 +283,7 @@ public class KardiaFetcher {
         String partnerKey = null;
 
         try {
-            //build partnerkey url
+            //build partnerKey url
             String partnerKeyApi = Uri.parse("/apps/kardia/api/partner/NextPartnerKey")
                     .buildUpon()
                     .appendQueryParameter("cx__mode", "rest")
@@ -428,7 +427,7 @@ public class KardiaFetcher {
     }
 
     //Fills a list of collaboratees based on a json string
-    private void parseCollaborateesJson(List<Partner> collaboratees, JSONObject crmJsonBody) throws IOException, JSONException {
+    private void parseCollaborateesJson(List<Partner> collaboratees, JSONObject crmJsonBody) throws JSONException {
         Iterator<String> crmKeys = crmJsonBody.keys();
 
         while (crmKeys.hasNext()) {
@@ -514,7 +513,7 @@ public class KardiaFetcher {
     }
 
     //Fills a list of staff based on a json object
-    private void parseStaffJson(List<Staff> staff, JSONObject jsonBody) throws IOException, JSONException {
+    private void parseStaffJson(List<Staff> staff, JSONObject jsonBody) throws JSONException {
         Iterator<String> keys = jsonBody.keys();
 
         while (keys.hasNext()) {

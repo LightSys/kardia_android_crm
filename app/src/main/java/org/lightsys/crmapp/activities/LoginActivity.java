@@ -4,14 +4,11 @@ import static org.lightsys.crmapp.activities.ProfileActivity.saveImageFromUrl;
 
 import android.Manifest;
 import android.accounts.Account;
-import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerFuture;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -19,8 +16,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -37,9 +32,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.common.AccountPicker;
-import com.google.android.material.snackbar.Snackbar;
-
 import org.lightsys.crmapp.R;
 import org.lightsys.crmapp.data.KardiaFetcher;
 import org.lightsys.crmapp.data.LocalDBTables;
@@ -47,18 +39,9 @@ import org.lightsys.crmapp.models.Partner;
 import org.lightsys.crmapp.models.Staff;
 import org.lightsys.crmapp.models.Tag;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import okhttp3.Credentials;
 
@@ -68,11 +51,13 @@ import okhttp3.Credentials;
     Superclass: AccountAuthenticatorActivity
     Interface: AppCompatCallback
  */
-public class LoginActivity extends AccountAuthenticatorActivity implements AppCompatCallback {
+public class LoginActivity extends Activity implements AppCompatCallback {
+
+    private final int CONTACT_PERMISSION_REQUEST = 1;
+    private final String TAG = "Login Activity";
 
     private AccountManager mAccountManager;
     public static String Credential;
-    private static String protocal;
 
     private String fullServerAddress = "";
     private Account account;
@@ -81,15 +66,9 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("Login Activity", "Created");
+        Log.i(TAG, "Created");
 
         mAccountManager = AccountManager.get(this);
-
-        if (mAccountManager.getAccounts().length > 0)
-        {
-            Account acc = mAccountManager.getAccounts()[0];
-            Log.d("Login Activity", "Token on startup: " + mAccountManager.peekAuthToken(acc, "BEARER"));
-        }
 
         AppCompatDelegate delegate = AppCompatDelegate.create(this, this);
 
@@ -100,30 +79,21 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         delegate.setSupportActionBar(toolbar);
 
         Button button = (Button) findViewById(R.id.loginSubmit);
-        button.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addAccount();
-            }
-        });
+        button.setOnClickListener(v -> addAccount());
 
         EditText serverAddress = (EditText) findViewById(R.id.loginServer);
-        serverAddress.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_GO) {
-                    addAccount();
-                    return true;
-                }
-
-                return false;
+        serverAddress.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_GO) {
+                addAccount();
+                return true;
             }
+
+            return false;
         });
     }
 
     /**
-     * - Attempts to add a new account to the AccountManager using the info
-     * input by the user
+     * Attempts to add new account to AccountManager using info input by user
      */
     private void addAccount() {
         // Access fields with login data
@@ -152,7 +122,6 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
                 break;
         }
 
-
         //If any field is left blank, display error message
         if (addAccountName.equals("")) {
             ((TextView) findViewById(R.id.loginUsernameError)).setText(R.string.enter_name);
@@ -176,25 +145,20 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             ((TextView) findViewById(R.id.loginPortError)).setText("");
         }
 
-
         //Concatenate server info into full address
         fullServerAddress = addProtocol + "://" + addServerAddress + ":" + addPortNumber;
 
         // Create a new accounts object
         account = new Account(addAccountName, LocalDBTables.accountType);
 
-        // Checking if permission is not granted
+        // Check if permission is not already granted, and if not, request it
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS)
                 == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.GET_ACCOUNTS }, 1);
+            ActivityCompat.requestPermissions(this, new String[] {
+                    Manifest.permission.GET_ACCOUNTS }, CONTACT_PERMISSION_REQUEST);
         }
         else {
             if (mAccountManager.getAccounts().length > 0) {
-                /*Intent intent = mAccountManager.newChooseAccountIntent(null,
-                        null, new String[]{LocalDBTables.accountType}, null,
-                        null, null, null);
-                startActivityForResult(intent, 1);
-                Log.d("LoginActivity", "Started account intent with " + mAccountManager.getAccounts().length + " accounts");*/
                 authenticateWithToken();
             }
 
@@ -204,112 +168,68 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         }
     }
 
+    /**
+     * Event listener for Contact permission request to user
+     * @param requestCode - the code assigned to the permission request
+     * @param permissions - the permissions requested
+     * @param grantResults - the results of the permission request
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == 1) {
+        if (requestCode == CONTACT_PERMISSION_REQUEST) {
             // Checking whether user granted the permission or not.
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                // If accounts already exist, attempt to authenticate with token
                 if (mAccountManager.getAccounts().length > 0) {
-                /*Intent intent = mAccountManager.newChooseAccountIntent(null,
-                        null, new String[]{LocalDBTables.accountType}, null,
-                        null, null, null);
-                startActivityForResult(intent, 1);
-                Log.d("LoginActivity", "Started account intent with " + mAccountManager.getAccounts().length + " accounts");*/
                     authenticateWithToken();
                 }
 
+                // Otherwise authenticate with password to add account
                 else {
                     authenticateWithPassword();
                 }
             }
+            // If the user did not grant permission, authenticate with password
             else {
                 authenticateWithPassword();
             }
         }
     }
 
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1) {
-            if (data == null)
-            {
-                authenticateWithPassword();
-            }
-
-            else
-            {
-                authenticateWithToken();
-            }
-        }
-    }*/
-
     /**
-     * - Validates login info
+     * - Checks to ensure account was added successfully and obtains authenticator results
      * @param account the account info entered by the user
      */
     private void checkAccount(Account account) {
-        // If the login is successful
+
+        // If the account was added successfully
         if (mAccountManager.getUserData(account, "partnerId") != null) {
-            ContentResolver.setSyncAutomatically(account, LocalDBTables.providerAuthority, true);
+            ContentResolver.setSyncAutomatically(account,
+                    LocalDBTables.providerAuthority, true);
 
-            Bundle bundle = new Bundle();
-            bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, LocalDBTables.accountType);
-            setAccountAuthenticatorResult(bundle);
-
-
-            if (mAccountManager.peekAuthToken(account, "BEARER") == null)
-                Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
-
-            else
-                Credential = Credentials.basic(account.name, mAccountManager.peekAuthToken(account, "BEARER"));
-
-
-            // Get a token from the server
-            String token = tokenPOSTRequest(account);
-
-            // todo remove debug popup message
-            View loginLayout = findViewById(R.id.loginLayout);
-            Snackbar.make(loginLayout, "Received token: " + token, Snackbar.LENGTH_SHORT).show();
-
-            // If a token was successfully obtained
-            if (mAccountManager.peekAuthToken(account, "BEARER") == null) {
-                Log.d("LoginActivity", "Token Stored");
-
-                // Store token as the account password
-                mAccountManager.setAuthToken(account, "BEARER", token);
-                Log.d("LoginActivity", mAccountManager.peekAuthToken(account, "BEARER"));
-            }
-
-            // Otherwise POST request for token retrieval failed
-            else{
-                Log.d("LoginActivity", "Token Not Stored");
-            }
+            Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
 
             new GetCollaborateesTask().execute(account);
             new GetTagsTask().execute(account);
-            // Move to MainActivity
+            // Whichever of the above threads completes first will move the application to
+            // the MainActivity
         }
 
+        // If for some reason there is no account
         else {
-            View loginLayout = findViewById(R.id.loginLayout);
-            Snackbar.make(loginLayout, "Invalid Login", Snackbar.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Account Error: Please sign in again",
+                    Toast.LENGTH_SHORT).show();
 
-            // Remove the account
-            hidePassword(account);
-
-            // Prompt for password to login and retrieve new token
+            // Prompt for password to login and add account
             authenticateWithPassword();
         }
     }
 
     /**
-     * - Creates DialogBox for user to enter password
+     * Creates DialogBox for user to enter password
      */
     private void authenticateWithPassword() {
         // Popup DialogBox to enter password
@@ -319,37 +239,35 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         // Input field for password
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        input.setText("knit-reef-best");
         builder.setView(input);
 
         // OK button
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                password = input.getText().toString();
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            // Get the password the user entered from the DialogBox
+            password = input.getText().toString();
 
-                // If a password has been entered, add the account with the password
-                if (!password.equals("")) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-                    bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, LocalDBTables.accountType);
-                    boolean success = mAccountManager.addAccountExplicitly(account, password, bundle);
-                    password = "";
+            // If a password has been entered, add the account with the password
+            if (!password.equals("")) {
+                Bundle bundle = new Bundle();
+                bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+                bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, LocalDBTables.accountType);
+                boolean success = mAccountManager.addAccountExplicitly(account, password, bundle);
+                password = "";
 
-                    // If the account was added to the AccountManager successfully
-                    if (success) {
-                        Log.d("LoginActivity", "Adding Account Succeeded: " + fullServerAddress);
-                        mAccountManager.setUserData(account, "server", fullServerAddress);
-                        Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
+                // If the account was added to the AccountManager successfully
+                if (success) {
+                    Log.i(TAG, "Adding Account Succeeded");
+                    mAccountManager.setUserData(account, "server", fullServerAddress);
+                    Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
 
-                        new GetPartnerIdTask().execute(account);
-                    }
+                    new GetPartnerIdTask().execute(account);
+                }
 
-                    else {
-                        Log.d("LoginActivity", "Adding Account Failed");
-                    }
+                else {
+                    Log.e(TAG, "Adding Account Failed");
                 }
             }
+            password = "";
         });
 
         // Cancel button
@@ -359,59 +277,79 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         builder.show();
     }
 
+    /**
+     * Checks if username matches existing account
+     * If so, authenticates using stored token
+     * If not, triggers password authentication
+     */
     private void authenticateWithToken()
     {
         // Check for existing account
         Account[] accounts = mAccountManager.getAccountsByType(LocalDBTables.accountType);
-
-        Log.d("LoginActivity", "Number of accounts: " + accounts.length);
-
-        for (int i = 0; i < accounts.length; i++)
+        for (Account acc : accounts)
         {
-            if (accounts[i].name.equals(account.name))
+            if (acc.name.equals(account.name))
             {
-                //Log.d("LoginActivity", mAccountManager.peekAuthToken(accounts[i], "BEARER"));
-                account = accounts[i];
+                account = acc;
                 break;
             }
         }
 
         // Retrieve token if it exists
-        String token = mAccountManager.peekAuthToken(account, "BEARER");
-
-        // todo remove debug popup message
-        View loginLayout = findViewById(R.id.loginLayout);
-        Snackbar.make(loginLayout, "Stored token: " + token + " in account " + account.name, Snackbar.LENGTH_SHORT).show();
+        String token = mAccountManager.getPassword(account);
 
         // If the account is already stored, send the stored token
         if (token != null) {
-            //Bundle bundle = new Bundle();
-            //bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            //bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, LocalDBTables.accountType);
-            //boolean success = mAccountManager.addAccountExplicitly(account, token, bundle);
-
-            // If the account was added to the AccountManager successfully
-            //if (success) {
-                mAccountManager.setUserData(account, "server", fullServerAddress);
-                Credential = Credentials.basic(account.name, mAccountManager.peekAuthToken(account, "BEARER"));
-                new GetPartnerIdTask().execute(account);
-            //}
-
-            //else {
-            //    Log.d("LoginActivity", "Adding Account Failed");
-            //}
+            mAccountManager.setUserData(account, "server", fullServerAddress);
+            Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
+            new GetPartnerIdTask().execute(account);
         }
 
+        // Otherwise authenticate with password for new account
         else {
             authenticateWithPassword();
         }
     }
 
     /**
-     * - Makes POST request to server to retrieve token
-     * @param account the account to retrieve a token for
+     * - Starts the MainActivity after successful login
      */
-    private String tokenPOSTRequest(Account account) {
+    private void mainActivity() {
+        // Get an auth token to use on subsequent logins
+        replacePasswordWithToken();
+
+        // Move to Main Activity
+        Intent main = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(main);
+        finish();
+    }
+
+    /**
+     * Obtains and stores auth token upon successful login with password
+     */
+    private void replacePasswordWithToken()
+    {
+        // Get a token from the server
+        String token = tokenPOSTRequest();
+
+        // If a token was successfully obtained
+        if (token != null) {
+            Log.i(TAG, "Token Obtained");
+
+            // Store token as the account password
+            mAccountManager.setPassword(account, token);
+        }
+
+        // Otherwise token retrieval failed
+        else{
+            Log.e(TAG, "Token Acquisition Failed");
+        }
+    }
+
+    /**
+     * Makes POST request to server to retrieve token
+     */
+    private String tokenPOSTRequest() {
         /*try {
             URL url = new URL(fullServerAddress);
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
@@ -440,46 +378,49 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
             input.close();
 */
-            StringBuffer response = new StringBuffer();
-            response.append("{\ntoken:thebestesttokenever\n}");
-            HashMap<String, String> returnedData = parseJSON(response.toString());
+        StringBuffer response = new StringBuffer();
+        response.append("{\ntoken:thebestesttokenever\n}");
+        HashMap<String, String> returnedData = parseJSON(response.toString());
 
-            if (!returnedData.isEmpty()) {
-                return returnedData.get("token");
-            }
+        if (!returnedData.isEmpty()) {
+            return returnedData.get("token");
+        }
 
-            else{
-                return null;
-            }
+        else{
+            return null;
+        }
         /*}
 
         catch (MalformedURLException ex)
         {
-            View loginLayout = findViewById(R.id.loginLayout);
-            Snackbar.make(loginLayout, "Malformed URL", Snackbar.LENGTH_SHORT).show();
+
         }
 
         catch (IOException ex2)
         {
-            View loginLayout = findViewById(R.id.loginLayout);
-            Snackbar.make(loginLayout, "IO Exception", Snackbar.LENGTH_SHORT).show();
+
         }
 
         return null;*/
     }
 
+    /**
+     * Parses JSON string into a String HashMap so token can be retrieved
+     * @param input - the String from the HTTP response to be parsed
+     * @return a HashMap of key-value pairs retrieved from the JSON
+     */
     private HashMap<String, String> parseJSON(String input) {
-
-        HashMap<String, String> userData = new HashMap<String, String>();
+        // Define needed objects
+        HashMap<String, String> userData = new HashMap<>();
         Scanner scanner = new Scanner(input);
 
-        while (scanner.hasNext())
-        {
+        while (scanner.hasNext()) {
+            // Read the string, ignoring brackets
             String thisLine = scanner.nextLine();
             if (thisLine.equals("{") || thisLine.equals("}"))
                 continue;
 
-            //Strip quotations and commas from the data
+            //Strip quotations, colons, and commas from the data
             String key = thisLine.split(":")[0];
             String val = thisLine.split(":")[1];
 
@@ -493,33 +434,6 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         }
 
         return userData;
-    }
-
-    /**
-     * - Starts the MainActivity after successful login
-     */
-    private void mainActivity() {
-        for (Account acc : mAccountManager.getAccounts())
-        {
-            mAccountManager.clearPassword(acc);
-        }
-
-        Intent main = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(main);
-        finish();
-    }
-
-    /**
-     * - Deletes account in case of token failure and wipes local copy of password
-     * @param account the account owning the password to wipe
-     */
-    private void hidePassword(Account account) {
-        if (mAccountManager.getPassword(account).equals(password)) {
-            mAccountManager.removeAccount(account, null, null, null);
-        }
-        password = "";
-
-        Log.d("LoginActivity", "Wiping password and account");
     }
 
     @Override
@@ -573,10 +487,11 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
     }
 
     private class GetTagsTask extends AsyncTask<Account, Void, Void> {
+        List<Tag> tags = null;
         @Override
         protected Void doInBackground(Account... accounts) {
             KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
-            List<Tag> tags = fetcher.getTags(accounts[0]);
+            tags = fetcher.getTags(accounts[0]);
 
             for(Tag tag : tags) {
                 ContentValues values = new ContentValues();
@@ -590,9 +505,16 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
             return null;
         }
 
+        /**
+         * If thread successfully retrieved data, then authentication succeeded
+         * Opens Main Activity of application
+         * @param nothing unused required parameter
+         */
         @Override
         protected void onPostExecute(Void nothing) {
-            mainActivity();
+            if (tags != null && tags.size() > 0) {
+                mainActivity();
+            }
         }
     }
 
@@ -603,18 +525,24 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
         protected Void doInBackground(Account... accounts) {
             KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
             account = accounts[0];
-            try
-            {
-                List<Partner> collaboratees = fetcher.getCollaboratees(account);
+            List<Partner> collaboratees = null;
+
+            try {
+                collaboratees = fetcher.getCollaboratees(account);
 
                 for (Partner collaboratee : collaboratees) {
                     ContentValues values = new ContentValues();
-                    values.put(LocalDBTables.CollaborateeTable.COLLABORATER_ID, mAccountManager.getUserData(accounts[0], "partnerId"));
-                    values.put(LocalDBTables.CollaborateeTable.PARTNER_ID, Integer.parseInt(collaboratee.PartnerId));
-                    values.put(LocalDBTables.CollaborateeTable.PARTNER_NAME, collaboratee.PartnerName);
-                    values.put(LocalDBTables.CollaborateeTable.PROFILE_PICTURE, collaboratee.ProfilePictureFilename);
+                    values.put(LocalDBTables.CollaborateeTable.COLLABORATER_ID,
+                            mAccountManager.getUserData(accounts[0], "partnerId"));
+                    values.put(LocalDBTables.CollaborateeTable.PARTNER_ID,
+                            Integer.parseInt(collaboratee.PartnerId));
+                    values.put(LocalDBTables.CollaborateeTable.PARTNER_NAME,
+                            collaboratee.PartnerName);
+                    values.put(LocalDBTables.CollaborateeTable.PROFILE_PICTURE,
+                            collaboratee.ProfilePictureFilename);
 
-                    getContentResolver().insert(LocalDBTables.CollaborateeTable.CONTENT_URI, values);
+                    getContentResolver().insert(LocalDBTables.CollaborateeTable.CONTENT_URI,
+                            values);
 
                     saveImageFromUrl(
                             mAccountManager.getUserData(accounts[0], "server"),
@@ -622,20 +550,40 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
                             collaboratee.ProfilePictureFilename
                     );
                 }
-            } catch (IOException e)
-            {
+            }
+            catch (Exception e) {
                 e.printStackTrace();
                 error = e;
             }
+
+            // If thread did not retrieve any data, assume authentication error
+            if (collaboratees == null || collaboratees.size() == 0) {
+                error = new Exception();
+            }
+
             return null;
         }
 
+        /**
+         * If thread successfully retrieved data, then authentication succeeded
+         * Opens Main Activity of application
+         * @param nothing unused required parameter
+         */
         @Override
         protected void onPostExecute(Void nothing) {
+            // If thread successfully retrieved data, move to Main Activity
             if (error == null)
                 mainActivity();
-            else
-                Toast.makeText(getApplicationContext(), "Network Issues: Server rejected request.", Toast.LENGTH_SHORT).show();
+
+            // Else the thread did not retrieve any data, authentication failed due to incorrect
+                // password or expired token
+            // Reset account and prompt for new password authentication to re-add the account
+            else {
+                Toast.makeText(getApplicationContext(), "Invalid Login: Please enter password",
+                        Toast.LENGTH_SHORT).show();
+                mAccountManager.removeAccountExplicitly(account);
+                authenticateWithPassword();
+            }
         }
     }
 }
