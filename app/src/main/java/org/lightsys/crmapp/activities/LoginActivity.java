@@ -85,6 +85,12 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
         mAccountManager = AccountManager.get(this);
 
+        if (mAccountManager.getAccounts().length > 0)
+        {
+            Account acc = mAccountManager.getAccounts()[0];
+            Log.d("Login Activity", "Token on startup: " + mAccountManager.peekAuthToken(acc, "BEARER"));
+        }
+
         AppCompatDelegate delegate = AppCompatDelegate.create(this, this);
 
         delegate.onCreate(savedInstanceState);
@@ -362,7 +368,6 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
         for (int i = 0; i < accounts.length; i++)
         {
-            Log.d("LoginActivity", accounts[i].name + " = " + account.name + " : " + accounts[i].name.equals(account.name));
             if (accounts[i].name.equals(account.name))
             {
                 //Log.d("LoginActivity", mAccountManager.peekAuthToken(accounts[i], "BEARER"));
@@ -376,7 +381,7 @@ public class LoginActivity extends AccountAuthenticatorActivity implements AppCo
 
         // todo remove debug popup message
         View loginLayout = findViewById(R.id.loginLayout);
-        Snackbar.make(loginLayout, "Stored token: " + token, Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(loginLayout, "Stored token: " + token + " in account " + account.name, Snackbar.LENGTH_SHORT).show();
 
         // If the account is already stored, send the stored token
         if (token != null) {
