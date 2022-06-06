@@ -28,7 +28,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatCallback;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ActionMode;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -42,6 +41,10 @@ import org.lightsys.crmapp.models.Tag;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import okhttp3.Credentials;
 
@@ -74,9 +77,6 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
         delegate.onCreate(savedInstanceState);
         delegate.setContentView(R.layout.activity_login);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.loginToolbar);
-        delegate.setSupportActionBar(toolbar);
 
         Button button = (Button) findViewById(R.id.loginSubmit);
         button.setOnClickListener(v -> addAccount());
@@ -157,11 +157,13 @@ public class LoginActivity extends Activity implements AppCompatCallback {
             ActivityCompat.requestPermissions(this, new String[] {
                     Manifest.permission.GET_ACCOUNTS }, CONTACT_PERMISSION_REQUEST);
         }
+        // Else permission is already granted
         else {
+            // If accounts already exist, attempt to authenticate with auth token
             if (mAccountManager.getAccounts().length > 0) {
                 authenticateWithToken();
             }
-
+            // Otherwise add new account with password authentication
             else {
                 authenticateWithPassword();
             }
@@ -194,6 +196,9 @@ public class LoginActivity extends Activity implements AppCompatCallback {
             }
             // If the user did not grant permission, authenticate with password
             else {
+                if (mAccountManager.getAccounts().length > 0) {
+                    mAccountManager.removeAccountExplicitly(account);
+                }
                 authenticateWithPassword();
             }
         }
@@ -329,8 +334,16 @@ public class LoginActivity extends Activity implements AppCompatCallback {
      */
     private void replacePasswordWithToken()
     {
-        // Get a token from the server
-        String token = tokenPOSTRequest();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        Future<String> results = executor.submit(this::tokenPOSTRequest);
+
+        String token = null;
+        try {
+            token = results.get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
 
         // If a token was successfully obtained
         if (token != null) {
@@ -579,7 +592,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                 // password or expired token
             // Reset account and prompt for new password authentication to re-add the account
             else {
-                Toast.makeText(getApplicationContext(), "Invalid Login: Please enter password",
+                Toast.makeText(getApplicationContext(), "Login failed",
                         Toast.LENGTH_SHORT).show();
                 mAccountManager.removeAccountExplicitly(account);
                 authenticateWithPassword();

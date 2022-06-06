@@ -6,12 +6,14 @@
     <string name="action_edit_profile">Edit Profile</string>
 
     <!-- *** login *** -->
-    <string name="title_activity_login">Login</string>
-    <string name="login_message">Login to use the Kardia CRM app.</string>
+    <string name="login_title">Kardia CRM</string>
+    <string name="kardia_logo">Kardia Logo</string>
+    <string name="login_message">Log-in</string>
     <string name="username">Username</string>
+    <string name="spinner_label">Select Connection Protocol</string>
     <string name="password">Password</string>
-    <string name="serverName">Server Name or Address</string>
-    <string name="portNumber">Port Number</string>
+    <string name="server_name">Server Name or Address</string>
+    <string name="port_number">Port Number</string>
     <string name="enter_name">Enter a username.</string>
     <string name="enter_server">Enter a server address.</string>
     <string name="enter_port">Enter a port number.</string>

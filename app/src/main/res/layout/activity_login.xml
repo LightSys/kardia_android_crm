@@ -6,26 +6,44 @@
     android:id="@+id/loginLayout"
     tools:context="org.lightsys.crmapp.activities.LoginActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/loginToolbar"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="24dp"
+        android:gravity="center_horizontal"
+        android:padding="10dp"
+        android:text="@string/login_title"
+        android:textAlignment="center"
+        android:textColor="@color/primary"
+        android:textSize="48sp" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleX="3"
+        android:scaleY="3"
+        android:src="@drawable/kardiabeat_title_logo"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="@string/kardia_logo"/>
 
     <TextView
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/abc_text_size_large_material"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="start"
+        android:padding="10dp"
         android:text="@string/login_message"
+        android:textAlignment="textStart"
         android:textColor="#000000"
-        android:gravity="center"
-        android:padding="10dp"/>
+        android:textSize="@dimen/abc_text_size_large_material" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/accent">
+        android:textColorHint="@color/primary"
+        android:height="48dp">
 
         <EditText
             android:id="@+id/loginUsername"
@@ -34,54 +52,58 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginLeft="64dp"
             android:layout_marginRight="64dp"
+            android:autofillHints="username"
             android:ellipsize="start"
             android:hint="@string/username"
+            android:textColorHint="@color/accent"
             android:imeOptions="actionNext"
             android:inputType="text"
             android:text="a.fehr"
             android:textColor="#000000"
-            tools:ignore="SpeakableTextPresentCheck"></EditText>
+            tools:ignore="SpeakableTextPresentCheck" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
         android:id="@+id/loginUsernameError"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#FF0000"
-        android:layout_marginStart="64dp" />
-
-    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/accent"/>
+        android:textColor="#FF0000"
+        android:layout_marginStart="68dp"
+        android:layout_marginBottom="4dp"
+        android:textSize="12sp"/>
 
+    <TextView
+        android:id="@+id/spinnerLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="68dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/spinner_label"
+        android:textColor="@color/primary"
+        android:textSize="12sp" />
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:height="48dp">
 
         <Spinner
             android:id="@+id/protocolSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="64dp"
-            android:layout_marginRight="64dp"
+            android:layout_marginStart="64dp"
+            android:layout_marginBottom="16dp"
             android:entries="@array/protocol_options"
             android:popupBackground="@drawable/divider" />
 
     </RelativeLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#FF0000"
-        android:layout_marginStart="64dp" />
-
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/accent">
+        android:textColorHint="@color/primary"
+        android:height="48dp">
 
         <EditText
             android:id="@+id/loginServer"
@@ -90,26 +112,29 @@
             android:layout_marginLeft="64dp"
             android:layout_marginRight="64dp"
             android:ellipsize="start"
-            android:hint="@string/serverName"
+            android:hint="@string/server_name"
             android:imeOptions="actionGo"
             android:inputType="text"
             android:text="10.5.128.92"
-            android:textColor="#000000" />
+            android:textColor="#000000"
+            android:textColorHint="@color/accent"
+            android:autofillHints="Username"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
 
     <TextView
         android:id="@+id/loginServerError"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="#FF0000"
-        android:layout_marginStart="64dp" />
+        android:layout_marginStart="68dp" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/accent">
+        android:textColorHint="@color/primary"
+        android:height="48dp">
 
         <EditText
             android:id="@+id/loginPort"
@@ -118,28 +143,32 @@
             android:layout_marginLeft="64dp"
             android:layout_marginRight="64dp"
             android:ellipsize="start"
-            android:hint="@string/portNumber"
+            android:hint="@string/port_number"
             android:imeOptions="actionGo"
             android:inputType="number"
             android:text="9010"
-            android:textColor="#000000" />
+            android:textColor="#000000"
+            android:textColorHint="@color/accent"
+            android:autofillHints="Port Number"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
 
     <TextView
         android:id="@+id/loginPortError"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="#FF0000"
-        android:layout_marginStart="64dp" />
+        android:layout_marginStart="68dp"
+        android:layout_marginBottom="8dp"/>
 
     <Button
         android:id="@+id/loginSubmit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/submit"
-        android:layout_marginTop="10dp"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:height="48dp"
+        android:backgroundTint="@color/primary"
+        android:text="@string/login_message" />
 
 </LinearLayout>
