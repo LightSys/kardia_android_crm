@@ -15,17 +15,19 @@
         android:padding="10dp"
         android:text="@string/login_title"
         android:textAlignment="center"
-        android:textColor="@color/primary"
-        android:textSize="48sp" />
+        android:textColor="@color/primary_dark"
+        android:textSize="48sp"
+        tools:ignore="TextContrastCheck" />
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="@string/kardia_logo"
         android:scaleX="3"
         android:scaleY="3"
         android:src="@drawable/kardiabeat_title_logo"
-        android:layout_marginBottom="24dp"
-        android:contentDescription="@string/kardia_logo"/>
+        tools:ignore="ImageContrastCheck" />
 
     <TextView
         android:layout_width="match_parent"
@@ -37,13 +39,14 @@
         android:text="@string/login_message"
         android:textAlignment="textStart"
         android:textColor="#000000"
-        android:textSize="@dimen/abc_text_size_large_material" />
+        android:textSize="@dimen/abc_text_size_large_material"
+        tools:ignore="TextContrastCheck" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/primary"
-        android:height="48dp">
+        android:height="48dp"
+        android:textColorHint="@color/primary_dark">
 
         <EditText
             android:id="@+id/loginUsername"
@@ -55,11 +58,10 @@
             android:autofillHints="username"
             android:ellipsize="start"
             android:hint="@string/username"
-            android:textColorHint="@color/accent"
             android:imeOptions="actionNext"
             android:inputType="text"
-            android:text="a.fehr"
             android:textColor="#000000"
+            android:textColorHint="@color/accent"
             tools:ignore="SpeakableTextPresentCheck" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -80,8 +82,9 @@
         android:layout_marginStart="68dp"
         android:layout_marginBottom="8dp"
         android:text="@string/spinner_label"
-        android:textColor="@color/primary"
-        android:textSize="12sp" />
+        android:textColor="@color/primary_dark"
+        android:textSize="12sp"
+        tools:ignore="TextContrastCheck" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -95,15 +98,15 @@
             android:layout_marginStart="64dp"
             android:layout_marginBottom="16dp"
             android:entries="@array/protocol_options"
-            android:popupBackground="@drawable/divider" />
+            android:popupBackground="@color/primary_dark" />
 
     </RelativeLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/primary"
-        android:height="48dp">
+        android:height="48dp"
+        android:textColorHint="@color/primary_dark">
 
         <EditText
             android:id="@+id/loginServer"
@@ -111,14 +114,14 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="64dp"
             android:layout_marginRight="64dp"
+            android:autofillHints="Username"
             android:ellipsize="start"
             android:hint="@string/server_name"
             android:imeOptions="actionGo"
             android:inputType="text"
-            android:text="10.5.128.92"
             android:textColor="#000000"
             android:textColorHint="@color/accent"
-            android:autofillHints="Username"/>
+            tools:ignore="SpeakableTextPresentCheck" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -133,8 +136,8 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/primary"
-        android:height="48dp">
+        android:height="48dp"
+        android:textColorHint="@color/primary_dark">
 
         <EditText
             android:id="@+id/loginPort"
@@ -142,14 +145,14 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="64dp"
             android:layout_marginRight="64dp"
+            android:autofillHints="Port Number"
             android:ellipsize="start"
             android:hint="@string/port_number"
             android:imeOptions="actionGo"
             android:inputType="number"
-            android:text="9010"
             android:textColor="#000000"
             android:textColorHint="@color/accent"
-            android:autofillHints="Port Number"/>
+            tools:ignore="SpeakableTextPresentCheck" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -169,6 +172,7 @@
         android:layout_gravity="center_horizontal"
         android:height="48dp"
         android:backgroundTint="@color/primary"
-        android:text="@string/login_message" />
+        android:text="@string/login_message"
+        tools:ignore="DuplicateSpeakableTextCheck" />
 
 </LinearLayout>

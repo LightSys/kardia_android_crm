@@ -64,6 +64,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
     private String fullServerAddress = "";
     private Account account;
     private String password = "";
+    private boolean startedTokenAuth = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,10 +106,10 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         String addAccountName = accountName.getText().toString();
         String addServerAddress = serverAddress.getText().toString();
         String addPortNumber = portNumber.getText().toString();
-        String addProtocol;
 
         //Set protocol with spinner
         //Other options can easily be added by adding items in strings.xml
+        String addProtocol;
         switch (protocol.getSelectedItemPosition()) {
             case 0:
                 addProtocol = "http";
@@ -215,7 +216,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
      */
     private void showRationale()
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         builder.setTitle("Permissions Required");
         builder.setMessage("Kardia CRM requires access to your Contacts to " +
                 "authenticate your account. If you refuse, you will be prompted to " +
@@ -259,13 +260,9 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
         // If the account has no partnerId
         else {
-            Toast.makeText(getApplicationContext(), "Account Error: Please sign in again",
-                    Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(getApplicationContext(), "Login failed: Please check info and " +
+                            "try again", Toast.LENGTH_SHORT).show();
             mAccountManager.removeAccountExplicitly(account);
-
-            // Prompt for password to login and add account
-            authenticateWithPassword();
         }
     }
 
@@ -274,7 +271,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
      */
     private void authenticateWithPassword() {
         // Popup DialogBox to enter password
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         builder.setTitle("Enter Password");
 
         // Input field for password
@@ -340,6 +337,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
         // If the account is already stored, send the stored token
         if (token != null) {
+            startedTokenAuth = true;
             mAccountManager.setUserData(account, "server", fullServerAddress);
             Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
             runGetPartnerIdTask();
@@ -347,6 +345,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
         // Otherwise authenticate with password for new account
         else {
+            mAccountManager.removeAccountExplicitly(account);
             authenticateWithPassword();
         }
     }
@@ -360,6 +359,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                 == PackageManager.PERMISSION_GRANTED) {
             replacePasswordWithToken();
         }
+        // Otherwise ensure the password does not get remembered
         else {
             mAccountManager.clearPassword(account);
         }
@@ -630,10 +630,23 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         // password or expired token
         // Reset account and prompt for new password authentication to re-add the account
         else {
-            Toast.makeText(getApplicationContext(), "Login failed: Please enter password",
-                    Toast.LENGTH_SHORT).show();
             mAccountManager.removeAccountExplicitly(account);
-            authenticateWithPassword();
+
+            // If login failed due to expired token, prompt for password
+            if (startedTokenAuth) {
+                startedTokenAuth = false;
+
+                Toast.makeText(getApplicationContext(), "Token expired: Please enter password",
+                        Toast.LENGTH_SHORT).show();
+
+                authenticateWithPassword();
+            }
+
+            // Else the password authentication failed
+            else {
+                Toast.makeText(getApplicationContext(), "Login failed: Please check info " +
+                                "and try again", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

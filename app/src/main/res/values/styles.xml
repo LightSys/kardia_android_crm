@@ -39,7 +39,12 @@
 
     <style name="CustomSpinnerDropDownItemStyle" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:textColor">@color/primary_text</item>
-        <item name="android:background">#FFFFFF</item>
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="AlertDialogStyle" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:textColor">@color/primary_dark</item>
+        <item name="android:textColorPrimary">@color/black</item>
     </style>
 
     <style name="AppBaseTheme" parent="Base.Theme.CRMApp">
