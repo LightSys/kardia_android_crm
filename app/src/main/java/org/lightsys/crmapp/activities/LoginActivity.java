@@ -12,7 +12,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -48,8 +47,8 @@ import java.util.concurrent.Future;
 
 import okhttp3.Credentials;
 
-/*
-    LoginActivity - the activity that displays upon app startup and prompts the user for
+/**
+    The activity that displays upon app startup and prompts the user for
         login info, such as username and server info
     Superclass: AccountAuthenticatorActivity
     Interface: AppCompatCallback
@@ -157,6 +156,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
             ActivityCompat.requestPermissions(this, new String[] {
                     Manifest.permission.GET_ACCOUNTS }, CONTACT_PERMISSION_REQUEST);
         }
+
         // Else permission is already granted
         else {
             // If accounts already exist, attempt to authenticate with auth token
@@ -184,28 +184,62 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         if (requestCode == CONTACT_PERMISSION_REQUEST) {
             // Checking whether user granted the permission or not.
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // If accounts already exist, attempt to authenticate with token
-                if (mAccountManager.getAccounts().length > 0) {
-                    authenticateWithToken();
-                }
-
-                // Otherwise authenticate with password to add account
-                else {
-                    authenticateWithPassword();
-                }
-            }
-            // If the user did not grant permission, authenticate with password
-            else {
+                // If accounts already exists (the user has denied the permission before), remove it
+                // so it can be re-added with a token
                 if (mAccountManager.getAccounts().length > 0) {
                     mAccountManager.removeAccountExplicitly(account);
                 }
                 authenticateWithPassword();
             }
+            // If the user did not grant permission
+            else {
+                // If user pressed "Deny," show alert window explaining why the permission is
+                // required
+                if (shouldShowRequestPermissionRationale(permissions[0])) {
+                    showRationale();
+                }
+
+                // Otherwise login with password
+                else {
+                    if (mAccountManager.getAccounts().length > 0) {
+                        mAccountManager.removeAccountExplicitly(account);
+                    }
+                    authenticateWithPassword();
+                }
+            }
         }
     }
 
     /**
-     * - Checks to ensure account was added successfully and obtains authenticator results
+     * Creates alert window to confirm user's choice on Contact permission request
+     */
+    private void showRationale()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Permissions Required");
+        builder.setMessage("Kardia CRM requires access to your Contacts to " +
+                "authenticate your account. If you refuse, you will be prompted to " +
+                "enter your password at every login.");
+
+        // If the user continues to deny the permission, prompt for password login
+        builder.setPositiveButton("I understand", (dialog, which) -> {
+            if (mAccountManager.getAccounts().length > 0) {
+                mAccountManager.removeAccountExplicitly(account);
+            }
+            authenticateWithPassword();
+        });
+
+        // Else allow the user to retry granting the permission
+        builder.setNegativeButton("Retry", (dialog, which) ->
+                ActivityCompat.requestPermissions(this, new String[] {
+                        Manifest.permission.GET_ACCOUNTS }, CONTACT_PERMISSION_REQUEST));
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    /**
+     * Checks to ensure account was added successfully and obtains authenticator results
      * @param account the account info entered by the user
      */
     private void checkAccount(Account account) {
@@ -217,16 +251,18 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
             Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
 
-            new GetCollaborateesTask().execute(account);
-            new GetTagsTask().execute(account);
+            runGetCollaborateesTask();
+            runGetTagsTask();
             // Whichever of the above threads completes first will move the application to
             // the MainActivity
         }
 
-        // If for some reason there is no account
+        // If the account has no partnerId
         else {
             Toast.makeText(getApplicationContext(), "Account Error: Please sign in again",
                     Toast.LENGTH_SHORT).show();
+
+            mAccountManager.removeAccountExplicitly(account);
 
             // Prompt for password to login and add account
             authenticateWithPassword();
@@ -265,7 +301,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                     mAccountManager.setUserData(account, "server", fullServerAddress);
                     Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
 
-                    new GetPartnerIdTask().execute(account);
+                    runGetPartnerIdTask();
                 }
 
                 else {
@@ -287,8 +323,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
      * If so, authenticates using stored token
      * If not, triggers password authentication
      */
-    private void authenticateWithToken()
-    {
+    private void authenticateWithToken() {
         // Check for existing account
         Account[] accounts = mAccountManager.getAccountsByType(LocalDBTables.accountType);
         for (Account acc : accounts)
@@ -307,7 +342,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         if (token != null) {
             mAccountManager.setUserData(account, "server", fullServerAddress);
             Credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
-            new GetPartnerIdTask().execute(account);
+            runGetPartnerIdTask();
         }
 
         // Otherwise authenticate with password for new account
@@ -320,8 +355,14 @@ public class LoginActivity extends Activity implements AppCompatCallback {
      * - Starts the MainActivity after successful login
      */
     private void mainActivity() {
-        // Get an auth token to use on subsequent logins
-        replacePasswordWithToken();
+        // If the user allowed it, get an auth token to use on subsequent logins
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS)
+                == PackageManager.PERMISSION_GRANTED) {
+            replacePasswordWithToken();
+        }
+        else {
+            mAccountManager.clearPassword(account);
+        }
 
         // Move to Main Activity
         Intent main = new Intent(LoginActivity.this, MainActivity.class);
@@ -332,12 +373,13 @@ public class LoginActivity extends Activity implements AppCompatCallback {
     /**
      * Obtains and stores auth token upon successful login with password
      */
-    private void replacePasswordWithToken()
-    {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+    private void replacePasswordWithToken() {
 
+        // Run HTTP request for token in separate thread
+        ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<String> results = executor.submit(this::tokenPOSTRequest);
 
+        // Retrieve the token results from the request
         String token = null;
         try {
             token = results.get();
@@ -465,11 +507,17 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         return null;
     }
 
-    private class GetPartnerIdTask extends AsyncTask<Account, Void, Account> {
-        @Override
-        protected Account doInBackground(Account... accounts) {
+    /**
+     * Runs Partner ID retrieval task in separate thread
+     */
+    private void runGetPartnerIdTask() {
+
+        ExecutorService executor = Executors.newSingleThreadExecutor(); // Create separate thread
+
+        // Retrieve Partner ID
+        executor.execute(() -> {
             KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
-            List<Staff> staff = fetcher.getStaff(accounts[0]);
+            List<Staff> staff = fetcher.getStaff(account);
 
             for(Staff staffMember : staff) {
                 ContentValues values = new ContentValues();
@@ -482,29 +530,71 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                     LocalDBTables.StaffTable.CONTENT_URI,
                     new String[] { LocalDBTables.StaffTable.PARTNER_ID },
                     LocalDBTables.StaffTable.KARDIA_LOGIN + " = ?",
-                    new String[] { accounts[0].name },
+                    new String[] { account.name },
                     null
             );
 
             if(cursor.moveToFirst()) {
-                mAccountManager.setUserData(accounts[0], "partnerId", cursor.getString(0));
+                mAccountManager.setUserData(account, "partnerId", cursor.getString(0));
             }
             cursor.close();
-            return accounts[0];
-        }
+            executor.shutdown();
+        });
 
-        @Override
-        protected void onPostExecute(Account account) {
-            checkAccount(account);
+        while (!executor.isShutdown()) {} // Wait for task to end
+
+        checkAccount(account); // Verify the account
+    }
+
+    /**
+     * Runs Tag retrieval task in separate thread
+     */
+    private void runGetTagsTask() {
+
+        // Create and run thread for the task
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        GetTagsTask task = new GetTagsTask(executor);
+        executor.execute(task);
+
+        while (!executor.isShutdown()) {} // Wait for the task to end
+
+        // If the task was successful, move to the MainActivity
+        if (task.getTags() != null && task.getTags().size() > 0) {
+            mainActivity();
         }
     }
 
-    private class GetTagsTask extends AsyncTask<Account, Void, Void> {
+    /**
+     * Runnable class that executes logic to retrieve Tags from the server
+     * Interface: Runnable
+     */
+    private class GetTagsTask implements Runnable {
+
         List<Tag> tags = null;
+        ExecutorService executor;
+
+        // Constructor
+        public GetTagsTask(ExecutorService executor) {
+            this.executor = executor;
+        }
+
+        /**
+         * Getter method for the return values from the task
+         * @return a list of the retrieved Tags
+         */
+        public List<Tag> getTags()
+        {
+            return tags;
+        }
+
+        /**
+         * Logic for the Tag retrieval task
+         */
         @Override
-        protected Void doInBackground(Account... accounts) {
+        public void run() {
+            List<Tag> tags;
             KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
-            tags = fetcher.getTags(accounts[0]);
+            tags = fetcher.getTags(account);
 
             for(Tag tag : tags) {
                 ContentValues values = new ContentValues();
@@ -515,29 +605,65 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
                 getContentResolver().insert(LocalDBTables.TagTable.CONTENT_URI, values);
             }
-            return null;
-        }
 
-        /**
-         * If thread successfully retrieved data, then authentication succeeded
-         * Opens Main Activity of application
-         * @param nothing unused required parameter
-         */
-        @Override
-        protected void onPostExecute(Void nothing) {
-            if (tags != null && tags.size() > 0) {
-                mainActivity();
-            }
+            executor.shutdown(); // Close the thread
         }
     }
 
-    private class GetCollaborateesTask extends AsyncTask<Account, Void, Void> {
+    /**
+     * Runs Collaboratees retrieval task in separate thread
+     */
+    private void runGetCollaborateesTask() {
+
+        // Create and run thread for the task
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        GetCollaborateesTask task = new GetCollaborateesTask(executor);
+        executor.execute(task);
+
+        while (!executor.isShutdown()) {} // Wait for the thread to end
+
+        // If thread successfully retrieved data, move to Main Activity
+        if (task.getError() == null)
+            mainActivity();
+
+        // Else the thread did not retrieve any data, authentication failed due to incorrect
+        // password or expired token
+        // Reset account and prompt for new password authentication to re-add the account
+        else {
+            Toast.makeText(getApplicationContext(), "Login failed: Please enter password",
+                    Toast.LENGTH_SHORT).show();
+            mAccountManager.removeAccountExplicitly(account);
+            authenticateWithPassword();
+        }
+    }
+
+    /**
+     * Runnable class that executes logic to retrieve Collaboratees from the server
+     * Interface: Runnable
+     */
+    private class GetCollaborateesTask implements Runnable {
         Exception error;
-        Account account;
+        ExecutorService executor;
+
+        // Constructor
+        public GetCollaborateesTask(ExecutorService executor) {
+            this.executor = executor;
+        }
+
+        /**
+         * Getter method for any errors produced during the task
+         * @return the exception produced
+         */
+        public Exception getError() {
+            return error;
+        }
+
+        /**
+         * Logic for the Collaboratee retrieval task
+         */
         @Override
-        protected Void doInBackground(Account... accounts) {
+        public void run() {
             KardiaFetcher fetcher = new KardiaFetcher(LoginActivity.this);
-            account = accounts[0];
             List<Partner> collaboratees = null;
 
             try {
@@ -546,7 +672,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                 for (Partner collaboratee : collaboratees) {
                     ContentValues values = new ContentValues();
                     values.put(LocalDBTables.CollaborateeTable.COLLABORATER_ID,
-                            mAccountManager.getUserData(accounts[0], "partnerId"));
+                            mAccountManager.getUserData(account, "partnerId"));
                     values.put(LocalDBTables.CollaborateeTable.PARTNER_ID,
                             Integer.parseInt(collaboratee.PartnerId));
                     values.put(LocalDBTables.CollaborateeTable.PARTNER_NAME,
@@ -558,7 +684,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                             values);
 
                     saveImageFromUrl(
-                            mAccountManager.getUserData(accounts[0], "server"),
+                            mAccountManager.getUserData(account, "server"),
                             getApplicationContext(),
                             collaboratee.ProfilePictureFilename
                     );
@@ -574,29 +700,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                 error = new Exception();
             }
 
-            return null;
-        }
-
-        /**
-         * If thread successfully retrieved data, then authentication succeeded
-         * Opens Main Activity of application
-         * @param nothing unused required parameter
-         */
-        @Override
-        protected void onPostExecute(Void nothing) {
-            // If thread successfully retrieved data, move to Main Activity
-            if (error == null)
-                mainActivity();
-
-            // Else the thread did not retrieve any data, authentication failed due to incorrect
-                // password or expired token
-            // Reset account and prompt for new password authentication to re-add the account
-            else {
-                Toast.makeText(getApplicationContext(), "Login failed",
-                        Toast.LENGTH_SHORT).show();
-                mAccountManager.removeAccountExplicitly(account);
-                authenticateWithPassword();
-            }
+            executor.shutdown(); // Close the thread
         }
     }
 }
