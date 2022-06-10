@@ -1,6 +1,7 @@
 package org.lightsys.crmapp.data;
 
 import static org.lightsys.crmapp.activities.LoginActivity.Credential;
+import static org.lightsys.crmapp.activities.LoginActivity.startedTokenAuth;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -67,7 +68,14 @@ public class KardiaFetcher {
     {
         URL url;
         String result = "";
-        final String credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
+        String credential;
+        if (startedTokenAuth) {
+            credential = "Bearer " + mAccountManager.getPassword(account);
+        }
+
+        else {
+            credential = Credentials.basic(account.name, mAccountManager.getPassword(account));
+        }
 
         try
         {

@@ -64,7 +64,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
     private String fullServerAddress = "";
     private Account account;
     private String password = "";
-    private boolean startedTokenAuth = false;
+    public static boolean startedTokenAuth = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,10 +78,10 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         delegate.onCreate(savedInstanceState);
         delegate.setContentView(R.layout.activity_login);
 
-        Button button = (Button) findViewById(R.id.loginSubmit);
+        Button button = findViewById(R.id.loginSubmit);
         button.setOnClickListener(v -> addAccount());
 
-        EditText serverAddress = (EditText) findViewById(R.id.loginServer);
+        EditText serverAddress = findViewById(R.id.loginServer);
         serverAddress.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_GO) {
                 addAccount();
@@ -90,6 +90,38 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
             return false;
         });
+
+        // If an account is stored, autofill the account info of most recent account
+        if (mAccountManager.getAccounts().length > 0) {
+            autofillAccountInfo();
+        }
+    }
+
+    /**
+     * Retrieves username and server info of most recently used account and autofills input fields
+     */
+    private void autofillAccountInfo() {
+        EditText accountName = findViewById(R.id.loginUsername);
+        EditText serverAddress = findViewById(R.id.loginServer);
+        EditText portNumber = findViewById(R.id.loginPort);
+
+        // Autofill username
+        accountName.setText(mAccountManager.getAccounts()[0].name);
+
+        String storedServerAddress = mAccountManager.getUserData(
+                mAccountManager.getAccounts()[0], "server");
+
+        // Autofill server address
+        int slashIndex = storedServerAddress.indexOf('/') + 1;
+        int colonIndex = storedServerAddress.indexOf(':', slashIndex);
+        String address = storedServerAddress.substring(slashIndex + 1, colonIndex);
+
+        serverAddress.setText(address);
+
+        // Autofill port number
+        String port = storedServerAddress.substring(colonIndex + 1);
+
+        portNumber.setText(port);
     }
 
     /**
@@ -97,10 +129,10 @@ public class LoginActivity extends Activity implements AppCompatCallback {
      */
     private void addAccount() {
         // Access fields with login data
-        EditText accountName = (EditText) findViewById(R.id.loginUsername);
-        EditText serverAddress = (EditText) findViewById(R.id.loginServer);
-        EditText portNumber = (EditText) findViewById(R.id.loginPort);
-        Spinner protocol = (Spinner) findViewById(R.id.protocolSpinner);
+        EditText accountName = findViewById(R.id.loginUsername);
+        EditText serverAddress = findViewById(R.id.loginServer);
+        EditText portNumber = findViewById(R.id.loginPort);
+        Spinner protocol = findViewById(R.id.protocolSpinner);
 
         // Retrieve login data
         String addAccountName = accountName.getText().toString();
@@ -283,6 +315,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         builder.setPositiveButton("OK", (dialog, which) -> {
             // Get the password the user entered from the DialogBox
             password = input.getText().toString();
+            startedTokenAuth = false;
 
             // If a password has been entered, add the account with the password
             if (!password.equals("")) {
@@ -634,8 +667,6 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
             // If login failed due to expired token, prompt for password
             if (startedTokenAuth) {
-                startedTokenAuth = false;
-
                 Toast.makeText(getApplicationContext(), "Token expired: Please enter password",
                         Toast.LENGTH_SHORT).show();
 

@@ -1,10 +1,8 @@
 package org.lightsys.crmapp.activities;
 
-import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -16,7 +14,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -145,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
 
         int id = item.getItemId();
 
@@ -163,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Creates a toolbar.
      */
     private void setupToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
+        Toolbar toolbar = findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
 
         final ActionBar ab = getSupportActionBar();
@@ -173,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setupNavigationView(){
-        NavigationView navigationView = (NavigationView) findViewById(R.id.mainNavigation);
+        NavigationView navigationView = findViewById(R.id.mainNavigation);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.action_collaborators);
         navigationView.getMenu().findItem(R.id.action_collaborators).setCheckable(true);
@@ -185,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int itemId = item.getItemId();
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment;
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         drawerLayout.closeDrawer(GravityCompat.START);
 
         if (itemId == R.id.action_collaborators) {
